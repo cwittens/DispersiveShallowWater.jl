@@ -257,7 +257,7 @@ function _semidiscretize_ode(::Val{false}, q0, tspan, semi, iip)
 end
 
 function _semidiscretize_ode(::Val{true}, q0, tspan, semi, iip)
-     _check_split_rhs_implementation(semi)
+    _check_split_rhs_implementation(semi)
     return ODEProblem{iip}(SplitFunction(rhs_split_stiff!, rhs_split_nonstiff!), q0, tspan,
                            semi)
 end
@@ -266,7 +266,8 @@ function _check_split_rhs_implementation(semi)
     @unpack mesh, equations, initial_condition, boundary_conditions, solver, source_terms, cache = semi
 
     equation_name = get_name(equations)
-    args = (nothing, nothing, nothing, mesh, equations, initial_condition, boundary_conditions, source_terms, solver, cache)
+    args = (nothing, nothing, nothing, mesh, equations, initial_condition,
+            boundary_conditions, source_terms, solver, cache)
 
     # # Check if methods are applicable
     if !applicable(rhs!, args..., :stiff)

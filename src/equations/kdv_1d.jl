@@ -287,36 +287,33 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
 
             # add stiff part
             # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx
-            @.. deta = -1/6 * c_0 * DD * tmp_1
-
+            @.. deta = -1 / 6 * c_0 * DD * tmp_1
         end
-
     end
-    
+
     if mode == :full || mode == :nonstiff
         @trixi_timeit timer() "hyperbolic" begin
-        # eta2 = eta^2
-        @.. tmp_1 = eta^2
-        
-        # eta2_x = D1 * eta2
-        mul!(tmp_2, D1, tmp_1)
-        
-        # eta_x = D1 * eta
-        mul!(tmp_1, D1, eta)
-        
-        # Set or add non-stiff part
-        # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
-        if mode == :nonstiff
-            @.. deta = -(c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
+            # eta2 = eta^2
+            @.. tmp_1 = eta^2
+
+            # eta2_x = D1 * eta2
+            mul!(tmp_2, D1, tmp_1)
+
+            # eta_x = D1 * eta
+            mul!(tmp_1, D1, eta)
+
+            # Set or add non-stiff part
+            # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
+            if mode == :nonstiff
+                @.. deta = -(c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
             else  # mode == :full
                 @.. deta -= (c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2)) # Add to existing stiff part
             end
         end
-        
-        @trixi_timeit timer() "source terms" calc_sources!(dq, q, t, source_terms, equations, solver)
-        
+
+        @trixi_timeit timer() "source terms" calc_sources!(dq, q, t, source_terms,
+                                                           equations, solver)
     end
 
     return nothing
 end
-

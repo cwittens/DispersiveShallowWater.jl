@@ -39,8 +39,6 @@ analysis_callback = AnalysisCallback(semi; interval = 100,
 callbacks = CallbackSet(analysis_callback, summary_callback)
 saveat = range(tspan..., length = 100)
 
-
 alg = KenCarp4() # use an IMEX method
 sol = solve(ode, alg, abstol = 1e-7, reltol = 1e-7,
             save_everystep = false, callback = callbacks, saveat = saveat)
-
