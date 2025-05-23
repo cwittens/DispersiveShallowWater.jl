@@ -63,10 +63,10 @@ end
 @testitem "kdv_1d_IMEX" setup=[Setup, KdVEquation1D] begin
     @test_trixi_include(joinpath(EXAMPLES_DIR, "kdv_1d_IMEX.jl"),
                         tspan=(0.0, 5.0),
-                        l2=[0.0007835879713461127],
-                        linf=[0.0005961613764722262],
-                        cons_error=[4.440892098500626e-16],
-                        change_waterheight=-4.440892098500626e-16)
+                        l2=[0.004952174509850488],
+                        linf=[0.003962890861977875],
+                        cons_error=[2.220446049250313e-15],
+                        change_waterheight=-2.220446049250313e-15)
 
     @test_allocations_splitform(semi, sol, allocs=5_000)
 end

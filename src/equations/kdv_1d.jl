@@ -53,6 +53,9 @@ function KdVEquation1D(; gravity, D = 1.0, eta0 = 0.0)
     KdVEquation1D(gravity, D, eta0)
 end
 
+# KdV equations have stiff third-order derivative terms that benefit IMEX methods
+have_stiff_terms(::KdVEquation1D) = Val{true}()
+
 """
     initial_condition_convergence_test(x, t, equations::KdVEquation1D, mesh)
 
@@ -130,6 +133,7 @@ function create_cache(mesh, equations::KdVEquation1D,
     return cache
 end
 
+"""
 function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
               ::BoundaryConditionPeriodic, source_terms, solver, cache)
     eta, = q.x
@@ -250,3 +254,69 @@ function rhs_split_nonstiff!(dq, q, t, mesh, equations::KdVEquation1D, initial_c
 
     return nothing
 end
+"""
+
+function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
+              ::BoundaryConditionPeriodic, source_terms, solver, cache,
+              mode::Symbol = :full)
+    eta, = q.x
+    deta, = dq.x
+
+    (; c_0, c_1, DD) = cache
+    tmp_1 = get_tmp(cache.tmp_1, eta)
+    tmp_2 = get_tmp(cache.tmp_2, eta)
+    # In order to use automatic differentiation, we need to extract
+    # the storage vectors using `get_tmp` from PreallocationTools.jl
+    # so they can also hold dual numbers when needed.
+    if solver.D1 isa PeriodicUpwindOperators && isnothing(solver.D3)
+        D1 = solver.D1.central
+    else
+        D1 = solver.D1
+    end
+
+    # Initialize deta based on mode
+    if mode == :full || mode == :stiff
+        @trixi_timeit timer() "third-order derivatives" begin
+            if solver.D1 isa PeriodicUpwindOperators && isnothing(solver.D3)
+                mul!(tmp_1, solver.D1.minus, eta)
+                mul!(tmp_2, solver.D1.central, tmp_1)
+                mul!(tmp_1, solver.D1.plus, tmp_2)
+            else
+                mul!(tmp_1, solver.D3, eta)
+            end
+
+            # add stiff part
+            # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx
+            @.. deta = -1/6 * c_0 * DD * tmp_1
+
+        end
+
+    end
+    
+    if mode == :full || mode == :nonstiff
+        @trixi_timeit timer() "hyperbolic" begin
+        # eta2 = eta^2
+        @.. tmp_1 = eta^2
+        
+        # eta2_x = D1 * eta2
+        mul!(tmp_2, D1, tmp_1)
+        
+        # eta_x = D1 * eta
+        mul!(tmp_1, D1, eta)
+        
+        # Set or add non-stiff part
+        # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
+        if mode == :nonstiff
+            @.. deta = -(c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
+            else  # mode == :full
+                @.. deta -= (c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2)) # Add to existing stiff part
+            end
+        end
+        
+        @trixi_timeit timer() "source terms" calc_sources!(dq, q, t, source_terms, equations, solver)
+        
+    end
+
+    return nothing
+end
+

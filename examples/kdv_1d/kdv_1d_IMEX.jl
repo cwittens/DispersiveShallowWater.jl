@@ -1,4 +1,4 @@
-using OrdinaryDiffEqTsit5
+using OrdinaryDiffEqSDIRK
 using DispersiveShallowWater
 using SummationByPartsOperators: upwind_operators, periodic_derivative_operator
 
@@ -29,7 +29,7 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver,
                           boundary_conditions = boundary_conditions)
 
 tspan = (0.0, 5.0)
-ode = semidiscretize(semi, tspan, no_splitform = false)
+ode = semidiscretize(semi, tspan)
 
 summary_callback = SummaryCallback()
 analysis_callback = AnalysisCallback(semi; interval = 100,
@@ -39,8 +39,8 @@ analysis_callback = AnalysisCallback(semi; interval = 100,
 callbacks = CallbackSet(analysis_callback, summary_callback)
 saveat = range(tspan..., length = 100)
 
-# alg = Rodas5() # not working because of https://github.com/SciML/OrdinaryDiffEq.jl/issues/2719
-# alg = KenCarp4() # would need to add OrdinaryDiffEqSDIRK - can to that, but I dont want to bloat DSW.jl with package s
-alg = Tsit5()
+
+alg = KenCarp4() # use an IMEX method
 sol = solve(ode, alg, abstol = 1e-7, reltol = 1e-7,
             save_everystep = false, callback = callbacks, saveat = saveat)
+
