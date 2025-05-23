@@ -176,6 +176,24 @@ macro test_allocations(semi, sol, allocs)
     end
 end
 
+"""
+    @test_allocations_splitform(semi, sol, allocs)
+
+Test that the memory allocations of `DispersiveShallowWater.rhs_split_1!` 
+and `DispersiveShallowWater.rhs_split_2!` are below `allocs`
+(e.g., from type instabilities).
+"""
+macro test_allocations_splitform(semi, sol, allocs)
+    quote
+        t = $sol.t[end]
+        q = $sol.u[end]
+        dq = similar(q)
+        a1 = @allocated DispersiveShallowWater.rhs_split_1!(dq, q, $semi, t)
+        a2 = @allocated DispersiveShallowWater.rhs_split_2!(dq, q, $semi, t)
+        @test (a1 + a2) < $allocs
+    end
+end
+
 macro test_nowarn_mod(expr, additional_ignore_content = [])
     quote
         add_to_additional_ignore_content = [
