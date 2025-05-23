@@ -182,7 +182,7 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
     return nothing
 end
 
-function rhs_split_1!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
+function rhs_split_stiff!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
                       ::BoundaryConditionPeriodic, source_terms, solver, cache)
     eta, = q.x
     deta, = dq.x
@@ -213,7 +213,7 @@ function rhs_split_1!(dq, q, t, mesh, equations::KdVEquation1D, initial_conditio
     return nothing
 end
 
-function rhs_split_2!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
+function rhs_split_nonstiff!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
                       ::BoundaryConditionPeriodic, source_terms, solver, cache)
     eta, = q.x
     deta, = dq.x
