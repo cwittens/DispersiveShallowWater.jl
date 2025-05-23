@@ -158,7 +158,7 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
             # set D1 for hyperbolic terms
             D1 = solver.D1
         end
-        
+
         # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx 
         @.. deta = -1 / 6 * c_0 * DD * tmp_1
     end
@@ -181,31 +181,6 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
 
     return nothing
 end
-
-#=
-function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
-              ::BoundaryConditionPeriodic, source_terms, solver, cache)
-    # define locally bc to not use a global variable
-    bc = boundary_condition_periodic      
-    (; tmp1) = cache
-    rhs_1!(dq, q, t, mesh, equations, initial_condition,
-           bc, source_terms, solver, cache)
-
-    deta, = dq.x
-    tmp1 .= deta
-
-    # rhs_split_2! needs to be defined to set "deta = ..."
-    # and not just "deta += ..." in order to work with SplitODEProblem 
-    # This means one either has to store the result in a temporary variable
-    # or have a function rhs! does not call rhs_split_1! and rhs_split_2!. 
-    # and currently it does not work with ForwardDiff
-    rhs_split_2!(dq, q, t, mesh, equations, initial_condition,
-           bc, source_terms, solver, cache)
-
-    deta .+= tmp1
-    return nothing
-end
-# =#
 
 function rhs_split_1!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
                       ::BoundaryConditionPeriodic, source_terms, solver, cache)
