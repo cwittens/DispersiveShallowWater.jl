@@ -186,25 +186,28 @@ function rhs!(dq, q, semi::Semidiscretization, t)
     return nothing
 end
 
-function rhs_split_1!(dq, q, semi::Semidiscretization, t)
+function rhs_split_stiff!(dq, q, semi::Semidiscretization, t)
     @unpack mesh, equations, initial_condition, boundary_conditions, solver, source_terms, cache = semi
 
-    @trixi_timeit timer() "rhs_split_1!" rhs_split_1!(dq, q, t, mesh, equations,
-                                                      initial_condition,
-                                                      boundary_conditions, source_terms,
-                                                      solver,
-                                                      cache)
+    @trixi_timeit timer() "rhs_split_stiff!" rhs_split_stiff!(dq, q, t, mesh, equations,
+                                                              initial_condition,
+                                                              boundary_conditions,
+                                                              source_terms,
+                                                              solver,
+                                                              cache)
     return nothing
 end
 
-function rhs_split_2!(dq, q, semi::Semidiscretization, t)
+function rhs_split_nonstiff!(dq, q, semi::Semidiscretization, t)
     @unpack mesh, equations, initial_condition, boundary_conditions, solver, source_terms, cache = semi
 
-    @trixi_timeit timer() "rhs_split_2!" rhs_split_2!(dq, q, t, mesh, equations,
-                                                      initial_condition,
-                                                      boundary_conditions, source_terms,
-                                                      solver,
-                                                      cache)
+    @trixi_timeit timer() "rhs_split_nonstiff!" rhs_split_nonstiff!(dq, q, t, mesh,
+                                                                    equations,
+                                                                    initial_condition,
+                                                                    boundary_conditions,
+                                                                    source_terms,
+                                                                    solver,
+                                                                    cache)
     return nothing
 end
 
@@ -248,7 +251,8 @@ function semidiscretize(semi::Semidiscretization, tspan; no_splitform = true)
     if no_splitform
         ode = ODEProblem{iip}(rhs!, q0, tspan, semi)
     else
-        ode = ODEProblem{iip}(SplitFunction(rhs_split_1!, rhs_split_2!), q0, tspan, semi)
+        ode = ODEProblem{iip}(SplitFunction(rhs_split_stiff!, rhs_split_nonstiff!), q0,
+                              tspan, semi)
     end
     return ode
 end

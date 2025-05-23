@@ -179,8 +179,8 @@ end
 """
     @test_allocations_splitform(semi, sol, allocs)
 
-Test that the memory allocations of `DispersiveShallowWater.rhs_split_1!` 
-and `DispersiveShallowWater.rhs_split_2!` are below `allocs`
+Test that the memory allocations of `DispersiveShallowWater.rhs_split_stiff!` 
+and `DispersiveShallowWater.rhs_split_nonstiff!` are below `allocs`
 (e.g., from type instabilities).
 """
 macro test_allocations_splitform(semi, sol, allocs)
@@ -188,8 +188,8 @@ macro test_allocations_splitform(semi, sol, allocs)
         t = $sol.t[end]
         q = $sol.u[end]
         dq = similar(q)
-        a1 = @allocated DispersiveShallowWater.rhs_split_1!(dq, q, $semi, t)
-        a2 = @allocated DispersiveShallowWater.rhs_split_2!(dq, q, $semi, t)
+        a1 = @allocated DispersiveShallowWater.rhs_split_stiff!(dq, q, $semi, t)
+        a2 = @allocated DispersiveShallowWater.rhs_split_nonstiff!(dq, q, $semi, t)
         @test (a1 + a2) < $allocs
     end
 end
