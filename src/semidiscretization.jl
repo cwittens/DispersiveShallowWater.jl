@@ -186,6 +186,28 @@ function rhs!(dq, q, semi::Semidiscretization, t)
     return nothing
 end
 
+function rhs_split_1!(dq, q, semi::Semidiscretization, t)
+    @unpack mesh, equations, initial_condition, boundary_conditions, solver, source_terms, cache = semi
+
+    @trixi_timeit timer() "rhs_split_1!" rhs_split_1!(dq, q, t, mesh, equations,
+                                                      initial_condition,
+                                                      boundary_conditions, source_terms,
+                                                      solver,
+                                                      cache)
+    return nothing
+end
+
+function rhs_split_2!(dq, q, semi::Semidiscretization, t)
+    @unpack mesh, equations, initial_condition, boundary_conditions, solver, source_terms, cache = semi
+
+    @trixi_timeit timer() "rhs_split_2!" rhs_split_2!(dq, q, t, mesh, equations,
+                                                      initial_condition,
+                                                      boundary_conditions, source_terms,
+                                                      solver,
+                                                      cache)
+    return nothing
+end
+
 function compute_coefficients(func, t, semi::Semidiscretization)
     @unpack mesh, equations, solver = semi
     q = allocate_coefficients(mesh_equations_solver(semi)...)
@@ -214,16 +236,21 @@ function check_bathymetry(equations::AbstractShallowWaterEquations, q0)
 end
 
 """
-    semidiscretize(semi::Semidiscretization, tspan)
+    semidiscretize(semi::Semidiscretization, tspan; no_splitform = true)
 
 Wrap the semidiscretization `semi` as an ODE problem in the time interval `tspan`
 that can be passed to `solve` from the [SciML ecosystem](https://diffeq.sciml.ai/latest/).
 """
-function semidiscretize(semi::Semidiscretization, tspan)
+function semidiscretize(semi::Semidiscretization, tspan; no_splitform = true)
     q0 = compute_coefficients(semi.initial_condition, first(tspan), semi)
     check_bathymetry(semi.equations, q0)
     iip = true # is-inplace, i.e., we modify a vector when calling rhs!
-    return ODEProblem{iip}(rhs!, q0, tspan, semi)
+    if no_splitform
+        ode = ODEProblem{iip}(rhs!, q0, tspan, semi)
+    else
+        ode = ODEProblem{iip}(SplitFunction(rhs_split_1!, rhs_split_2!), q0, tspan, semi)
+    end
+    return ode
 end
 
 """
@@ -241,7 +268,8 @@ of the semidiscretization `semi` at the state `q0`.
 function jacobian(semi::Semidiscretization;
                   t = 0.0,
                   q0 = compute_coefficients(semi.initial_condition, t, semi))
-    J = ForwardDiff.jacobian(similar(q0), q0) do dq, q
+    @unpack tmp_partitioned = semi.cache
+    J = ForwardDiff.jacobian(tmp_partitioned, q0) do dq, q
         DispersiveShallowWater.rhs!(dq, q, semi, t)
     end
     return J

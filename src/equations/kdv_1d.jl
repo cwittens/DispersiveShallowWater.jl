@@ -158,7 +158,7 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
             # set D1 for hyperbolic terms
             D1 = solver.D1
         end
-
+        
         # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx 
         @.. deta = -1 / 6 * c_0 * DD * tmp_1
     end
@@ -174,6 +174,100 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
 
         # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
         @.. deta -= (c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
+    end
+
+    @trixi_timeit timer() "source terms" calc_sources!(dq, q, t, source_terms, equations,
+                                                       solver)
+
+    return nothing
+end
+
+#=
+function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
+              ::BoundaryConditionPeriodic, source_terms, solver, cache)
+    # define locally bc to not use a global variable
+    bc = boundary_condition_periodic      
+    (; tmp1) = cache
+    rhs_1!(dq, q, t, mesh, equations, initial_condition,
+           bc, source_terms, solver, cache)
+
+    deta, = dq.x
+    tmp1 .= deta
+
+    # rhs_split_2! needs to be defined to set "deta = ..."
+    # and not just "deta += ..." in order to work with SplitODEProblem 
+    # This means one either has to store the result in a temporary variable
+    # or have a function rhs! does not call rhs_split_1! and rhs_split_2!. 
+    # and currently it does not work with ForwardDiff
+    rhs_split_2!(dq, q, t, mesh, equations, initial_condition,
+           bc, source_terms, solver, cache)
+
+    deta .+= tmp1
+    return nothing
+end
+# =#
+
+function rhs_split_1!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
+                      ::BoundaryConditionPeriodic, source_terms, solver, cache)
+    eta, = q.x
+    deta, = dq.x
+
+    (; c_0, DD) = cache
+    # In order to use automatic differentiation, we need to extract
+    # the storage vectors using `get_tmp` from PreallocationTools.jl
+    # so they can also hold dual numbers when needed.
+    tmp_1 = get_tmp(cache.tmp_1, eta)
+    tmp_2 = get_tmp(cache.tmp_2, eta)
+
+    @trixi_timeit timer() "third-order derivatives" begin
+        if solver.D1 isa PeriodicUpwindOperators && isnothing(solver.D3)
+            # eta_xxx = Dp * Dc * Dm * eta
+            mul!(tmp_1, solver.D1.minus, eta)
+            mul!(tmp_2, solver.D1.central, tmp_1)
+            mul!(tmp_1, solver.D1.plus, tmp_2)
+        else
+            # eta_xxx = D3 * eta
+            mul!(tmp_1, solver.D3, eta)
+        end
+
+        # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx 
+
+        @.. deta = -1 / 6 * c_0 * DD * tmp_1
+    end
+
+    return nothing
+end
+
+function rhs_split_2!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
+                      ::BoundaryConditionPeriodic, source_terms, solver, cache)
+    eta, = q.x
+    deta, = dq.x
+
+    (; c_0, c_1) = cache
+    # In order to use automatic differentiation, we need to extract
+    # the storage vectors using `get_tmp` from PreallocationTools.jl
+    # so they can also hold dual numbers when needed.
+    tmp_1 = get_tmp(cache.tmp_1, eta)
+    tmp_2 = get_tmp(cache.tmp_2, eta)
+
+    if solver.D1 isa PeriodicUpwindOperators && isnothing(solver.D3)
+        D1 = solver.D1.central
+    else
+        D1 = solver.D1
+    end
+
+    @trixi_timeit timer() "hyperbolic" begin
+        # eta2 = eta^2
+        @.. tmp_1 = eta^2
+
+        # eta2_x = D1 * eta2
+        mul!(tmp_2, D1, tmp_1)
+
+        # eta_x = D1 * eta
+        mul!(tmp_1, D1, eta)
+
+        # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
+        @.. deta = -(c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
     end
 
     @trixi_timeit timer() "source terms" calc_sources!(dq, q, t, source_terms, equations,
