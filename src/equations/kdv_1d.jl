@@ -53,7 +53,7 @@ function KdVEquation1D(; gravity, D = 1.0, eta0 = 0.0)
     KdVEquation1D(gravity, D, eta0)
 end
 
-# KdV equations have stiff third-order derivative terms that benefit IMEX methods
+# KdV equations have stiff third-order derivative terms that benefit from IMEX methods
 have_stiff_terms(::KdVEquation1D) = Val{true}()
 
 """

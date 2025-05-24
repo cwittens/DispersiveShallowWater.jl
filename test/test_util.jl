@@ -177,13 +177,13 @@ macro test_allocations(semi, sol, allocs)
 end
 
 """
-    @test_allocations_splitform(semi, sol, allocs)
+    @test_allocations_split_ode(semi, sol, allocs)
 
 Test that the memory allocations of `DispersiveShallowWater.rhs_split_stiff!` 
 and `DispersiveShallowWater.rhs_split_nonstiff!` are below `allocs`
 (e.g., from type instabilities).
 """
-macro test_allocations_splitform(semi, sol, allocs)
+macro test_allocations_split_ode(semi, sol, allocs)
     quote
         t = $sol.t[end]
         q = $sol.u[end]

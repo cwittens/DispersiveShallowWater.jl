@@ -269,7 +269,7 @@ function _check_split_rhs_implementation(semi)
     args = (nothing, nothing, nothing, mesh, equations, initial_condition,
             boundary_conditions, source_terms, solver, cache)
 
-    # # Check if methods are applicable
+    # Check if methods are applicable
     if !applicable(rhs!, args..., :stiff)
         throw(ArgumentError("Split RHS method with :stiff argument not implemented for $equation_name."))
     end
