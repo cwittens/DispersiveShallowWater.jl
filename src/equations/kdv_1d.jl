@@ -57,11 +57,12 @@ end
 have_stiff_terms(::KdVEquation1D) = Val{true}()
 
 """
-    initial_condition_convergence_test(x, t, equations::KdVEquation1D, mesh)
+    initial_condition_soliton(x, t, equations::KdVEquation1D, mesh)
 
-A traveling-wave solution used for convergence tests in a periodic domain, here for dimensional variables.
+A classical soliton solution of the KdV equation in dimensional variables. This can be used
+for convergence tests in a periodic domain, see [`initial_condition_convergence_test`](@ref).
 """
-function initial_condition_convergence_test(x, t, equations::KdVEquation1D, mesh)
+function initial_condition_soliton(x, t, equations::KdVEquation1D, mesh)
     g = gravity(equations)
     D = equations.D
     c0 = sqrt(g * D)
@@ -71,6 +72,17 @@ function initial_condition_convergence_test(x, t, equations::KdVEquation1D, mesh
     x_t = mod(x - c * t - xmin(mesh), xmax(mesh) - xmin(mesh)) + xmin(mesh)
     eta = A * sech(K * x_t)^2
     return SVector(eta)
+end
+
+"""
+    initial_condition_convergence_test(x, t, equations::KdVEquation1D, mesh)
+
+A soliton solution used for convergence tests in a periodic domain. Same as
+[`initial_condition_soliton`](@ref) for the [`KdVEquation1D`](@ref).
+"""
+function initial_condition_convergence_test(x, t, equations::KdVEquation1D,
+                                            mesh)
+    return initial_condition_soliton(x, t, equations, mesh)
 end
 
 """
@@ -102,12 +114,12 @@ function source_terms_manufactured(q, x, t, equations::KdVEquation1D)
     c0 = sqrt(g * D)
     c1 = sqrt(g / D)
 
-    dq1 = -0.5 * a1 * b1 - pi * a2 * b1 +
-          2pi * a2 * c0 * b1 +
-          3pi * a2 * c1 * (1 + a1 * b1) * b1 -
-          (4 / 3) * D^2 * pi^3 * a2 * c0 * b1
+    s1 = -0.5 * a1 * b1 - pi * a2 * b1 +
+         2pi * a2 * c0 * b1 +
+         3pi * a2 * c1 * (1 + a1 * b1) * b1 -
+         (4 / 3) * D^2 * pi^3 * a2 * c0 * b1
 
-    return SVector(dq1)
+    return SVector(s1)
 end
 
 function create_cache(mesh, equations::KdVEquation1D,
@@ -121,7 +133,7 @@ function create_cache(mesh, equations::KdVEquation1D,
     c_1 = 0.5 * sqrt(g / D)
 
     # We use `DiffCache` from PreallocationTools.jl to enable automatic/algorithmic differentiation
-    # via ForwardDiff.jl. 
+    # via ForwardDiff.jl.
     # nvariables(equations) = 1: eta
     N = ForwardDiff.pickchunksize(nvariables(equations) * nnodes(mesh))
     template = ones(RealT, nnodes(mesh))
@@ -163,7 +175,7 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
             D1 = solver.D1
         end
 
-        # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx 
+        # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx
         @.. deta = -1 / 6 * c_0 * DD * tmp_1
     end
 
@@ -176,7 +188,7 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
         # eta_x = D1 * eta
         mul!(tmp_1, D1, eta)
 
-        # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
+        # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x)
         @.. deta -= (c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
     end
 
