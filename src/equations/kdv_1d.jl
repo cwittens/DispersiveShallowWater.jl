@@ -119,6 +119,81 @@ function source_terms_manufactured(q, x, t, equations::KdVEquation1D)
     return SVector(s1)
 end
 
+"""
+    nondim2prim(u, equations::KdVEquation1D)
+
+Convert the non-dimensional variable `u` to the primitive/physical variable `eta`
+(total water height) for the [`KdVEquation1D`](@ref).
+
+The transformation is given by:
+```math
+\\eta = D(u - \\frac{2}{3})
+```
+where `D` is the still-water depth.
+
+!!! warning "Parameter constraints"
+    This conversion is only valid for equations with specific parameter values:
+    - `gravity = 4/27` 
+    - `D = 3.0` 
+    
+    These values ensure the dimensional KdV equation matches the standard 
+    non-dimensional form `u_t + u u_x + u_{xxx} = 0`.
+
+This function allows converting solutions from the standard non-dimensional 
+KdV form commonly found in literature to the dimensional form implemented 
+in DispersiveShallowWater.jl.
+
+See also [`prim2nondim`](@ref).
+"""
+function nondim2prim(u, equations::KdVEquation1D)
+    eta = @. equations.D * (u - 2 / 3)
+    return eta
+end
+
+"""
+    prim2nondim(eta, equations::KdVEquation1D)
+
+Convert the primitive/physical variable `eta` (total water height) to the 
+non-dimensional variable `u` for the [`KdVEquation1D`](@ref).
+
+The transformation is given by:
+```math
+u = \\frac{\\eta}{D} + \\frac{2}{3}
+```
+where `D` is the still-water depth.
+
+!!! warning "Parameter constraints"
+    This conversion is only valid for equations with specific parameter values:
+    - `gravity = 4/27` 
+    - `D = 3.0`
+    
+    These values ensure the dimensional KdV equation matches the standard 
+    non-dimensional form `u_t + u u_x + u_{xxx} = 0`.
+
+This function allows converting solutions from the dimensional form implemented 
+in DispersiveShallowWater.jl to the standard non-dimensional KdV form 
+commonly found in literature, enabling comparison with theoretical results 
+and other implementations.
+
+See also [`nondim2prim`](@ref).
+"""
+function prim2nondim(eta, equations::KdVEquation1D)
+    u = @. eta / equations.D + 2 / 3
+    return u
+end
+
+"""
+    varnames(::typeof(prim2nondim), equations::KdVEquation1D)
+
+Return variable names `("u",)` for non-dimensional KdV variables when plotting
+with `conversion = prim2nondim`.
+
+See [`prim2nondim`](@ref), [`varnames`](@ref).
+"""
+function varnames(::typeof(prim2nondim), equations::KdVEquation1D)
+    return ("u",)
+end
+
 function create_cache(mesh, equations::KdVEquation1D,
                       solver, initial_condition,
                       ::BoundaryConditionPeriodic,
