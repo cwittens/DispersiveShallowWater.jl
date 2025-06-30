@@ -535,7 +535,7 @@ function create_cache(mesh,
                  M_h, A,
                  D1, D2)
 
-    elseif D1 isa UpwindOperators
+    elseif D1 isa Union{UpwindOperators, PeriodicUpwindOperators}
         v_x_upwind = zero(h)
 
         D1mat_minus = sparse(D1.minus)

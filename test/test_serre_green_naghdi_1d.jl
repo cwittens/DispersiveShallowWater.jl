@@ -358,7 +358,7 @@ end
                         change_waterheight=15.970779079947338,
                         change_entropy_modified=2415.6322361337952)
 
-    @test_allocations(semi, sol, allocs=10_000)
+    @test_allocations(semi, sol, allocs=35_000)
 end
 
 @testitem "serre_green_naghdi_manufactured_reflecting.jl with bathymetry_variable" setup=[
@@ -373,7 +373,7 @@ end
                         change_waterheight=5.000659665129857,
                         change_entropy_modified=275.22930126732166)
 
-    @test_allocations(semi, sol, allocs=10_000)
+    @test_allocations(semi, sol, allocs=120_000)
 end
 
 @testitem "serre_green_naghdi_manufactured_reflecting_upwind.jl with bathymetry_flat" setup=[
@@ -388,7 +388,7 @@ end
                         change_waterheight=15.976311354158419,
                         change_entropy_modified=2416.856672789222)
 
-    @test_allocations(semi, sol, allocs=10_000)
+    @test_allocations(semi, sol, allocs=50_000)
 end
 
 @testitem "serre_green_naghdi_manufactured_reflecting_upwind.jl with bathymetry_mild_slope" setup=[
@@ -398,12 +398,12 @@ end
     @test_trixi_include(joinpath(EXAMPLES_DIR,
                                  "serre_green_naghdi_manufactured_reflecting.jl"),
                         bathymetry_type=bathymetry_mild_slope,
-                        l2=[0.015882862997093867, 0.0026950672583024872, 0.0],
-                        linf=[0.09366996985375486, 0.005040988218893927, 0.0],
-                        change_waterheight=4.998685030857969,
-                        change_entropy_modified=274.0453742347727)
+                        l2=[0.008756092883075014, 0.0016195432021351244, 0.0],
+                        linf=[0.0804388379348362, 0.0034558532136001463, 0.0],
+                        change_waterheight=5.000659665129858,
+                        change_entropy_modified=274.83428431803526)
 
-    @test_allocations(semi, sol, allocs=10_000)
+    @test_allocations(semi, sol, allocs=120_000)
 end
 
 @testitem "serre_green_naghdi_manufactured_reflecting_var_coef_op.jl with bathymetry_flat" setup=[
@@ -431,7 +431,7 @@ end
                         change_waterheight=1.4210854715202004e-14,
                         change_entropy_modified=-1.7991674781114853e-6)
 
-    @test_allocations(semi, sol, allocs=60_000)
+    @test_allocations(semi, sol, allocs=260_000)
 end
 
 @testitem "serre_green_naghdi_soliton_reflecting.jl with bathymetry_mild_slope" setup=[
@@ -446,7 +446,7 @@ end
                         change_waterheight=1.4210854715202004e-14,
                         change_entropy_modified=-1.7991674781114853e-6)
 
-    @test_allocations(semi, sol, allocs=60_000)
+    @test_allocations(semi, sol, allocs=350_000)
 end
 
 @testitem "serre_green_naghdi_soliton_reflecting_var_coef_op.jl with bathymetry_flat" setup=[

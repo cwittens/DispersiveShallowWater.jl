@@ -19,6 +19,7 @@ N = 64
 mesh = Mesh1D(coordinates_min, coordinates_max, N)
 
 # create solver with SBP operators of accuracy order 2
+accuracy_order = 2
 D1 = upwind_operators(Mattsson2017, derivative_order = 1, accuracy_order = accuracy_order,
                       xmin = xmin(mesh), xmax = xmax(mesh),
                       N = nnodes(mesh))
