@@ -383,14 +383,15 @@ function source_terms_manufactured_reflecting(q, x, t,
     return SVector(s1, s2, zero(s1))
 end
 
-# flat bathymetry with periodic boundary conditions
+# flat bathymetry with periodic or reflecting boundary conditions
 function create_cache(mesh,
                       equations::SerreGreenNaghdiEquations1D{BathymetryFlat},
                       solver,
                       initial_condition,
-                      ::BoundaryConditionPeriodic,
+                      boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                 BoundaryConditionReflecting},
                       RealT, uEltype)
-    D1 = solver.D1
+    (; D1, D2) = solver
 
     # create temporary storage
     h = ones(RealT, nnodes(mesh))
@@ -407,14 +408,22 @@ function create_cache(mesh,
     M_h = zero(h)
     M_h3_3 = zero(h)
 
-    if D1 isa PeriodicUpwindOperators
+    if D1 isa DerivativeOperator && D2 isa VarCoefDerivativeOperator
+        A = BandedMatrix(D2)
+
+        cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
+                 h2_v_vx_x, h_vx_x, p_x, tmp,
+                 M_h, A,
+                 D1, D2)
+
+    elseif D1 isa UpwindOperators
         v_x_upwind = zero(h)
 
         D1mat_minus = sparse(D1.minus)
 
         system_matrix = let cache = (; M_h, M_h3_3)
             assemble_system_matrix!(cache, h,
-                                    D1, D1mat_minus, equations)
+                                    D1, D1mat_minus, equations, boundary_conditions)
         end
         factorization = cholesky(system_matrix)
 
@@ -422,39 +431,40 @@ function create_cache(mesh,
                  h2_v_vx_x, h_vx_x, p_x, tmp,
                  M_h, M_h3_3,
                  D1, D1mat_minus, factorization)
+
+    elseif D1 isa FourierDerivativeOperator
+        D1mat = Matrix(D1)
+
+        cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
+                 h2_v_vx_x, h_vx_x, p_x, tmp,
+                 M_h, M_h3_3,
+                 D1, D1mat)
+
     else
-        if D1 isa FourierDerivativeOperator
-            D1mat = Matrix(D1)
+        D1mat = sparse(D1)
 
-            cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
-                     h2_v_vx_x, h_vx_x, p_x, tmp,
-                     M_h, M_h3_3,
-                     D1, D1mat)
-        else
-            D1mat = sparse(D1)
-
-            system_matrix = let cache = (; M_h, M_h3_3)
-                assemble_system_matrix!(cache, h,
-                                        D1, D1mat, equations)
-            end
-            factorization = cholesky(system_matrix)
-
-            cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
-                     h2_v_vx_x, h_vx_x, p_x, tmp,
-                     M_h, M_h3_3,
-                     D1, D1mat, factorization)
+        system_matrix = let cache = (; M_h, M_h3_3)
+            assemble_system_matrix!(cache, h,
+                                    D1, D1mat, equations, boundary_conditions)
         end
+        factorization = cholesky(system_matrix)
+
+        cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
+                 h2_v_vx_x, h_vx_x, p_x, tmp,
+                 M_h, M_h3_3,
+                 D1, D1mat, factorization)
     end
 
     return cache
 end
 
-# variable bathymetry with periodic boundary conditions
+# variable bathymetry with periodic or reflecting boundary conditions
 function create_cache(mesh,
                       equations::SerreGreenNaghdiEquations1D,
                       solver,
                       initial_condition,
-                      ::BoundaryConditionPeriodic,
+                      boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                 BoundaryConditionReflecting},
                       RealT, uEltype)
     D1 = solver.D1
 
@@ -488,7 +498,7 @@ function create_cache(mesh,
         @.. b_x = x^3
     end
 
-    if D1 isa PeriodicUpwindOperators
+    if D1 isa UpwindOperators
         v_x_upwind = zero(h)
         p_0 = zero(h)
 
@@ -496,7 +506,7 @@ function create_cache(mesh,
 
         system_matrix = let cache = (; M_h_p_h_bx2, M_h3_3, M_h2_bx)
             assemble_system_matrix!(cache, h, b_x,
-                                    D1, D1mat_minus, equations)
+                                    D1, D1mat_minus, equations, boundary_conditions)
         end
         factorization = cholesky(system_matrix)
 
@@ -504,28 +514,26 @@ function create_cache(mesh,
                  h2_v_vx_x, h_vx_x, p_h, p_0, p_x, tmp,
                  M_h_p_h_bx2, M_h3_3, M_h2_bx,
                  D1, D1mat_minus, factorization)
+    elseif D1 isa FourierDerivativeOperator
+        D1mat = Matrix(D1)
+
+        cache = (; h, h_x, v_x, h_hpb_x, b, b_x, hv_x, v2_x,
+                 h2_v_vx_x, h_vx_x, p_h, p_x, tmp,
+                 M_h_p_h_bx2, M_h3_3, M_h2_bx,
+                 D1, D1mat)
     else
-        if D1 isa FourierDerivativeOperator
-            D1mat = Matrix(D1)
+        D1mat = sparse(D1)
 
-            cache = (; h, h_x, v_x, h_hpb_x, b, b_x, hv_x, v2_x,
-                     h2_v_vx_x, h_vx_x, p_h, p_x, tmp,
-                     M_h_p_h_bx2, M_h3_3, M_h2_bx,
-                     D1, D1mat)
-        else
-            D1mat = sparse(D1)
-
-            system_matrix = let cache = (; M_h_p_h_bx2, M_h3_3, M_h2_bx)
-                assemble_system_matrix!(cache, h, b_x,
-                                        D1, D1mat, equations)
-            end
-            factorization = cholesky(system_matrix)
-
-            cache = (; h, h_x, v_x, h_hpb_x, b, b_x, hv_x, v2_x,
-                     h2_v_vx_x, h_vx_x, p_h, p_x, tmp,
-                     M_h_p_h_bx2, M_h3_3, M_h2_bx,
-                     D1, D1mat, factorization)
+        system_matrix = let cache = (; M_h_p_h_bx2, M_h3_3, M_h2_bx)
+            assemble_system_matrix!(cache, h, b_x,
+                                    D1, D1mat, equations, boundary_conditions)
         end
+        factorization = cholesky(system_matrix)
+
+        cache = (; h, h_x, v_x, h_hpb_x, b, b_x, hv_x, v2_x,
+                 h2_v_vx_x, h_vx_x, p_h, p_x, tmp,
+                 M_h_p_h_bx2, M_h3_3, M_h2_bx,
+                 D1, D1mat, factorization)
     end
 
     if equations.bathymetry_type isa BathymetryVariable
@@ -537,7 +545,8 @@ function create_cache(mesh,
 end
 
 function assemble_system_matrix!(cache, h, D1, D1mat,
-                                 ::SerreGreenNaghdiEquations1D{BathymetryFlat})
+                                 ::SerreGreenNaghdiEquations1D{BathymetryFlat},
+                                 boundary_conditions)
     (; M_h, M_h3_3) = cache
 
     @.. M_h = h
@@ -545,16 +554,30 @@ function assemble_system_matrix!(cache, h, D1, D1mat,
     @.. M_h3_3 = (1 / 3) * h^3
     scale_by_mass_matrix!(M_h3_3, D1)
 
+    system_matrix = Diagonal(M_h) + D1mat' * (Diagonal(M_h3_3) * D1mat)
+
+    # one needs to set the boundary conditions here
+    # because one can not change the Symmetric matrix
+    if boundary_conditions isa BoundaryConditionReflecting
+        system_matrix[1, :] .= 0
+        system_matrix[end, :] .= 0
+        system_matrix[:, 1] .= 0
+        system_matrix[:, end] .= 0
+        system_matrix[1, 1] = 1
+        system_matrix[end, end] = 1
+    end
+
     # Floating point errors accumulate a bit and the system matrix
     # is not necessarily perfectly symmetric but only up to
     # round-off errors. We wrap it here to avoid issues with the
     # factorization.
-    return Symmetric(Diagonal(M_h) + D1mat' * (Diagonal(M_h3_3) * D1mat))
+    return Symmetric(system_matrix)
 end
 
 # variable bathymetry
 function assemble_system_matrix!(cache, h, b_x, D1, D1mat,
-                                 equations::SerreGreenNaghdiEquations1D)
+                                 equations::SerreGreenNaghdiEquations1D,
+                                 boundary_conditions)
     (; M_h_p_h_bx2, M_h3_3, M_h2_bx) = cache
 
     if equations.bathymetry_type isa BathymetryMildSlope
@@ -569,17 +592,30 @@ function assemble_system_matrix!(cache, h, b_x, D1, D1mat,
     scale_by_mass_matrix!(M_h3_3, D1)
     @.. M_h2_bx = 0.5 * h^2 * b_x
     scale_by_mass_matrix!(M_h2_bx, D1)
-    # Floating point errors accumulate a bit and the system matrix
-    # is not necessarily perfectly symmetric but only up to
-    # round-off errors. We wrap it here to avoid issues with the
-    # factorization.
-    return Symmetric(Diagonal(M_h_p_h_bx2)
+    system_matrix = (Diagonal(M_h_p_h_bx2)
                      +
                      D1mat' * (Diagonal(M_h3_3) * D1mat
                                -
                                Diagonal(M_h2_bx))
                      -
                      Diagonal(M_h2_bx) * D1mat)
+
+    # one needs to set the boundary conditions here
+    # because one can not change the Symmetric matrix
+    if boundary_conditions isa BoundaryConditionReflecting
+        system_matrix[1, :] .= 0
+        system_matrix[end, :] .= 0
+        system_matrix[:, 1] .= 0
+        system_matrix[:, end] .= 0
+        system_matrix[1, 1] = 1
+        system_matrix[end, end] = 1
+    end
+
+    # Floating point errors accumulate a bit and the system matrix
+    # is not necessarily perfectly symmetric but only up to
+    # round-off errors. We wrap it here to avoid issues with the
+    # factorization.
+    return Symmetric(system_matrix)
 end
 
 # Discretization that conserves
@@ -594,13 +630,24 @@ end
 function rhs!(dq, q, t, mesh,
               equations::SerreGreenNaghdiEquations1D,
               initial_condition,
-              boundary_conditions::BoundaryConditionPeriodic,
+              boundary_conditions::Union{BoundaryConditionPeriodic,
+                                         BoundaryConditionReflecting},
               source_terms,
               solver, cache)
-    if cache.D1 isa PeriodicUpwindOperators
+    if (solver.D1 isa DerivativeOperator &&
+        solver.D2 isa VarCoefDerivativeOperator &&
+        boundary_conditions isa BoundaryConditionReflecting &&
+        equations.bathymetry_type isa BathymetryFlat)
+        # make the variable coefficient operator just a special case
+        # and not the default for reflecting boundary conditions
+        rhs_var_coef!(dq, q, t, mesh, equations, initial_condition,
+                      boundary_conditions, source_terms, solver, cache)
+
+    elseif solver.D1 isa UpwindOperators
         rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache,
                         equations.bathymetry_type,
                         boundary_conditions)
+
     else
         rhs_sgn_central!(dq, q, t, equations, source_terms, solver, cache,
                          equations.bathymetry_type,
@@ -611,7 +658,9 @@ function rhs!(dq, q, t, mesh,
 end
 
 function rhs_sgn_central!(dq, q, t, equations, source_terms, solver, cache,
-                          ::BathymetryFlat, boundary_conditions::BoundaryConditionPeriodic)
+                          ::BathymetryFlat,
+                          boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                     BoundaryConditionReflecting})
     # Unpack physical parameters and SBP operator `D1` as well as the
     # SBP operator in sparse matrix form `D1mat`
     g = gravity(equations)
@@ -686,7 +735,7 @@ function rhs_sgn_central!(dq, q, t, equations, source_terms, solver, cache,
     @trixi_timeit timer() "assembling elliptic operator" begin
         system_matrix = assemble_system_matrix!(cache, h,
                                                 D1, D1mat,
-                                                equations)
+                                                equations, boundary_conditions)
     end
 
     @trixi_timeit timer() "solving elliptic system" begin
@@ -698,7 +747,8 @@ function rhs_sgn_central!(dq, q, t, equations, source_terms, solver, cache,
 end
 
 function rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache, ::BathymetryFlat,
-                         boundary_conditions::BoundaryConditionPeriodic)
+                         boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                    BoundaryConditionReflecting})
     # Unpack physical parameters and SBP operator `D1` as well as the
     # SBP upwind operator in sparse matrix form `D1mat_minus`
     g = gravity(equations)
@@ -777,7 +827,7 @@ function rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache, ::Bat
     @trixi_timeit timer() "assembling elliptic operator" begin
         system_matrix = assemble_system_matrix!(cache, h,
                                                 D1, D1mat_minus,
-                                                equations)
+                                                equations, boundary_conditions)
     end
 
     @trixi_timeit timer() "solving elliptic system" begin
@@ -790,7 +840,8 @@ end
 
 function rhs_sgn_central!(dq, q, t, equations, source_terms, solver, cache,
                           ::Union{BathymetryMildSlope, BathymetryVariable},
-                          boundary_conditions::BoundaryConditionPeriodic)
+                          boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                     BoundaryConditionReflecting})
     # Unpack physical parameters and SBP operator `D1` as well as the
     # SBP operator in sparse matrix form `D1mat`
     g = gravity(equations)
@@ -889,7 +940,7 @@ function rhs_sgn_central!(dq, q, t, equations, source_terms, solver, cache,
     @trixi_timeit timer() "assembling elliptic operator" begin
         system_matrix = assemble_system_matrix!(cache, h, b_x,
                                                 D1, D1mat,
-                                                equations)
+                                                equations, boundary_conditions)
     end
 
     @trixi_timeit timer() "solving elliptic system" begin
@@ -902,7 +953,8 @@ end
 
 function rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache,
                          ::Union{BathymetryMildSlope, BathymetryVariable},
-                         boundary_conditions::BoundaryConditionPeriodic)
+                         boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                    BoundaryConditionReflecting})
     # Unpack physical parameters and SBP operator `D1` as well as the
     # SBP operator in sparse matrix form `D1mat`
     g = gravity(equations)
@@ -1009,7 +1061,7 @@ function rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache,
     @trixi_timeit timer() "assembling elliptic operator" begin
         system_matrix = assemble_system_matrix!(cache, h, b_x,
                                                 D1, D1mat_minus,
-                                                equations)
+                                                equations, boundary_conditions)
     end
 
     @trixi_timeit timer() "solving elliptic system" begin
@@ -1018,42 +1070,6 @@ function rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache,
     end
 
     return nothing
-end
-
-# flat bathymetry with reflecting boundary conditions
-function create_cache(mesh,
-                      equations::SerreGreenNaghdiEquations1D{BathymetryFlat},
-                      solver,
-                      initial_condition,
-                      ::BoundaryConditionReflecting,
-                      RealT, uEltype)
-    (; D1, D2) = solver
-
-    # create temporary storage
-    h = ones(RealT, nnodes(mesh))
-    b = zero(h)
-    h_x = zero(h)
-    v_x = zero(h)
-    h2_x = zero(h)
-    hv_x = zero(h)
-    v2_x = zero(h)
-    h2_v_vx_x = zero(h)
-    h_vx_x = zero(h)
-    p_x = zero(h)
-    tmp = zero(h)
-    M_h = zero(h)
-
-    if D1 isa DerivativeOperator && D2 isa VarCoefDerivativeOperator
-        A = BandedMatrix(D2)
-        cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
-                 h2_v_vx_x, h_vx_x, p_x, tmp,
-                 M_h, A,
-                 D1, D2)
-    else
-        throw(ArgumentError("Combination of operators not supported."))
-    end
-
-    return cache
 end
 
 function assemble_system_matrix!(cache, h, D1, D2::VarCoefDerivativeOperator,
@@ -1083,12 +1099,12 @@ function assemble_system_matrix!(cache, h, D1, D2::VarCoefDerivativeOperator,
     return Symmetric(A)
 end
 
-function rhs!(dq, q, t, mesh,
-              equations::SerreGreenNaghdiEquations1D{BathymetryFlat},
-              initial_condition,
-              boundary_conditions::BoundaryConditionReflecting,
-              source_terms,
-              solver, cache)
+function rhs_var_coef!(dq, q, t, mesh,
+                       equations::SerreGreenNaghdiEquations1D{BathymetryFlat},
+                       initial_condition,
+                       boundary_conditions::BoundaryConditionReflecting,
+                       source_terms,
+                       solver, cache)
     # Unpack physical parameters and SBP operators `D1`, `D2`
     g = gravity(equations)
     (; D1, D2) = solver
@@ -1220,30 +1236,41 @@ function energy_total_modified!(e, q_global,
     if D1 isa AbstractNonperiodicDerivativeOperator
         # Non-periodic boundary conditions
         # (only reflecting boundary conditions are implemented so far)
-        (; D2) = cache
-        @assert D2 isa VarCoefDerivativeOperator
-        @assert equations.bathymetry_type isa BathymetryFlat
+        # first do the special case for VarCoefDerivativeOperator
+        if hasproperty(cache, :D2) && cache.D2 isa VarCoefDerivativeOperator &&
+           equations.bathymetry_type isa BathymetryFlat
+            (; D2) = cache
+            # @assert D2 isa VarCoefDerivativeOperator
+            # @assert equations.bathymetry_type isa BathymetryFlat
 
-        # The ∫ 1/6 h^3 v_x^2 dx part of the energy is approximated as
-        # -v^T M D2 v with variable coefficient D2.b = 1/6 h^3.
-        # To make this work with the current approach to define a pointwise
-        # energy e that is `integrate`d over the domain, we need to scale
-        # the product D2 v by the mass matrix M, multiply pointwise by the
-        # velocity v, and scale by the inverse mass matrix M^{-1} again.
-        # This is equivalent to the above expression when `integrate`d over
-        # the domain, i.e., multiplied by 1^T M from the left.
-        @.. D2.b = (1 / 6) * h^3
-        mul!(e, D2, v)
-        scale_by_mass_matrix!(e, D1)
-        @.. e = -e * v
-        scale_by_inverse_mass_matrix!(e, D1)
+            # The ∫ 1/6 h^3 v_x^2 dx part of the energy is approximated as
+            # -v^T M D2 v with variable coefficient D2.b = 1/6 h^3.
+            # To make this work with the current approach to define a pointwise
+            # energy e that is `integrate`d over the domain, we need to scale
+            # the product D2 v by the mass matrix M, multiply pointwise by the
+            # velocity v, and scale by the inverse mass matrix M^{-1} again.
+            # This is equivalent to the above expression when `integrate`d over
+            # the domain, i.e., multiplied by 1^T M from the left.
+            @.. D2.b = (1 / 6) * h^3
+            mul!(e, D2, v)
+            scale_by_mass_matrix!(e, D1)
+            @.. e = -e * v
+            scale_by_inverse_mass_matrix!(e, D1)
 
-        @.. e = e + 1 / 2 * g * eta^2 + 1 / 2 * h * v^2
+            @.. e = e + 1 / 2 * g * eta^2 + 1 / 2 * h * v^2
+        else
+            (; v_x) = cache
+
+
+
+
+            e .= 3.14
+        end
     else
         # Periodic boundary conditions
         (; v_x) = cache
 
-        if D1 isa PeriodicUpwindOperators
+        if D1 isa UpwindOperators
             mul!(v_x, D1.minus, v)
         else
             mul!(v_x, D1, v)
@@ -1255,7 +1282,7 @@ function energy_total_modified!(e, q_global,
         else
             (; b, b_x) = cache
             @.. b = equations.eta0 - q_global.x[3]
-            if D1 isa PeriodicUpwindOperators
+            if D1 isa UpwindOperators
                 mul!(b_x, D1.central, b)
             else
                 mul!(b_x, D1, b)
@@ -1264,7 +1291,7 @@ function energy_total_modified!(e, q_global,
 
         @.. e = 1 / 2 * g * eta^2 + 1 / 2 * h * v^2 +
                 1 / 6 * h * (-h * v_x + 1.5 * v * b_x)^2
-        if equations.bathymetry_type isa BathymetryVariable
+        if equations.bathymetry_type isa BathymetryVariable 
             @.. e += 1 / 8 * h * (v * b_x)^2
         end
     end
