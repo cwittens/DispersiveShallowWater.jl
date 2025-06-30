@@ -48,4 +48,3 @@ analysis_callback = AnalysisCallback(semi; interval = 100,
 callbacks = CallbackSet(analysis_callback, summary_callback)
 sol = solve(ode, Tsit5(); abstol = 1e-7, reltol = 1e-7,
             save_everystep = false, callback = callbacks)
-

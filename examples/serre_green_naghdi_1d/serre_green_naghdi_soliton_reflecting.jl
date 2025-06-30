@@ -1,7 +1,6 @@
 using OrdinaryDiffEqTsit5
 using DispersiveShallowWater
 using SummationByPartsOperators: Mattsson2012, derivative_operator
-                                 
 
 ###############################################################################
 # Semidiscretization of the Serre-Green-Naghdi equations
@@ -28,7 +27,6 @@ D1 = derivative_operator(Mattsson2012();
                          xmin = xmin(mesh), xmax = xmax(mesh), N = N)
 
 solver = Solver(D1)
-
 
 # semidiscretization holds all the necessary data structures for the spatial discretization
 semi = Semidiscretization(mesh, equations, initial_condition, solver,
