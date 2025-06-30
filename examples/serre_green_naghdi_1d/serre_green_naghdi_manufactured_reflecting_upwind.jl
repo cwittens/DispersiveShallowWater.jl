@@ -36,8 +36,7 @@ ode = semidiscretize(semi, tspan)
 summary_callback = SummaryCallback()
 analysis_callback = AnalysisCallback(semi; interval = 100,
                                      extra_analysis_integrals = (waterheight_total,
-                                                                 velocity,
-                                                                 entropy_modified,
+                                                                 velocity, entropy_modified,
                                                                  entropy))
 callbacks = CallbackSet(analysis_callback, summary_callback)
 sol = solve(ode, Tsit5(); abstol = 1e-7, reltol = 1e-7,
