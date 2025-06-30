@@ -617,7 +617,7 @@ function create_cache(mesh,
         @.. b_x = x^3
     end
 
-    if D1 isa UpwindOperators
+    if D1 isa Union{UpwindOperators, PeriodicUpwindOperators}
         v_x_upwind = zero(h)
         p_0 = zero(h)
 
@@ -762,7 +762,7 @@ function rhs!(dq, q, t, mesh,
         rhs_var_coef!(dq, q, t, mesh, equations, initial_condition,
                       boundary_conditions, source_terms, solver, cache)
 
-    elseif solver.D1 isa UpwindOperators
+    elseif solver.D1 isa Union{UpwindOperators, PeriodicUpwindOperators}
         rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache,
                         equations.bathymetry_type,
                         boundary_conditions)
@@ -1380,7 +1380,7 @@ function energy_total_modified!(e, q_global,
         # Periodic boundary conditions
         (; v_x) = cache
 
-        if D1 isa UpwindOperators
+        if D1 isa Union{UpwindOperators, PeriodicUpwindOperators}
             mul!(v_x, D1.minus, v)
         else
             mul!(v_x, D1, v)
@@ -1392,7 +1392,7 @@ function energy_total_modified!(e, q_global,
         else
             (; b, b_x) = cache
             @.. b = equations.eta0 - q_global.x[3]
-            if D1 isa UpwindOperators
+            if D1 isa Union{UpwindOperators, PeriodicUpwindOperators}
                 mul!(b_x, D1.central, b)
             else
                 mul!(b_x, D1, b)

@@ -1,12 +1,12 @@
 using OrdinaryDiffEqTsit5
 using DispersiveShallowWater
 using SummationByPartsOperators: Mattsson2012, derivative_operator,
-                                 Mattsson2017
+                                 var_coef_derivative_operator
 
 ###############################################################################
 # Semidiscretization of the Serre-Green-Naghdi equations
-# bathymetry_flat, bathymetry_mild_slope or bathymetry_variable
-equations = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_variable,
+
+equations = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_flat,
                                         gravity = 9.81)
 
 # initial_condition_convergence_test can only be used to get reasonable errors
@@ -23,16 +23,16 @@ mesh = Mesh1D(coordinates_min, coordinates_max, N)
 
 # create solver with SBP operators of accuracy order 2
 accuracy_order = 2
-# D1 = derivative_operator(Mattsson2012();
-#                          derivative_order = 1, accuracy_order,
-#                          xmin = xmin(mesh), xmax = xmax(mesh), N = N)
-
-# solver = Solver(D1)
-
-D1 = upwind_operators(Mattsson2017, derivative_order = 1, accuracy_order = accuracy_order,
-                      xmin = xmin(mesh), xmax = xmax(mesh),
-                      N = nnodes(mesh))
-solver = Solver(D1)
+D1 = derivative_operator(Mattsson2012();
+                         derivative_order = 1, accuracy_order,
+                         xmin = xmin(mesh), xmax = xmax(mesh), N = N)
+# we create a variable-coefficient second-derivative operator and
+# initialize the variable coefficient as `one` - the variable coefficients
+# will be set internally during a simulation
+D2 = var_coef_derivative_operator(Mattsson2012(),
+                                  2, accuracy_order,
+                                  xmin(mesh), xmax(mesh), N, one)
+solver = Solver(D1, D2)
 
 # semidiscretization holds all the necessary data structures for the spatial discretization
 semi = Semidiscretization(mesh, equations, initial_condition, solver,
@@ -51,14 +51,7 @@ analysis_callback = AnalysisCallback(semi; interval = 100,
                                      extra_analysis_integrals = (waterheight_total,
                                                                  entropy_modified))
 callbacks = CallbackSet(analysis_callback, summary_callback)
-# tspan = (0.0, 0.01)
-# callbacks = nothing
+
 alg = Tsit5()
 sol = solve(ode, alg; abstol = 1e-7, reltol = 1e-7,
-            save_everystep = false, callback = callbacks,
-            saveat = range(tspan..., length = 100));
-
-
-
-semi.cache.D2
-
+            save_everystep = false, callback = callbacks)
