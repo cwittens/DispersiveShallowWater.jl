@@ -1378,6 +1378,7 @@ function energy_total_modified!(e, q_global,
 
     else
         # Periodic boundary conditions
+        # and reflecting boundary conditions
         (; v_x) = cache
 
         if D1 isa Union{UpwindOperators, PeriodicUpwindOperators}
