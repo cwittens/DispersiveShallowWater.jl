@@ -6,7 +6,7 @@ using SummationByPartsOperators: Mattsson2012, derivative_operator,
 ###############################################################################
 # Semidiscretization of the Serre-Green-Naghdi equations
 
-equations = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_flat,
+equations = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_mild_slope,
                                         gravity = 9.81)
 
 initial_condition = initial_condition_manufactured_reflecting
@@ -32,6 +32,19 @@ D2 = var_coef_derivative_operator(Mattsson2012(),
                                   xmin(mesh), xmax(mesh), N, one)
 solver = Solver(D1, D2)
 
+# create solver with SBP operators of accuracy order 2
+accuracy_order = 2
+D1 = derivative_operator(Mattsson2012();
+                         derivative_order = 1, accuracy_order,
+                         xmin = xmin(mesh), xmax = xmax(mesh), N = N)
+
+solver = Solver(D1)
+
+D1 = upwind_operators(Mattsson2017, derivative_order = 1, accuracy_order = accuracy_order,
+                      xmin = xmin(mesh), xmax = xmax(mesh),
+                      N = nnodes(mesh))
+solver = Solver(D1)
+
 # semidiscretization holds all the necessary data structures for the spatial discretization
 semi = Semidiscretization(mesh, equations, initial_condition, solver;
                           boundary_conditions, source_terms)
@@ -40,6 +53,7 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver;
 # Create `ODEProblem` and run the simulation
 tspan = (0.0, 1.0)
 ode = semidiscretize(semi, tspan)
+plot(ode.u0)
 summary_callback = SummaryCallback()
 analysis_callback = AnalysisCallback(semi; interval = 100,
                                      extra_analysis_integrals = (waterheight_total,
@@ -48,4 +62,14 @@ analysis_callback = AnalysisCallback(semi; interval = 100,
 callbacks = CallbackSet(analysis_callback, summary_callback)
 
 sol = solve(ode, Tsit5(); abstol = 1e-7, reltol = 1e-7,
-            save_everystep = false, callback = callbacks)
+            save_everystep = false, callback = callbacks, saveat = range(tspan..., length = 100));
+
+plot(semi => sol, legend = false, plot_initial = true)
+
+anim = @animate for step in 1:length(sol.u)
+    plot(semi => sol, plot_initial = true, conversion = waterheight_total, step = step,
+         legend = false)
+end
+gif(anim, fps = 20)
+
+

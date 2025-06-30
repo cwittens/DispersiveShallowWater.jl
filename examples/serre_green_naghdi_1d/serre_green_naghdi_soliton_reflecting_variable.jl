@@ -42,7 +42,7 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver,
 # Create `ODEProblem` and run the simulation
 # if the soliton was in a domain with periodic BCs, this would be the
 # number of periods it travels through the domain
-periods = 0.7
+periods = 2.0
 tspan = (0.0, periods * (xmax(mesh) - xmin(mesh)) / sqrt(1.2 * equations.gravity))
 ode = semidiscretize(semi, tspan)
 summary_callback = SummaryCallback()
@@ -58,13 +58,7 @@ sol = solve(ode, alg; abstol = 1e-7, reltol = 1e-7,
             save_everystep = false, callback = callbacks,
             saveat = range(tspan..., length = 100));
 
-plot(semi => sol, legend = false)
 
-anim = @animate for step in 1:length(sol.u)
-    plot(semi => sol, plot_initial = true, conversion = waterheight_total, step = step,
-         legend = false)
-end
-gif(anim, fps = 20)
 
 semi.cache.D2
 

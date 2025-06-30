@@ -288,11 +288,18 @@ with [`source_terms_manufactured_reflecting`](@ref).
   [DOI: 10.1002/fld.4293](https://doi.org/10.1002/fld.4293)
 """
 function initial_condition_manufactured_reflecting(x, t,
-                                                   equations::SerreGreenNaghdiEquations1D{BathymetryFlat},
+                                                   equations::SerreGreenNaghdiEquations1D,
                                                    mesh)
-    h = 1 + exp(2 * t) * (cospi(x) + x + 2)
-    v = exp(-t * x) * x * sinpi(x)
-    D = zero(h)
+    if equations.bathymetry_type isa BathymetryFlat
+        h = 1 + exp(2 * t) * (cospi(x) + x + 2)
+        v = exp(-t * x) * x * sinpi(x)
+        D = zero(h)
+    else
+        # if using the same h and v as in BathymetryFlat, the source terms would explode in length
+        h = 1 + (2 * t) * (cospi(x) + x + 2)
+        v = (-t * x) * sinpi(x)
+        D = -(2 * x)
+    end
 
     b = equations.eta0 - D
     eta = h + b
@@ -379,6 +386,118 @@ function source_terms_manufactured_reflecting(q, x, t,
          (2 // 3) * (a9 * a14 + pi * a22 - t * a21) *
          (2pi * a8 * a14 - 2t * a9 * a14 - (pi^2) * a21 - a20 + (t^2) * a21) * (a18^3) +
          a19 * ((a9 * a14 + pi * a22 - t * a21)^2) * (a18^2) * a11
+
+    return SVector(s1, s2, zero(s1))
+end
+
+"""
+    source_terms_manufactured_reflecting(q, x, t, equations::SerreGreenNaghdiEquations1D{BathymetryVariable}, mesh)
+
+A smooth manufactured solution for reflecting boundary conditions in combination
+with [`initial_condition_manufactured_reflecting`](@ref).
+"""
+function source_terms_manufactured_reflecting(q, x, t,
+                                              equations::Union{SerreGreenNaghdiEquations1D{BathymetryMildSlope},
+                                                               SerreGreenNaghdiEquations1D{BathymetryVariable}})
+    g = gravity(equations)
+    # Precompute common subexpressions
+    pi2 = pi^2
+    pi3 = pi^3
+
+    x2 = x^2
+    x3 = x^3
+    x4 = x^4
+    t2 = t^2
+    t3 = t^3
+    t4 = t^4
+
+    sinpix = sin(pi * x)
+    sin2pix = sin(2pi * x)
+    cospix = cos(pi * x)
+
+    sin2_pix = sin(pi * x)^2
+    cos2_pix = cos(pi * x)^2
+    cos3_pix = cos(pi * x)^3
+    cos4_pix = cos(pi * x)^4
+
+    # Compute s1 
+    s1 = 2(2 + cospix + x) + (-1 - 2(2 + cospix + x) * t) * sinpix * t -
+         2(1 - pi * sinpix) * sinpix * t2 * x +
+         cospix * (-1 - 2(2 + cospix + x) * t) * pi * t * x
+
+    # Compute common terms for s2
+    b1 = (-1 - 2(2 + cospix + x) * t) * sinpix * x
+    b2 = (-1 / 3) * (((1 + 2(2 + cospix + x) * t)^3) * (-2cospix * pi + pi2 * sinpix * x) +
+          6(-sinpix - cospix * pi * x) * ((1 + 2(2 + cospix + x) * t)^2) *
+          (1 - pi * sinpix) * t)
+    b3 = (1 / 2) * (-2((1 + 2(2 + cospix + x) * t)^2) * sinpix -
+          2cospix * ((1 + 2(2 + cospix + x) * t)^2) * pi * x -
+          8(1 + 2(2 + cospix + x) * t) * (1 - pi * sinpix) * sinpix * t * x)
+    b4 = (sinpix + cospix * pi * x) * ((1 + 2(2 + cospix + x) * t)^2)
+    b5_base = -4(1 + 2(2 + cospix + x) * t) * sinpix * x
+    b6 = 19.62(1 + 2(2 + cospix + x) * t) * (1 - pi * sinpix) * t
+    b7 = 19.62(1 + 2(2 + cospix + x) * t)
+    b8 = (1 / 2) * (1 + 2(2 + cospix + x) * t) *
+         (2sin2_pix * t2 * x + pi * sin2pix * t2 * x2)
+    b9 = -(1 / 2) * (-2sinpix * t - 2cospix * pi * t * x) *
+         ((1 + 2(2 + cospix + x) * t)^2) * sinpix * t -
+         (1 / 2) * ((1 + 2(2 + cospix + x) * t)^2) *
+         (-4cospix * pi * t + 2pi2 * sinpix * t * x) * sinpix * t * x -
+         (2 / 1) * (-2sinpix * t - 2cospix * pi * t * x) * (1 + 2(2 + cospix + x) * t) *
+         (1 - pi * sinpix) * sinpix * t2 * x +
+         (1 / 3) * ((1 + 2(2 + cospix + x) * t)^3) *
+         (-2cospix * pi * t + pi2 * sinpix * t * x) * sinpix * t -
+         (1 / 2) * cospix * (-2sinpix * t - 2cospix * pi * t * x) *
+         ((1 + 2(2 + cospix + x) * t)^2) * pi * t * x +
+         (2 / 1) * ((1 + 2(2 + cospix + x) * t)^2) * (1 - pi * sinpix) *
+         (-2cospix * pi * t + pi2 * sinpix * t * x) * sinpix * t2 * x +
+         (1 / 3) * (3pi2 * sinpix * t + cospix * pi3 * t * x) *
+         ((1 + 2(2 + cospix + x) * t)^3) * sinpix * t * x +
+         (1 / 3) * cospix * ((1 + 2(2 + cospix + x) * t)^3) * pi *
+         (-2cospix * pi * t + pi2 * sinpix * t * x) * t * x +
+         (2 / 3) * (-sinpix * t - cospix * pi * t * x) * ((1 + 2(2 + cospix + x) * t)^3) *
+         (-2cospix * pi * t + pi2 * sinpix * t * x) +
+         (2 / 1) * ((-sinpix * t - cospix * pi * t * x)^2) *
+         ((1 + 2(2 + cospix + x) * t)^2) * (1 - pi * sinpix) * t
+    b10 = (3 / 1) *
+          ((1 / 3) * sin2_pix * t2 + (8 / 3) * sin2_pix * t3 + (16 / 3) * sin2_pix * t4 +
+           (4 / 3) * cos2_pix * sin2_pix * t4 + (4 / 3) * cospix * sin2_pix * t3 +
+           (16 / 3) * cospix * sin2_pix * t4 + sin2_pix * t2 * x +
+           (16 / 3) * sin2_pix * t3 * x + (2 / 1) * sin2_pix * t3 * x2 +
+           (16 / 3) * sin2_pix * t4 * x + (4 / 3) * sin2_pix * t4 * x2 +
+           (1 / 3) * cos2_pix * pi2 * t2 * x2 + (8 / 3) * cos2_pix * pi2 * t3 * x2 +
+           (4 / 3) * cos2_pix * pi2 * t3 * x3 + (16 / 3) * cos2_pix * pi2 * t4 * x2 +
+           (16 / 3) * cos2_pix * pi2 * t4 * x3 + (4 / 3) * cos2_pix * pi2 * t4 * x4 +
+           (4 / 3) * cos3_pix * pi2 * t3 * x2 + (16 / 3) * cos3_pix * pi2 * t4 * x2 +
+           (8 / 3) * cos3_pix * pi2 * t4 * x3 + (4 / 3) * cos4_pix * pi2 * t4 * x2 +
+           (2 / 1) * cospix * sin2_pix * t3 * x + (8 / 3) * cospix * sin2_pix * t4 * x +
+           (1 / 3) * pi2 * sin2_pix * t2 * x2 + (8 / 3) * pi2 * sin2_pix * t3 * x2 +
+           (4 / 3) * pi2 * sin2_pix * t3 * x3 + (16 / 3) * pi2 * sin2_pix * t4 * x2 +
+           (16 / 3) * pi2 * sin2_pix * t4 * x3 + (4 / 3) * pi2 * sin2_pix * t4 * x4 +
+           (2 / 1) * cos2_pix * pi * sinpix * t3 * x2 +
+           (4 / 3) * cos2_pix * pi2 * sin2_pix * t4 * x2 + cospix * pi * sinpix * t2 * x2 +
+           (4 / 1) * cospix * pi * sinpix * t3 * x2 +
+           (2 / 1) * cospix * pi * sinpix * t3 * x3 +
+           (4 / 3) * cospix * pi2 * sin2_pix * t3 * x2 +
+           (16 / 3) * cospix * pi2 * sin2_pix * t4 * x2 +
+           (8 / 3) * cospix * pi2 * sin2_pix * t4 * x3)
+    psi_base = (-1 / 4) * (-2sinpix * t - 2cospix * pi * t * x) *
+               (1 + 2(2 + cospix + x) * t) * sinpix * t * x
+
+    # Calculate b_x (needed for psi term)
+    b_x = 2  # Since b = -d = -(-2*x) = 2*x, so b_x = 2
+
+    # Apply bathymetry-specific modifications
+    if equations.bathymetry_type isa BathymetryMildSlope
+        b5 = (3 / 4) * b5_base
+        psi = 0
+    else  # BathymetryVariable
+        b5 = b5_base
+        psi = psi_base
+    end
+
+    # Combine all terms for s2
+    s2 = b1 + b2 + b3 + b4 + b5 + b6 + b7 + b8 + b9 + b10 + psi * b_x
 
     return SVector(s1, s2, zero(s1))
 end
@@ -1231,41 +1350,32 @@ function energy_total_modified!(e, q_global,
     # 1/2 g eta^2 + 1/2 h v^2 + 1/6 h w^2
     # and + 1/8 h (v b_x)^2 for full bathymetry without mild-slope approximation
     # Here, w = -h v_x + 1.5 v b_x.
-    # For reflecting boundary conditions, ∫ 1/6 h^3 v_x^2 dx is approximated
+
+    # For the special case of VarCoefDerivativeOperator and
+    # reflecting boundary conditions with flat bathymetry, ∫ 1/6 h^3 v_x^2 dx is approximated
     # using a second-derivative operator with variable coefficients.
-    if D1 isa AbstractNonperiodicDerivativeOperator
-        # Non-periodic boundary conditions
-        # (only reflecting boundary conditions are implemented so far)
-        # first do the special case for VarCoefDerivativeOperator
-        if hasproperty(cache, :D2) && cache.D2 isa VarCoefDerivativeOperator &&
-           equations.bathymetry_type isa BathymetryFlat
-            (; D2) = cache
-            # @assert D2 isa VarCoefDerivativeOperator
-            # @assert equations.bathymetry_type isa BathymetryFlat
+    if hasproperty(cache, :D2) && cache.D2 isa VarCoefDerivativeOperator &&
+       equations.bathymetry_type isa BathymetryFlat
+        (; D2) = cache
+        # @assert D2 isa VarCoefDerivativeOperator
+        # @assert equations.bathymetry_type isa BathymetryFlat
 
-            # The ∫ 1/6 h^3 v_x^2 dx part of the energy is approximated as
-            # -v^T M D2 v with variable coefficient D2.b = 1/6 h^3.
-            # To make this work with the current approach to define a pointwise
-            # energy e that is `integrate`d over the domain, we need to scale
-            # the product D2 v by the mass matrix M, multiply pointwise by the
-            # velocity v, and scale by the inverse mass matrix M^{-1} again.
-            # This is equivalent to the above expression when `integrate`d over
-            # the domain, i.e., multiplied by 1^T M from the left.
-            @.. D2.b = (1 / 6) * h^3
-            mul!(e, D2, v)
-            scale_by_mass_matrix!(e, D1)
-            @.. e = -e * v
-            scale_by_inverse_mass_matrix!(e, D1)
+        # The ∫ 1/6 h^3 v_x^2 dx part of the energy is approximated as
+        # -v^T M D2 v with variable coefficient D2.b = 1/6 h^3.
+        # To make this work with the current approach to define a pointwise
+        # energy e that is `integrate`d over the domain, we need to scale
+        # the product D2 v by the mass matrix M, multiply pointwise by the
+        # velocity v, and scale by the inverse mass matrix M^{-1} again.
+        # This is equivalent to the above expression when `integrate`d over
+        # the domain, i.e., multiplied by 1^T M from the left.
+        @.. D2.b = (1 / 6) * h^3
+        mul!(e, D2, v)
+        scale_by_mass_matrix!(e, D1)
+        @.. e = -e * v
+        scale_by_inverse_mass_matrix!(e, D1)
 
-            @.. e = e + 1 / 2 * g * eta^2 + 1 / 2 * h * v^2
-        else
-            (; v_x) = cache
+        @.. e = e + 1 / 2 * g * eta^2 + 1 / 2 * h * v^2
 
-
-
-
-            e .= 3.14
-        end
     else
         # Periodic boundary conditions
         (; v_x) = cache
@@ -1291,7 +1401,7 @@ function energy_total_modified!(e, q_global,
 
         @.. e = 1 / 2 * g * eta^2 + 1 / 2 * h * v^2 +
                 1 / 6 * h * (-h * v_x + 1.5 * v * b_x)^2
-        if equations.bathymetry_type isa BathymetryVariable 
+        if equations.bathymetry_type isa BathymetryVariable
             @.. e += 1 / 8 * h * (v * b_x)^2
         end
     end
