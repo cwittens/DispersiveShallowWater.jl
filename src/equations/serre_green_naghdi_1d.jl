@@ -156,7 +156,7 @@ dv = (h * v_t - 1//3 * Dx(h^3 * v_tx) + 1//2 * g * Dx(h^2) + 1//2 * h * Dx(v^2) 
 and after this some substitutions to clean everything up.
 =#
 """
-    source_terms_manufactured(q, x, t, equations::SerreGreenNaghdiEquations1D, mesh)
+    source_terms_manufactured(q, x, t, equations::SerreGreenNaghdiEquations1D)
 
 A smooth manufactured solution in combination with [`initial_condition_manufactured`](@ref).
 """
@@ -340,7 +340,7 @@ source2 = simplify(expand_derivatives(s2))
 
 =#
 """
-    source_terms_manufactured_reflecting(q, x, t, equations::SerreGreenNaghdiEquations1D{BathymetryFlat}, mesh)
+    source_terms_manufactured_reflecting(q, x, t, equations::SerreGreenNaghdiEquations1D)
 
 A smooth manufactured solution for reflecting boundary conditions in combination
 with [`initial_condition_manufactured_reflecting`](@ref).
@@ -390,12 +390,6 @@ function source_terms_manufactured_reflecting(q, x, t,
     return SVector(s1, s2, zero(s1))
 end
 
-"""
-    source_terms_manufactured_reflecting(q, x, t, equations::SerreGreenNaghdiEquations1D{BathymetryVariable}, mesh)
-
-A smooth manufactured solution for reflecting boundary conditions in combination
-with [`initial_condition_manufactured_reflecting`](@ref).
-"""
 function source_terms_manufactured_reflecting(q, x, t,
                                               equations::Union{SerreGreenNaghdiEquations1D{BathymetryMildSlope},
                                                                SerreGreenNaghdiEquations1D{BathymetryVariable}})
