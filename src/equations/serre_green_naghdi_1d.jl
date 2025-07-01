@@ -280,7 +280,7 @@ end
 A smooth manufactured solution for reflecting boundary conditions in combination
 with [`source_terms_manufactured_reflecting`](@ref).
 
-## References
+## References for flat bathymetry
 
 - D. Mitsotakis, C. Synolakis, and M. McGuinness (2016)
   A modified Galerkin/finite element method for the numerical
@@ -411,14 +411,14 @@ function source_terms_manufactured_reflecting(q, x, t,
     t3 = t^3
     t4 = t^4
 
-    sinpix = sin(pi * x)
-    sin2pix = sin(2pi * x)
-    cospix = cos(pi * x)
+    sinpix = sinpi(x)
+    sin2pix = sinpi(2 * x)
+    cospix = cospi(x)
 
-    sin2_pix = sin(pi * x)^2
-    cos2_pix = cos(pi * x)^2
-    cos3_pix = cos(pi * x)^3
-    cos4_pix = cos(pi * x)^4
+    sin2_pix = sinpi(x)^2
+    cos2_pix = cospi(x)^2
+    cos3_pix = cospi(x)^3
+    cos4_pix = cospi(x)^4
 
     # Compute s1 
     s1 = 2(2 + cospix + x) + (-1 - 2(2 + cospix + x) * t) * sinpix * t -
@@ -665,7 +665,24 @@ end
 
 function assemble_system_matrix!(cache, h, D1, D1mat,
                                  ::SerreGreenNaghdiEquations1D{BathymetryFlat},
-                                 boundary_conditions)
+                                 ::BoundaryConditionPeriodic)
+    (; M_h, M_h3_3) = cache
+
+    @.. M_h = h
+    scale_by_mass_matrix!(M_h, D1)
+    @.. M_h3_3 = (1 / 3) * h^3
+    scale_by_mass_matrix!(M_h3_3, D1)
+
+    # Floating point errors accumulate a bit and the system matrix
+    # is not necessarily perfectly symmetric but only up to
+    # round-off errors. We wrap it here to avoid issues with the
+    # factorization.
+    return Symmetric(Diagonal(M_h) + D1mat' * (Diagonal(M_h3_3) * D1mat))
+end
+
+function assemble_system_matrix!(cache, h, D1, D1mat,
+                                 ::SerreGreenNaghdiEquations1D{BathymetryFlat},
+                                 ::BoundaryConditionReflecting)
     (; M_h, M_h3_3) = cache
 
     @.. M_h = h
@@ -677,14 +694,12 @@ function assemble_system_matrix!(cache, h, D1, D1mat,
 
     # one needs to set the boundary conditions here
     # because one can not change the Symmetric matrix
-    if boundary_conditions isa BoundaryConditionReflecting
-        system_matrix[1, :] .= 0
-        system_matrix[end, :] .= 0
-        system_matrix[:, 1] .= 0
-        system_matrix[:, end] .= 0
-        system_matrix[1, 1] = 1
-        system_matrix[end, end] = 1
-    end
+    system_matrix[1, :] .= 0
+    system_matrix[end, :] .= 0
+    system_matrix[:, 1] .= 0
+    system_matrix[:, end] .= 0
+    system_matrix[1, 1] = 1
+    system_matrix[end, end] = 1
 
     # Floating point errors accumulate a bit and the system matrix
     # is not necessarily perfectly symmetric but only up to
@@ -696,7 +711,39 @@ end
 # variable bathymetry
 function assemble_system_matrix!(cache, h, b_x, D1, D1mat,
                                  equations::SerreGreenNaghdiEquations1D,
-                                 boundary_conditions)
+                                 ::BoundaryConditionPeriodic)
+    (; M_h_p_h_bx2, M_h3_3, M_h2_bx) = cache
+
+    if equations.bathymetry_type isa BathymetryMildSlope
+        factor = 0.75
+    elseif equations.bathymetry_type isa BathymetryVariable
+        factor = 1.0
+    end
+    @.. M_h_p_h_bx2 = h + factor * h * b_x^2
+    scale_by_mass_matrix!(M_h_p_h_bx2, D1)
+    inv3 = 1 / 3
+    @.. M_h3_3 = inv3 * h^3
+    scale_by_mass_matrix!(M_h3_3, D1)
+    @.. M_h2_bx = 0.5 * h^2 * b_x
+    scale_by_mass_matrix!(M_h2_bx, D1)
+
+    # Floating point errors accumulate a bit and the system matrix
+    # is not necessarily perfectly symmetric but only up to
+    # round-off errors. We wrap it here to avoid issues with the
+    # factorization.
+    return Symmetric(Diagonal(M_h_p_h_bx2)
+                     +
+                     D1mat' * (Diagonal(M_h3_3) * D1mat
+                               -
+                               Diagonal(M_h2_bx))
+                     -
+                     Diagonal(M_h2_bx) * D1mat)
+end
+
+# variable bathymetry
+function assemble_system_matrix!(cache, h, b_x, D1, D1mat,
+                                 equations::SerreGreenNaghdiEquations1D,
+                                 ::BoundaryConditionReflecting)
     (; M_h_p_h_bx2, M_h3_3, M_h2_bx) = cache
 
     if equations.bathymetry_type isa BathymetryMildSlope
@@ -721,14 +768,13 @@ function assemble_system_matrix!(cache, h, b_x, D1, D1mat,
 
     # one needs to set the boundary conditions here
     # because one can not change the Symmetric matrix
-    if boundary_conditions isa BoundaryConditionReflecting
-        system_matrix[1, :] .= 0
-        system_matrix[end, :] .= 0
-        system_matrix[:, 1] .= 0
-        system_matrix[:, end] .= 0
-        system_matrix[1, 1] = 1
-        system_matrix[end, end] = 1
-    end
+
+    system_matrix[1, :] .= 0
+    system_matrix[end, :] .= 0
+    system_matrix[:, 1] .= 0
+    system_matrix[:, end] .= 0
+    system_matrix[1, 1] = 1
+    system_matrix[end, end] = 1
 
     # Floating point errors accumulate a bit and the system matrix
     # is not necessarily perfectly symmetric but only up to
@@ -1375,7 +1421,6 @@ function energy_total_modified!(e, q_global,
         scale_by_inverse_mass_matrix!(e, D1)
 
         @.. e = e + 1 / 2 * g * eta^2 + 1 / 2 * h * v^2
-
     else
         # Periodic boundary conditions
         # and reflecting boundary conditions
