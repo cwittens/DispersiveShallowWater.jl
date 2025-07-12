@@ -522,9 +522,6 @@ function create_cache(mesh,
     M_h3_3 = zero(h)
 
     if D1 isa DerivativeOperator && D2 isa VarCoefDerivativeOperator
-        if boundary_conditions isa BoundaryConditionPeriodic
-            throw(ArgumentError("Periodic boundary conditions are not supported for VarCoefDerivativeOperators yet."))
-        end
         A = BandedMatrix(D2)
 
         cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
@@ -582,7 +579,11 @@ function create_cache(mesh,
                       boundary_conditions::Union{BoundaryConditionPeriodic,
                                                  BoundaryConditionReflecting},
                       RealT, uEltype)
-    D1 = solver.D1
+    (; D1, D2) = solver
+
+    if D1 isa DerivativeOperator && D2 isa VarCoefDerivativeOperator
+        @warn "VarCoefDerivativeOperators are currently only supported for reflecting boundary conditions with flat bathymetry. DispersiveShallowWater.jl will ignore `solver.D2` and just use `solver.D1` in this case."
+    end
 
     # create temporary storage
     h = ones(RealT, nnodes(mesh))
