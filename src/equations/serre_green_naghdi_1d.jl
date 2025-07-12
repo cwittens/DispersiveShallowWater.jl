@@ -479,7 +479,7 @@ function source_terms_manufactured_reflecting(q, x, t,
                (1 + 2(2 + cospix + x) * t) * sinpix * t * x
 
     # Calculate b_x (needed for psi term)
-    b_x = 2  # Since b = -d = -(-2*x) = 2*x, so b_x = 2
+    b_x = 2  # Since b = eta0 - D = eta0 - (-2*x) = eta0 + 2*x, so b_x = 2
 
     # Apply bathymetry-specific modifications
     if equations.bathymetry_type isa BathymetryMildSlope
@@ -522,6 +522,9 @@ function create_cache(mesh,
     M_h3_3 = zero(h)
 
     if D1 isa DerivativeOperator && D2 isa VarCoefDerivativeOperator
+        if boundary_conditions isa BoundaryConditionPeriodic
+            throw(ArgumentError("Periodic boundary conditions need periodic operators"))
+        end
         A = BandedMatrix(D2)
 
         cache = (; h, b, h_x, v_x, h2_x, hv_x, v2_x,
@@ -747,8 +750,7 @@ function assemble_system_matrix!(cache, h, b_x, D1, D1mat,
     end
     @.. M_h_p_h_bx2 = h + factor * h * b_x^2
     scale_by_mass_matrix!(M_h_p_h_bx2, D1)
-    inv3 = 1 / 3
-    @.. M_h3_3 = inv3 * h^3
+    @.. M_h3_3 = (1 / 3) * h^3
     scale_by_mass_matrix!(M_h3_3, D1)
     @.. M_h2_bx = 0.5 * h^2 * b_x
     scale_by_mass_matrix!(M_h2_bx, D1)
@@ -806,7 +808,6 @@ function rhs!(dq, q, t, mesh,
         rhs_sgn_upwind!(dq, q, t, equations, source_terms, solver, cache,
                         equations.bathymetry_type,
                         boundary_conditions)
-
     else
         rhs_sgn_central!(dq, q, t, equations, source_terms, solver, cache,
                          equations.bathymetry_type,
@@ -1397,8 +1398,6 @@ function energy_total_modified!(e, q_global,
     if hasproperty(cache, :D2) && cache.D2 isa VarCoefDerivativeOperator &&
        equations.bathymetry_type isa BathymetryFlat
         (; D2) = cache
-        # @assert D2 isa VarCoefDerivativeOperator
-        # @assert equations.bathymetry_type isa BathymetryFlat
 
         # The ∫ 1/6 h^3 v_x^2 dx part of the energy is approximated as
         # -v^T M D2 v with variable coefficient D2.b = 1/6 h^3.
