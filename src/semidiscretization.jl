@@ -72,7 +72,7 @@ function Semidiscretization(mesh, equations, initial_condition, solver;
     if (isa(solver.D1, AbstractDerivativeOperator) ||
         isa(solver.D2, AbstractDerivativeOperator) ||
         isa(solver.D3, AbstractDerivativeOperator)) &&
-        isa(boundary_conditions, BoundaryConditionPeriodic)
+       isa(boundary_conditions, BoundaryConditionPeriodic)
         throw(ArgumentError("Non-periodic derivative operators in `solver` are incompatible with periodic boundary conditions."))
     end
 
