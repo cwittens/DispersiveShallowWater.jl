@@ -523,7 +523,7 @@ function create_cache(mesh,
 
     if D1 isa DerivativeOperator && D2 isa VarCoefDerivativeOperator
         if boundary_conditions isa BoundaryConditionPeriodic
-            throw(ArgumentError("Periodic boundary conditions need periodic operators"))
+            throw(ArgumentError("Periodic boundary conditions are not supported for VarCoefDerivativeOperators yet."))
         end
         A = BandedMatrix(D2)
 
