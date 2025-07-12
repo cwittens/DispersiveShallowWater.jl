@@ -715,8 +715,8 @@ function assemble_system_matrix!(cache, h, b_x, D1, D1mat,
     end
     @.. M_h_p_h_bx2 = h + factor * h * b_x^2
     scale_by_mass_matrix!(M_h_p_h_bx2, D1)
-    inv3 = 1 / 3
-    @.. M_h3_3 = inv3 * h^3
+
+    @.. M_h3_3 = (1 / 3) * h^3
     scale_by_mass_matrix!(M_h3_3, D1)
     @.. M_h2_bx = 0.5 * h^2 * b_x
     scale_by_mass_matrix!(M_h2_bx, D1)
