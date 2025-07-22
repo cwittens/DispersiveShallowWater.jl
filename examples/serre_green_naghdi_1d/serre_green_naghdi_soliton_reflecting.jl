@@ -38,7 +38,6 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver,
 # number of periods it travels through the domain
 periods = 2.0
 tspan = (0.0, periods * (xmax(mesh) - xmin(mesh)) / sqrt(1.2 * equations.gravity))
-tspan = (0.0, 20.00)
 ode = semidiscretize(semi, tspan)
 summary_callback = SummaryCallback()
 analysis_callback = AnalysisCallback(semi; interval = 100,
@@ -46,14 +45,7 @@ analysis_callback = AnalysisCallback(semi; interval = 100,
                                      extra_analysis_integrals = (waterheight_total,
                                                                  entropy_modified))
 callbacks = CallbackSet(analysis_callback, summary_callback)
-saveat = range(tspan..., length = 100)
+
 alg = Tsit5()
 sol = solve(ode, alg; abstol = 1e-7, reltol = 1e-7,
-            save_everystep = false, callback = callbacks, saveat = saveat)
-
-plot(semi => sol, legend = false)
-
-anim2 = @animate for step in 1:length(sol.u)
-    plot(semi => sol, plot_initial = true, legend = false, step = step)
-end
-gif(anim2, fps = 20)
+            save_everystep = false, callback = callbacks)
