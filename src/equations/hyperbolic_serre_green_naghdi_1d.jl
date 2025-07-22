@@ -249,7 +249,8 @@ end
 
 function create_cache(mesh, equations::HyperbolicSerreGreenNaghdiEquations1D,
                       solver, initial_condition,
-                      ::BoundaryConditionPeriodic,
+                      boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                 BoundaryConditionReflecting},
                       RealT, uEltype)
     # We use `DiffCache` from PreallocationTools.jl to enable automatic/algorithmic differentiation
     # via ForwardDiff.jl. We also pass the second argument determining the chunk size since the
@@ -273,8 +274,14 @@ function create_cache(mesh, equations::HyperbolicSerreGreenNaghdiEquations1D,
     hvw_x = DiffCache(zero(template), N)
     tmp = DiffCache(zero(template), N)
 
+    tr, tl = zero(template), zero(template)
+    tr[end] = 1
+    tl[1] = 1
+
+    BC_Ref_Matrix = DiffCache(sparse(tr * tr' - tl * tl'), N)
+
     cache = (; h, b, b_x, H_over_h, h_x, v_x, hv_x, v2_x, h_hpb_x, H_x, H2_h_x, w_x, hvw_x,
-             tmp)
+             tmp, BC_Ref_Matrix)
     return cache
 end
 
@@ -402,6 +409,160 @@ function rhs!(dq, q, t, mesh,
         # No special split form for energy conservation required:
         # H_t + v H_x + 3/2 v b_x = w
         @.. dH = w - v * H_x
+        if !(bathymetry_type isa BathymetryFlat)
+            @.. dH -= 1.5 * v * b_x
+        end
+    end
+
+    @trixi_timeit timer() "source terms" calc_sources!(dq, q, t, source_terms, equations,
+                                                       solver)
+
+    return nothing
+end
+
+# quick and dirty implementation
+function rhs!(dq, q, t, mesh,
+              equations::HyperbolicSerreGreenNaghdiEquations1D,
+              initial_condition,
+              ::BoundaryConditionReflecting,
+              source_terms,
+              solver, cache)
+    # Unpack physical parameters and SBP operator `D1`
+    g = gravity(equations)
+    (; lambda, bathymetry_type) = equations
+    (; D1) = solver
+
+    # if !(bathymetry_type isa BathymetryFlat)
+    #     throw(ArgumentError("Bathymetry not flat with reflecting BC not implemented yet"))
+    # end
+
+    # `q` and `dq` are `ArrayPartition`s. They collect the individual
+    # arrays for the total water height `eta = h + b`, the velocity `v`,
+    # and the additional variables `w` and `H`.
+    eta, v, D, w, H = q.x
+    dh, dv, dD, dw, dH = dq.x # dh = deta since b is constant in time
+    fill!(dD, zero(eltype(dD)))
+
+    @trixi_timeit timer() "hyperbolic terms" begin
+        # Compute all derivatives required below
+
+        # First, we extract temporary storage from the `cache`.
+        # Since we use `DiffCache` from PreallocationTools.jl, we need to extract the
+        # appropriate arrays using `get_tmp` and need to pass an array with the element
+        # type we want to use, e.g., plain `Float64` or some dual numbers when using AD.
+        h = get_tmp(cache.h, eta)
+        b = get_tmp(cache.b, eta)
+        b_x = get_tmp(cache.b_x, eta)
+        H_over_h = get_tmp(cache.H_over_h, eta)
+        h_x = get_tmp(cache.h_x, eta)
+        v_x = get_tmp(cache.v_x, eta)
+        hv_x = get_tmp(cache.hv_x, eta)
+        v2_x = get_tmp(cache.v2_x, eta)
+        h_hpb_x = get_tmp(cache.h_hpb_x, eta)
+        H_x = get_tmp(cache.H_x, eta)
+        H2_h_x = get_tmp(cache.H2_h_x, eta)
+        w_x = get_tmp(cache.w_x, eta)
+        hvw_x = get_tmp(cache.hvw_x, eta)
+        tmp = get_tmp(cache.tmp, eta)
+        BC_Ref_Matrix = get_tmp(cache.BC_Ref_Matrix, eta)
+
+        @.. b = equations.eta0 - D
+        @.. h = eta - b
+        if !(bathymetry_type isa BathymetryFlat)
+            mul!(b_x, D1, b)
+        end
+
+        # h_x = D1 * h
+        mul!(h_x, D1, h)
+
+        # v_x = D1 * v
+        mul!(v_x, D1, v)
+
+        # hv2_x = D1 * (h * v)
+        @.. tmp = h * v
+        mul!(hv_x, D1, tmp)
+
+        # v2_x = D1 * (v.^2)
+        @.. tmp = v^2
+        mul!(v2_x, D1, tmp)
+
+        # h_hpb_x = D1 * (h .* eta)
+        @.. tmp = h * eta
+        mul!(h_hpb_x, D1, tmp)
+
+        # H_x = D1 * H
+        mul!(H_x, D1, H)
+
+        # H2_h_x = D1 * (H^2 / h)
+        @.. H_over_h = H / h
+        @.. tmp = H * H_over_h
+        mul!(H2_h_x, D1, tmp)
+
+        # w_x = D1 * w
+        mul!(w_x, D1, w)
+
+        # hvw_x = D1 * (h * v * w)
+        @.. tmp = h * v * w
+        mul!(hvw_x, D1, tmp)
+
+        # Plain: h_t + (h v)_x = 0
+        #
+        # Split form for energy conservation:
+        # h_t + h_x v + h v_x = 0
+        tmp .= BC_Ref_Matrix * (h .* v)
+        # @show "before scale:", tmp[1], tmp[end]
+        # tmp[tmp .<= 1e-14] .= 0
+        scale_by_inverse_mass_matrix!(tmp, D1)
+        # @show "dh, after scale:", tmp[1], tmp[end], t
+        @.. dh = -(h_x * v + h * v_x - tmp)
+
+        # Plain: h v_t + h v v_x + g (h + b) h_x
+        #              + ... = 0
+        #
+        # Split form for energy conservation:
+        # h v_t + g (h (h + b))_x - g (h + b) h_x
+        #       + 1/2 h (v^2)_x - 1/2 v^2 h_x  + 1/2 v (h v)_x - 1/2 h v v_x
+        #       + λ/6 H^2 / h^2 h_x + λ/3 H_x - λ/3 H/h H_x - λ/6 (H^2 / h)_x
+        #       + λ/2 b_x - λ/2 H/h b_x = 0
+        lambda_6 = lambda / 6
+        lambda_3 = lambda / 3
+        FAKTOR = 0
+        # https://ranocha.de/SummationByPartsOperators.jl/stable/introduction/#Basic-interfaces-and-additional-features
+        tmp .= BC_Ref_Matrix * (FAKTOR .* h .* (v .^ 2))
+        # tmp[tmp .<= 1e-14] .= 0
+        scale_by_inverse_mass_matrix!(tmp, D1)
+        # @show "dv, after scale:", tmp[1], tmp[end], t
+        @.. dv = -(g * h_hpb_x - g * eta * h_x
+                   + 0.5 * (h * v2_x - v^2 * h_x)
+                   + 0.5 * v * (hv_x - h * v_x)
+                   + lambda_6 * (H_over_h^2 * h_x - H2_h_x)
+                   + lambda_3 * (1 - H_over_h) * H_x
+                   -
+                   tmp) / h
+        if !(bathymetry_type isa BathymetryFlat)
+            lambda_2 = lambda / 2
+            @.. dv -= lambda_2 * (1 - H_over_h) * b_x / h
+        end
+
+        # Plain: h w_t + h v w_x = λ - λ H / h
+        #
+        # Split form for energy conservation:
+        # h w_t + 1/2 (h v w)_x + 1/2 h v w_x
+        #       - 1/2 h_x v w - 1/2 h w v_x = λ - λ H / h
+        tmp .= BC_Ref_Matrix * (FAKTOR .* h .* v .* w)
+        # tmp[tmp .<= 1e-14] .= 0
+        scale_by_inverse_mass_matrix!(tmp, D1)
+        # @show "dw, after scale:", tmp[1], tmp[end], t
+        @.. dw = (-0.5 * (hvw_x + h * v * w_x + dh * w) +
+                  lambda * (1 - H_over_h) + tmp) / h
+
+        # No special split form for energy conservation required:
+        # H_t + v H_x + 3/2 v b_x = w
+        tmp .= BC_Ref_Matrix * (FAKTOR .* h .* v .* H)
+        # tmp[tmp .<= 1e-14] .= 0
+        scale_by_inverse_mass_matrix!(tmp, D1)
+        # @show "dH, after scale:", tmp[1], tmp[end], t
+        @.. dH = w - v * H_x + tmp / h
         if !(bathymetry_type isa BathymetryFlat)
             @.. dH -= 1.5 * v * b_x
         end
