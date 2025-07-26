@@ -249,7 +249,8 @@ end
 
 function create_cache(mesh, equations::HyperbolicSerreGreenNaghdiEquations1D,
                       solver, initial_condition,
-                      ::BoundaryConditionPeriodic,
+                      boundary_conditions::Union{BoundaryConditionPeriodic,
+                                                 BoundaryConditionReflecting},
                       RealT, uEltype)
     # We use `DiffCache` from PreallocationTools.jl to enable automatic/algorithmic differentiation
     # via ForwardDiff.jl. We also pass the second argument determining the chunk size since the
@@ -273,8 +274,14 @@ function create_cache(mesh, equations::HyperbolicSerreGreenNaghdiEquations1D,
     hvw_x = DiffCache(zero(template), N)
     tmp = DiffCache(zero(template), N)
 
+    tr, tl = zero(template), zero(template)
+    tr[end] = 1
+    tl[1] = 1
+
+    BC_Ref_Matrix = DiffCache(sparse(tr * tr' - tl * tl'), N)
+
     cache = (; h, b, b_x, H_over_h, h_x, v_x, hv_x, v2_x, h_hpb_x, H_x, H2_h_x, w_x, hvw_x,
-             tmp)
+             tmp, BC_Ref_Matrix)
     return cache
 end
 
@@ -289,13 +296,19 @@ end
 function rhs!(dq, q, t, mesh,
               equations::HyperbolicSerreGreenNaghdiEquations1D,
               initial_condition,
-              ::BoundaryConditionPeriodic,
+              boundary_conditions::Union{BoundaryConditionPeriodic,
+                                         BoundaryConditionReflecting},
               source_terms,
               solver, cache)
     # Unpack physical parameters and SBP operator `D1`
     g = gravity(equations)
     (; lambda, bathymetry_type) = equations
     (; D1) = solver
+
+    # if boundary_conditions isa BoundaryConditionReflecting && !(bathymetry_type isa BathymetryFlat)
+    #    throw(ArgumentError("Energy Conversation for the hyperbolic Serre-Green-Naghdi equations with
+    #                        reflecting boundary conditions and non-flat bathymetry is not calculated yet."))
+    # end
 
     # `q` and `dq` are `ArrayPartition`s. They collect the individual
     # arrays for the total water height `eta = h + b`, the velocity `v`,
@@ -370,6 +383,10 @@ function rhs!(dq, q, t, mesh,
         # Split form for energy conservation:
         # h_t + h_x v + h v_x = 0
         @.. dh = -(h_x * v + h * v_x)
+        if boundary_conditions isa BoundaryConditionReflecting
+            dh[1] -=  h[1] * v[1] / left_boundary_weight(D1)
+            dh[end] += h[end] * v[end] / right_boundary_weight(D1)
+        end
 
         # Plain: h v_t + h v v_x + g (h + b) h_x
         #              + ... = 0
@@ -413,16 +430,6 @@ function rhs!(dq, q, t, mesh,
     return nothing
 end
 
-@inline function prim2cons(q, equations::HyperbolicSerreGreenNaghdiEquations1D)
-    h = waterheight(q, equations)
-    v = velocity(q, equations)
-    b = bathymetry(q, equations)
-
-    hv = h * v
-    hw = h * q[4]
-    hH = h * q[5]
-    return SVector(h, hv, b, hw, hH)
-end
 
 @inline function cons2prim(u, equations::HyperbolicSerreGreenNaghdiEquations1D)
     h, hv, b, hw, hH = u
