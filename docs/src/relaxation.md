@@ -29,7 +29,7 @@ savefig("analysis_callback_relaxation.png") # hide
 nothing # hide
 ```
 
-<!-- ![analysis callback relaxation](analysis_callback_relaxation.png) -->
+analysis callback relaxation_analysis_callback_relaxation.png
 
 
 

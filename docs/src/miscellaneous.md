@@ -68,7 +68,7 @@ nothing # hide
 
 This creates the following figure:
 
-<!-- ![analysis callback](analysis_callback.png) -->
+analysis callback_analysis_callback.png
 
 You can see that the linear invariants ``\int_\Omega\eta\textrm{d}x`` and ``\int_\Omega v\textrm{d}x`` are indeed conserved exactly. The entropy, however, starts
 growing at around ``t = 17``  and rises up to approximately `5e-5`. This is because of the fact that, during the time integration, a nonlinear invariant is not

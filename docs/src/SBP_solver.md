@@ -61,6 +61,8 @@ gif(anim, "shoaling_solution_dg.gif", fps = 25)
 nothing # hide
 ```
 
-<!-- ![shoaling solution DG](shoaling_solution_dg.gif) -->
+
+shoaling solution DG_shoaling_solution_dg.gif
+
 
 For more details see also the [documentation of SummationByPartsOperators.jl](https://ranocha.de/SummationByPartsOperators.jl/stable/)
