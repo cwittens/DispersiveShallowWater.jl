@@ -109,6 +109,7 @@ end
         waterheight_total,
         waterheight,
         entropy,
+        energy_total,
         prim2nondim,
         prim2cons,
         prim2prim,
@@ -144,7 +145,8 @@ end
         e = @inferred energy_total_modified(q, equations, cache)
         e_total = @inferred DispersiveShallowWater.integrate(e, semi)
         @test isapprox(e_total, 1.5)
-        @test isapprox(DispersiveShallowWater.integrate_quantity(energy_total, q, semi), 1.5)
+        @test isapprox(DispersiveShallowWater.integrate_quantity(energy_total, q, semi),
+                       1.5)
         U = @inferred entropy_modified(q, equations, cache)
         U_total = @inferred DispersiveShallowWater.integrate(U, semi)
         @test isapprox(U_total, e_total)

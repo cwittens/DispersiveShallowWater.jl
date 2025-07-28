@@ -271,6 +271,18 @@ end
 
 """
     energy_total(q, equations::KdVEquation1D)
+
+Return the total energy of the primitive variables `q` for the
+[`KdVEquation1D`](@ref). For the KdV equation, the total energy consists
+only of the potential energy, given by
+```math
+\\frac{1}{2} g \\eta^2
+```
+where ``\\eta`` is the [`waterheight_total`](@ref) and ``g`` is the
+[`gravity`](@ref).
+
+`q` is a vector of the primitive variables at a single node, i.e., a vector
+of length 1 in this case.
 """
 @inline function energy_total(q, equations::KdVEquation1D)
     eta = waterheight_total(q, equations)
@@ -279,6 +291,12 @@ end
 
 """
     entropy(q, equations::KdVEquation1D)
+
+Return the entropy of the primitive variables `q` for the [`KdVEquation1D`](@ref).
+For the KdV equation, the `entropy` is the same as the [`energy_total`](@ref).
+
+`q` is a vector of the primitive variables at a single node, i.e., a vector
+of length 1 in this case.
 """
 function entropy(q, equations::KdVEquation1D)
     return energy_total(q, equations)
