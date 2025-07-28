@@ -141,12 +141,12 @@ end
         q = @inferred DispersiveShallowWater.compute_coefficients(initial_condition,
                                                                   0.0, semi)
         _, _, _, cache = @inferred DispersiveShallowWater.mesh_equations_solver_cache(semi)
-        e_modified = @inferred energy_total_modified(q, equations, cache)
-        e_modified_total = @inferred DispersiveShallowWater.integrate(e_modified, semi)
-        @test isapprox(e_modified_total, 1.5)
-        U_modified = @inferred entropy_modified(q, equations, cache)
-        U_modified_total = @inferred DispersiveShallowWater.integrate(U_modified, semi)
-        @test isapprox(U_modified_total, e_modified_total)
+        e = @inferred energy_total_modified(q, equations, cache)
+        e_total = @inferred DispersiveShallowWater.integrate(e, semi)
+        @test isapprox(e_total, 1.5)
+        U = @inferred entropy_modified(q, equations, cache)
+        U_total = @inferred DispersiveShallowWater.integrate(U, semi)
+        @test isapprox(U_total, e_total)
     end
 end
 
