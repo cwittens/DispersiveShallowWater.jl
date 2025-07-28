@@ -108,7 +108,12 @@ end
     conversion_functions = [
         waterheight_total,
         waterheight,
-        prim2nondim
+        entropy,
+        energy_total,
+        prim2nondim,
+        prim2cons,
+        prim2prim,
+        prim2phys
     ]
     for conversion in conversion_functions
         @test DispersiveShallowWater.varnames(conversion, equations) isa Tuple
@@ -126,6 +131,26 @@ end
     u_expected = q ./ 3.0 .+ 2 / 3
     @test @inferred(prim2nondim(q, equations_nondim)) == u_expected
     @test @inferred(nondim2prim(u_expected, equations_nondim)) == q
+    @test @inferred(energy_total(q, equations)) == @inferred(entropy(q, equations))
+    @testset "energy_total" begin
+        initial_condition = initial_condition_manufactured
+        boundary_conditions = boundary_condition_periodic
+        mesh = @inferred Mesh1D(-1.0, 1.0, 10)
+        solver = Solver(mesh, 4)
+        semi = @inferred Semidiscretization(mesh, equations, initial_condition,
+                                            solver; boundary_conditions)
+        q = @inferred DispersiveShallowWater.compute_coefficients(initial_condition,
+                                                                  0.0, semi)
+        _, _, _, cache = @inferred DispersiveShallowWater.mesh_equations_solver_cache(semi)
+        e = @inferred energy_total_modified(q, equations, cache)
+        e_total = @inferred DispersiveShallowWater.integrate(e, semi)
+        @test isapprox(e_total, 1.5)
+        @test isapprox(DispersiveShallowWater.integrate_quantity(energy_total, q, semi),
+                       1.5)
+        U = @inferred entropy_modified(q, equations, cache)
+        U_total = @inferred DispersiveShallowWater.integrate(U, semi)
+        @test isapprox(U_total, e_total)
+    end
 end
 
 @testitem "BBMEquation1D" setup=[Setup] begin
