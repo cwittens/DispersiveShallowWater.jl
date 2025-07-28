@@ -6,19 +6,28 @@ The following table provides an overview of the supported features for each equa
 
 TODO: check for correctness!!
 
-| Equation | Variables | Periodic boundary conditions | Reflecting boundary conditions | Flat Bathymetry | Mild-slope Bathymetry<sup>*</sup> | Variable Bathymetry | Relaxation | Source Terms |
+| Equation | Variables | Periodic boundary conditions | Reflecting boundary conditions | Flat Bathymetry | Mild-slope Bathymetry* | Variable Bathymetry | Relaxation | Source Terms |
 |----------|:---------:|:-----------:|:-------------:|:---------------:|:---------------------:|:-------------------:|:----------:|:------------:|
 | [`BBMEquation1D`](@ref) | 1 (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
 | [`BBMBBMEquations1D`](@ref) | 3 (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
 | [`KdVEquation1D`](@ref) | 1 (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| [`SvaerdKalischEquations1D`](@ref) | 3 (`η`, `v`, `D`) | ✅ | ✅<sup>**</sup> | ❌ | ❌ | ✅ | ✅ | ✅ |
+| [`SvaerdKalischEquations1D`](@ref) | 3 (`η`, `v`, `D`) | ✅ | ✅**| ❌ | ❌ | ✅ | ✅ | ✅ |
 | [`SerreGreenNaghdiEquations1D`](@ref) | 3 (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [`HyperbolicSerreGreenNaghdiEquations1D`](@ref) | 5 (`η`, `v`, `D`, `w`, `H`) | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
 
-<sup>*</sup> Variable bathymetry with mild-slope approximation (some higher order terms are neglected)
+*\* Variable bathymetry with mild-slope approximation (some higher order terms are neglected)*
 
-<sup>**</sup> Reflecting boundary conditions for Svärd-Kalisch equations require `alpha = gamma = 0`
+*\*\*Reflecting boundary conditions for Svärd-Kalisch equations require `alpha = gamma = 0`*
 
+
+| Equation | Variables | Periodic boundary conditions | Reflecting boundary conditions | Flat Bathymetry | Mild-slope Bathymetry* | Variable Bathymetry | Relaxation | Source Terms |
+|----------|:---------:|:-----------:|:-------------:|:----:|:-----------:|:--------:|:----------:|:-------:|
+| [`BBM`](@ref BBMEquation1D) | 1 (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`BBM-BBM`](@ref BBMBBMEquations1D) | 3 (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| [`KdV`](@ref KdVEquation1D) | 1 (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`Svärd-Kalisch`](@ref SvaerdKalischEquations1D) | 3 (`η`, `v`, `D`) | ✅ | ✅** | ❌ | ❌ | ✅ | ✅ | ✅ |
+| [`Serre-Green-Naghdi`](@ref SerreGreenNaghdiEquations1D) | 3 (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`Hyperbolic SGN`](@ref HyperbolicSerreGreenNaghdiEquations1D) | 5 (`η`, `v`, `D`, `w`, `H`) | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
 
 
 ## AnalysisCallback (maybe put it somewhere else but not in overview!)

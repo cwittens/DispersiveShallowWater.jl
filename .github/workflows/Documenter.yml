@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - improved-documantation 
     tags: '*'
     paths-ignore:
       - '.zenodo.json'
