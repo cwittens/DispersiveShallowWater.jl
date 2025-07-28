@@ -5,7 +5,7 @@ To obtain entropy-conserving time-stepping schemes DispersiveShallowWater.jl use
 quantity as the keyword argument `invariant`. Therefore, we can run the same example as above, but using relaxation on the entropy by simply adding another callback
 to the `CallbackSet`:
 
-```@example overview
+```
 analysis_callback = AnalysisCallback(semi; interval = 10,
                                      extra_analysis_errors = (:conservation_error,),
                                      extra_analysis_integrals = (waterheight_total,
@@ -23,13 +23,13 @@ invoked prior to the `analysis_callback`, such that the `analysis_callback` anal
 
 Plotting the `analysis_callback` again, we can see that now also the `entropy` is conserved up to machine precision.
 
-```@example overview
+```
 plot(analysis_callback, ylims = (-5e-16, 5e-16))
 savefig("analysis_callback_relaxation.png") # hide
 nothing # hide
 ```
 
-![analysis callback relaxation](analysis_callback_relaxation.png)
+<!-- ![analysis callback relaxation](analysis_callback_relaxation.png) -->
 
 
 

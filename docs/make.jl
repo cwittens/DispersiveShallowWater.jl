@@ -95,7 +95,11 @@ makedocs(;
              "Code of Conduct" => "code_of_conduct.md",
              "License" => "license.md"])
 
+# deploydocs(;
+#            repo = "github.com/NumericalMathematics/DispersiveShallowWater.jl",
+#            devbranch = "main",
+#            push_preview = true)
 deploydocs(;
-           repo = "github.com/NumericalMathematics/DispersiveShallowWater.jl",
+           repo = "github.com/cwittens/DispersiveShallowWater.jl", 
            devbranch = "main",
            push_preview = true)

@@ -4,7 +4,7 @@
 In the semidiscretization created above, we used the default SBP operators, which are periodic finite difference operators. Using different SBP operators for the
 semidiscretization can be done leveraging [SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/), which needs to be imported first:
 
-```@example overview
+```
 using SummationByPartsOperators: legendre_derivative_operator, UniformPeriodicMesh1D, couple_discontinuously, PeriodicUpwindOperators
 ```
 
@@ -12,7 +12,7 @@ As an example, let us create a semidiscretization based on discontinuous Galerki
 needs one first-derivative and one second-derivative SBP operator. To build the first-derivative operator, we first create a `LegendreDerivativeOperator` with polynomial
 degree 3 on a reference element `[-1.0, 1.0]` and a `UniformPeriodicMesh1D` for the coupling.
 
-```@example overview
+```
 mesh = Mesh1D(coordinates_min, coordinates_max, N)
 accuracy_order = 4
 D_legendre = legendre_derivative_operator(-1.0, 1.0, accuracy_order)
@@ -21,7 +21,7 @@ uniform_mesh = UniformPeriodicMesh1D(mesh.xmin, mesh.xmax, div(mesh.N, accuracy_
 
 Upwind DG operators in negative, central and positive operators can be obtained by `couple_discontinuously`
 
-```@example overview
+```
 central = couple_discontinuously(D_legendre, uniform_mesh)
 minus = couple_discontinuously(D_legendre, uniform_mesh, Val(:minus))
 plus = couple_discontinuously(D_legendre, uniform_mesh, Val(:plus))
@@ -30,21 +30,21 @@ D1 = PeriodicUpwindOperators(minus, central, plus)
 
 In order to still have an entropy-conserving semidiscretization the second-derivative SBP operator needs to be
 
-```@example overview
+```
 using SparseArrays: sparse
 D2 = sparse(plus) * sparse(minus)
 ```
 
 The [`Solver`](@ref) object can now be created by passing the two SBP operators to the constructor, which, in turn, can be used to construct a `Semidiscretization`:
 
-```@example overview
+```
 solver = Solver(D1, D2)
 semi = Semidiscretization(mesh, equations, initial_condition, solver, boundary_conditions = boundary_conditions)
 ```
 
 As before, we can run the simulation by
 
-```@example overview
+```
 analysis_callback = AnalysisCallback(semi; interval = 10,
                                      extra_analysis_errors = (:conservation_error,),
                                      extra_analysis_integrals = (waterheight_total,
@@ -61,6 +61,6 @@ gif(anim, "shoaling_solution_dg.gif", fps = 25)
 nothing # hide
 ```
 
-![shoaling solution DG](shoaling_solution_dg.gif)
+<!-- ![shoaling solution DG](shoaling_solution_dg.gif) -->
 
 For more details see also the [documentation of SummationByPartsOperators.jl](https://ranocha.de/SummationByPartsOperators.jl/stable/)

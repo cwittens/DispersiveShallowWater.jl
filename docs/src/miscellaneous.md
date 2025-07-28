@@ -39,7 +39,7 @@ the BBM-BBM equations, i.e. they do not change over time. The total entropy
 is a nonlinear invariant and should be constant over time as well. During the simulation, the `AnalysisCallback` will print the results to the terminal.
 
 
-```@example overview
+```
 tspan = (0.0, 25.0)
 ode = semidiscretize(semi, tspan)
 analysis_callback = AnalysisCallback(semi; interval = 10,
@@ -60,7 +60,7 @@ integrals recorded by the `AnalysisCallback` can be obtained as `NamedTuple`s by
 
 Often, it is interesting to have a look at how the quantities that are recorded by the `AnalysisCallback` evolve in time. To this end, you can `plot` the `AnalysisCallback` by
 
-```@example overview
+```
 plot(analysis_callback)
 savefig("analysis_callback.png") # hide
 nothing # hide
@@ -68,7 +68,7 @@ nothing # hide
 
 This creates the following figure:
 
-![analysis callback](analysis_callback.png)
+<!-- ![analysis callback](analysis_callback.png) -->
 
 You can see that the linear invariants ``\int_\Omega\eta\textrm{d}x`` and ``\int_\Omega v\textrm{d}x`` are indeed conserved exactly. The entropy, however, starts
 growing at around ``t = 17``  and rises up to approximately `5e-5`. This is because of the fact that, during the time integration, a nonlinear invariant is not
