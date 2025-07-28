@@ -57,25 +57,28 @@ N = 512
 mesh = Mesh1D(coordinates_min, coordinates_max, N)
 ```
 
-The first line specifies that we want to solve the BBM-BBM equations with variable bathymetry using a gravitational acceleration ``g = 9.81``.
+The first line specifies that we want to solve the BBM-BBM equations with variable bathymetry using a gravitational acceleration of ``g = 9.81``.
 Afterwards, we define the initial condition, which is described as a function with the spatial variable `x`, the time `t`, the `equations` and
-a `mesh` as parameters. If an analytical solution is available, the time variable `t` can be used, and the initial condition can serve as
-an analytical solution to be compared with the numerical solution. Otherwise, you can just keep the time variable unused. An initial condition
-in DispersiveShallowWater.jl is supposed to return an `SVector` holding the values for each of the unknown variables. Since the bathymetry is
+a `mesh` as parameters.
+
+If an analytical solution is available, the time variable `t` can be used, and the initial condition can serve as an analytical solution to be compared with the numerical solution. Otherwise, you can just keep the time variable unused. 
+
+An initial condition in DispersiveShallowWater.jl is supposed to return an `SVector` holding the values for each of the unknown variables. Since the bathymetry is
 treated as a variable (with time derivative 0) for convenience, we need to provide the value for the primitive variables `eta` and `v` as well as for `D`.
 
-Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for the [`BBMBBMEquations1D`](@ref),
-see [`boundary_condition_reflecting`](@ref). Lastly, we define the physical domain as the interval from -130 to
-20 and we choose 512 nodes. The mesh is homogeneous, i.e. the distance between each two nodes is constant. We choose the left boundary very
-far to the left in order to avoid an interaction of the left- and right-traveling waves.
+Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for some but not all equations. For reference see the [equation support overview](miscellaneous.md#equation-support-overview).
+
+Lastly, we define the physical domain as the interval from -130 to 20 (in meters) and we choose 512 nodes. The mesh is always homogeneous, i.e. the distance between consecutive nodes is constant. We choose the left boundary very far to the left in order to avoid interactions between left- and right-traveling waves. This prevents unwanted wave interference that could occur when waves wrap around due to the periodic boundary conditions.
 
 ## Define numerical solver
 
-In the next step, we build a [`Semidiscretization`](@ref) that bundles all ingredients for the spatial discretization of the model. Especially, we need to
-define a [`Solver`](@ref). The simplest way to define a solver is to call the constructor by providing the mesh and a desired order of accuracy. In the
-following example, we use an accuracy order of 4. The default constructor simply creates periodic first-, second-, and third-derivative central finite
-difference summation-by-parts (SBP) operators of the provided order of accuracy. How to use other summation-by-parts operators, is described in the section on
-[how to customize the solver](@ref customize_solver). Note that for non-periodic boundary conditions, the solver also needs to be created with non-periodic
+In the next step, we build a [`Semidiscretization`](@ref) that bundles all ingredients for the spatial discretization of the model. Especially, we need to define a [`Solver`](@ref). 
+
+The simplest way to define a solver when working with [`boundary_condition_periodic`](@ref) is to call the constructor by providing the mesh and a desired order of accuracy.
+
+In the following example, we use an accuracy order of 4. The default constructor simply creates periodic first-, second-, and third-derivative central finite difference summation-by-parts (SBP) operators of the provided order of accuracy. 
+
+How to use other summation-by-parts operators, is described in the section on [how to customize the solver](@ref customize_solver). Note that for non-periodic boundary conditions, the solver also needs to be created with non-periodic
 operators, see, e.g. [examples/bbm\_bbm\_1d/bbm\_bbm\_1d\_basic\_reflecting.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/blob/main/examples/bbm_bbm_1d/bbm_bbm_1d_basic_reflecting.jl).
 
 ```@example overview
@@ -218,78 +221,11 @@ nothing # hide
 
 ![analysis callback relaxation](analysis_callback_relaxation.png)
 
-## [Customize solver](@id customize_solver)
-
-In the semidiscretization created above, we used the default SBP operators, which are periodic finite difference operators. Using different SBP operators for the
-semidiscretization can be done leveraging [SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/), which needs to be imported first:
-
-```@example overview
-using SummationByPartsOperators: legendre_derivative_operator, UniformPeriodicMesh1D, couple_discontinuously, PeriodicUpwindOperators
-```
-
-As an example, let us create a semidiscretization based on discontinuous Galerkin (DG) upwind operators. A semidiscretization implemented in DispersiveShallowWater.jl
-needs one first-derivative and one second-derivative SBP operator. To build the first-derivative operator, we first create a `LegendreDerivativeOperator` with polynomial
-degree 3 on a reference element `[-1.0, 1.0]` and a `UniformPeriodicMesh1D` for the coupling.
-
-```@example overview
-mesh = Mesh1D(coordinates_min, coordinates_max, N)
-accuracy_order = 4
-D_legendre = legendre_derivative_operator(-1.0, 1.0, accuracy_order)
-uniform_mesh = UniformPeriodicMesh1D(mesh.xmin, mesh.xmax, div(mesh.N, accuracy_order))
-```
-
-Upwind DG operators in negative, central and positive operators can be obtained by `couple_discontinuously`
-
-```@example overview
-central = couple_discontinuously(D_legendre, uniform_mesh)
-minus = couple_discontinuously(D_legendre, uniform_mesh, Val(:minus))
-plus = couple_discontinuously(D_legendre, uniform_mesh, Val(:plus))
-D1 = PeriodicUpwindOperators(minus, central, plus)
-```
-
-In order to still have an entropy-conserving semidiscretization the second-derivative SBP operator needs to be
-
-```@example overview
-using SparseArrays: sparse
-D2 = sparse(plus) * sparse(minus)
-```
-
-The [`Solver`](@ref) object can now be created by passing the two SBP operators to the constructor, which, in turn, can be used to construct a `Semidiscretization`:
-
-```@example overview
-solver = Solver(D1, D2)
-semi = Semidiscretization(mesh, equations, initial_condition, solver, boundary_conditions = boundary_conditions)
-```
-
-As before, we can run the simulation by
-
-```@example overview
-analysis_callback = AnalysisCallback(semi; interval = 10,
-                                     extra_analysis_errors = (:conservation_error,),
-                                     extra_analysis_integrals = (waterheight_total,
-                                                                 velocity, entropy),
-                                     io = devnull)
-relaxation_callback = RelaxationCallback(invariant = entropy)
-callbacks = CallbackSet(relaxation_callback, analysis_callback)
-sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,
-            save_everystep = false, callback = callbacks, saveat = saveat)
-anim = @animate for step in 1:length(sol.u)
-    plot(semi => sol, plot_initial = true, conversion = waterheight_total, step = step, xlim = (-50, 20), ylims = (-0.8, 0.1))
-end
-gif(anim, "shoaling_solution_dg.gif", fps = 25)
-nothing # hide
-```
-
-![shoaling solution DG](shoaling_solution_dg.gif)
-
-For more details see also the [documentation of SummationByPartsOperators.jl](https://ranocha.de/SummationByPartsOperators.jl/stable/)
 
 ## Additional resources
 
 Some more examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
-Especially, in [examples/svaerd\_kalisch\_1d/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples/svaerd_kalisch_1d) you can find Julia scripts
-that solve the [`SvaerdKalischEquations1D`](@ref) that were not covered in this tutorial. The same steps as described above, however, apply in the same way to these equations.
-Attention must be paid for these equations because they do not conserve the classical total entropy ``\mathcal E``, but a modified entropy ``\hat{\mathcal E}``, available as [`entropy_modified`](@ref).
+
 
 More examples, especially focussing on plotting, can be found in the scripts [create_figures.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/create_figures.jl)
 and [plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/plot_examples.jl) from the reproducibility repository of the master thesis of Joshua Lampert.

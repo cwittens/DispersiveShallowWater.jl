@@ -83,6 +83,7 @@ makedocs(;
              "Overview" => "overview.md",
              "Dispersion" => "dispersion.md",
              "Development" => "development.md",
+             "Miscellaneous" => "miscellaneous.md",
              "Reference" => [
                  "TrixiBase" => "ref-trixibase.md",
                  "DispersiveShallowWater" => "ref.md"
