@@ -1,6 +1,6 @@
 # Running a simulation
 
-## Basic Example
+## Short Introduction
 
 In this tutorial we describe how to numerically solve the BBM-BBM (Benjamin-Bona-Mahony) equations with variable bottom topography in one dimension. The equations describe a dispersive shallow water model,
 i.e. they extend the well-known shallow water equations in the sense that dispersion is modeled. The shallow water equations are a system of first
@@ -14,12 +14,14 @@ include third-order mixed derivatives. In primitive variables ``q = (\eta, v)`` 
 \end{aligned}
 ```
 
-Here, ``\eta = h + b`` describes the total water height, ``h`` the water height above the bottom topography (bathymetry), ``b = \eta_0 - D``
-the bathymetry and ``v`` the velocity in horizontal direction. Here, ``\eta_0`` is a reference water height also called still water height.
+Here, as in all equations in DispersiveShallowWater.jl ``\eta = h + b`` describes the total water height, ``h`` the water height above the bottom topography (bathymetry), ``b = \eta_0 - D``
+the bathymetry and ``v`` the velocity in horizontal direction. ``\eta_0`` is a reference water height also called still water height.
 In the case of the BBM-BBM equations, ``\eta_0`` is usually taken to be 0. The gravitational acceleration is denoted as ``g``. A sketch of
 the water height and the bathymetry can be found below.
 
 ![water height and bathymetry](bathymetry.png)
+
+## Basic Example
 
 In order to conduct a numerical simulation with DispersiveShallowWater.jl, we perform the following steps.
 
@@ -159,7 +161,7 @@ and [plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/
 
 Here follows a version of the program without any comments.
 
-```
+```Julia
 using DispersiveShallowWater, OrdinaryDiffEqTsit5
 
 equations = BBMBBMEquations1D(bathymetry_type = bathymetry_variable, gravity = 9.81)
