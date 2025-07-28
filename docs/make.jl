@@ -82,6 +82,8 @@ makedocs(;
          pages = ["Home" => "index.md",
              "Overview" => "overview.md",
              "Dispersion" => "dispersion.md",
+             "Relaxation" => "relaxation.md",
+             "Dingemans" => "dingemans.md",
              "Development" => "development.md",
              "Miscellaneous" => "miscellaneous.md",
              "Reference" => [

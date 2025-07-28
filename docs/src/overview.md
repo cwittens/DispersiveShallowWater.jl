@@ -2,8 +2,7 @@
 
 ## Introduction
 
-In this tutorial we describe how to numerically solve the BBM-BBM (Benjamin-Bona-Mahony) equations with variable bottom topography in one dimension,
-which has been proposed in [^IsrawiKalischKatsaounisMitsotakis2021] for two spatial dimensions. The equations describe a dispersive shallow water model,
+In this tutorial we describe how to numerically solve the BBM-BBM (Benjamin-Bona-Mahony) equations with variable bottom topography in one dimension. The equations describe a dispersive shallow water model,
 i.e. they extend the well-known shallow water equations in the sense that dispersion is modeled. The shallow water equations are a system of first
 order hyperbolic partial differential equations that can be written in the form of a balance law. In contrast, the BBM-BBM equations additionally
 include third-order mixed derivatives. In primitive variables ``q = (\eta, v)`` they can be written as:
@@ -93,19 +92,7 @@ Finally, we put the `mesh`, the `equations`, the `initial_condition`, the `solve
 
 Once we have obtained a semidiscretization, we can solve the resulting system of ordinary differential equations. To do so, we specify the time interval that
 we want to simulate and obtain an `ODEProblem` from the [SciML ecosystem for ordinary differential equations](https://diffeq.sciml.ai/latest/) by calling
-[`semidiscretize`](@ref) on the semidiscretization and the time span. Additionally, we can analyze the numerical solution using an [`AnalysisCallback`](@ref).
-The analysis includes computing the ``L^2`` error and ``L^\infty`` error of the different solution's variables compared to the initial condition (or, if available,
-at the same time analytical solution). Additional errors can be passed by the keyword argument `extra_analysis_errors`. Additional integral quantities that should
-be analyzed can be passed by keyword argument `extra_analysis_integrals`. In this example we pass the `conservation_error`, which computes the temporal change of
-the total amount (i.e. integral) of the different variables over time. In addition, the integrals of the total water height ``\eta`` [`waterheight_total`](@ref),
-the [`velocity`](@ref) and the [`entropy`](@ref) are computed and saved for each time step. The total water height and the total velocity are linear invariants of
-the BBM-BBM equations, i.e. they do not change over time. The total entropy
-
-```math
-\mathcal E(t; \eta, v) = \frac{1}{2}\int_\Omega g\eta^2 + (\eta + D)v^2\textrm{d}x
-```
-
-is a nonlinear invariant and should be constant over time as well. During the simulation, the `AnalysisCallback` will print the results to the terminal.
+[`semidiscretize`](@ref) on the semidiscretization and the time span.
 
 Finally, the `ode` can be `solve`d using the interface from [OrdinaryDiffEq.jl](https://github.com/SciML/OrdinaryDiffEq.jl). This means we can specify a time-stepping
 scheme we want to use, the tolerances for the adaptive time-stepping, and the time values, where the solution values should be saved. In this case, we use the adaptive
@@ -116,20 +103,12 @@ Here, we save the solution at 100 equidistant points.
 ```@example overview
 tspan = (0.0, 25.0)
 ode = semidiscretize(semi, tspan)
-analysis_callback = AnalysisCallback(semi; interval = 10,
-                                     extra_analysis_errors = (:conservation_error,),
-                                     extra_analysis_integrals = (waterheight_total,
-                                                                 velocity, entropy),
-                                     io = devnull)
-callbacks = CallbackSet(analysis_callback)
 
 saveat = range(tspan..., length = 100)
-sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,
-            save_everystep = false, callback = callbacks, saveat = saveat)
+sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7, saveat = saveat)
 ```
 
-After solving the equations, `sol` contains the solution for each of the three variables at every spatial point for each of the 100 points in time. The errors and
-integrals recorded by the `AnalysisCallback` can be obtained as `NamedTuple`s by [`errors(analysis_callback)`](@ref) and [`integrals(analysis_callback)`](@ref).
+After solving the equations, `sol` contains the solution for each of the—in this case—three variables at every spatial point for each of the 100 points in time.
 
 ## [Visualize results](@id visualize_results)
 
@@ -146,17 +125,12 @@ nothing # hide
 
 ![shoaling solution](shoaling_solution.png)
 
-By default, this will plot the bathymetry, but not the initial (analytical) solution. You can adjust this by passing the boolean values `plot_bathymetry` (if `true`
-always plot to first subplot) and `plot_initial`. Note that `plot_initial = true` will plot the initial solution at the same time as the numerical solution is plotted
-(the final time by default), i.e., if the initial condition is also used as an analytical solution, this will plot the analytical solution.
-You can also provide a `conversion` function that converts the solution. A conversion function should take the values
-of the primitive variables `q` at one node, and the `equations` as input and should return an `SVector` of any length as output. For a user defined conversion function,
-there should also exist a function `varnames(conversion, equations)` that returns a `Tuple` of the variable names used for labelling. The conversion function can, e.g.,
-be [`prim2cons`](@ref) or [`waterheight_total`](@ref) if one only wants to plot the total water height. The resulting plot will have one subplot for each of the returned
-variables of the conversion variable. By default, the conversion function is just [`prim2phys`](@ref), which computes the physical variables
-from the primitive ones, i.e., the identity for most equations.
+By default, this will plot the bathymetry, but not the initial (analytical) solution. 
 
-Plotting an animation over time can, e.g., be done by the following command, which uses `step` to plot the solution at a specific time step.
+You can adjust this by passing the boolean values `plot_bathymetry` (if `true`, always plot bathymetry in the first subplot) and `plot_initial`. Note that `plot_initial = true` will evaluate and plot the initial condition function at the same time `t` as the numerical solution being displayed (the final time by default). This means if your initial condition function represents an analytical solution, setting `plot_initial = true` will plot the analytical solution at that specific time for comparison.
+
+
+Plotting an animation over time can, e.g., be done by the following command, which uses `step` to plot the solution at a specific time step. Here `conversion = waterheight_total` makes it so that we only look at the waterheight ``\eta`` and not also the velocity ``v``. More on conversion functions for plotting can be found at TODO!!.
 
 ```@example overview
 anim = @animate for step in 1:length(sol.u)
@@ -172,77 +146,51 @@ It is also possible to plot the solution variables at a fixed spatial point over
 [plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/plot_examples.jl) from the reproducibility repository of the master
 thesis of Joshua Lampert for some examples.
 
-Often, it is interesting to have a look at how the quantities that are recorded by the `AnalysisCallback` evolve in time. To this end, you can `plot` the `AnalysisCallback` by
-
-```@example overview
-plot(analysis_callback)
-savefig("analysis_callback.png") # hide
-nothing # hide
-```
-
-This creates the following figure:
-
-![analysis callback](analysis_callback.png)
-
-You can see that the linear invariants ``\int_\Omega\eta\textrm{d}x`` and ``\int_\Omega v\textrm{d}x`` are indeed conserved exactly. The entropy, however, starts
-growing at around ``t = 17``  and rises up to approximately `5e-5`. This is because of the fact that, during the time integration, a nonlinear invariant is not
-necessarily conserved, even if the semidiscretization conserves the quantity exactly. How to obtain a fully-discrete structure-preserving numerical scheme is explained
-in the following section.
-
-## Use entropy-conserving time integration
-
-To obtain entropy-conserving time-stepping schemes DispersiveShallowWater.jl uses the relaxation method introduced in [^Ketcheson2019] and further developed in
-[^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved
-quantity as the keyword argument `invariant`. Therefore, we can run the same example as above, but using relaxation on the entropy by simply adding another callback
-to the `CallbackSet`:
-
-```@example overview
-analysis_callback = AnalysisCallback(semi; interval = 10,
-                                     extra_analysis_errors = (:conservation_error,),
-                                     extra_analysis_integrals = (waterheight_total,
-                                                                 velocity, entropy),
-                                     io = devnull)
-relaxation_callback = RelaxationCallback(invariant = entropy)
-callbacks = CallbackSet(relaxation_callback, analysis_callback)
-sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,
-            save_everystep = false, callback = callbacks, saveat = saveat)
-```
-
-When you use both, an `AnalysisCallback` and a `RelaxationCallback`, note that the `relaxation_callback` needs to come first inside the `CallbackSet` as it needs to be
-invoked prior to the `analysis_callback`, such that the `analysis_callback` analyzes the solution with the already updated values.
-
-Plotting the `analysis_callback` again, we can see that now also the `entropy` is conserved up to machine precision.
-
-```@example overview
-plot(analysis_callback, ylims = (-5e-16, 5e-16))
-savefig("analysis_callback_relaxation.png") # hide
-nothing # hide
-```
-
-![analysis callback relaxation](analysis_callback_relaxation.png)
-
-
 ## Additional resources
 
-Some more examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
+A lot more examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
 
 
 More examples, especially focussing on plotting, can be found in the scripts [create_figures.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/create_figures.jl)
 and [plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/plot_examples.jl) from the reproducibility repository of the master thesis of Joshua Lampert.
 
-## References
 
-[^IsrawiKalischKatsaounisMitsotakis2021]:
-    Israwi, Kalisch, Katsaounis, Mitsotakis (2021).
-    A regularized shallow-water waves system with slip-wall boundary conditions in a basin: theory and numerical analysis.
-    [DOI: 10.1088/1361-6544/ac3c29](https://doi.org/10.1088/1361-6544/ac3c29)
+## [Plain program](@id overview-plain-program)
 
-[^Ketcheson2019]:
-    Ketcheson (2019):
-    Relaxation Runge-Kutta Methods: Conservation and stability for Inner-Product Norms.
-    [DOI: 10.1137/19M1263662](https://doi.org/10.1137/19M1263662)
+Here follows a version of the program without any comments.
 
-[^RanochaSayyariDalcinParsaniKetcheson2020]:
-    Ranocha, Sayyari, Dalcin, Parsani, Ketcheson (2020):
-    Relaxation Runge–Kutta Methods: Fully-Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier–Stokes Equations
-    [DOI: 10.1137/19M1263480](https://doi.org/10.1137/19M1263480)
+```
+using DispersiveShallowWater, OrdinaryDiffEqTsit5
+
+equations = BBMBBMEquations1D(bathymetry_type = bathymetry_variable, gravity = 9.81)
+
+function initial_condition_shoaling(x, t, equations::BBMBBMEquations1D, mesh)
+    A = 0.07 # amplitude of wave
+    x0 = -30 # initial center
+    eta = A * exp(-0.1*(x - x0)^2)
+    v = 0
+    D = x <= 0.0 ? 0.7 : 0.7 - 1/50 * x
+    return SVector(eta, v, D)
+end
+
+initial_condition = initial_condition_shoaling
+boundary_conditions = boundary_condition_periodic
+
+coordinates_min = -130.0
+coordinates_max = 20.0
+N = 512
+mesh = Mesh1D(coordinates_min, coordinates_max, N)
+
+solver = Solver(mesh, 4)
+
+semi = Semidiscretization(mesh, equations, initial_condition, solver, boundary_conditions = boundary_conditions)
+
+tspan = (0.0, 25.0)
+ode = semidiscretize(semi, tspan)
+
+saveat = range(tspan..., length = 100)
+sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7, saveat = saveat)
+
+using Plots
+plot(semi => sol)
+```
