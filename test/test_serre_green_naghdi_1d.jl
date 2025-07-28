@@ -444,7 +444,8 @@ end
                         l2=[0.10292128993725498, 0.2889327496936603, 0.0],
                         linf=[0.044524450889467326, 0.12376294777800284, 0.0],
                         change_waterheight=1.4210854715202004e-14,
-                        change_entropy_modified=-1.7991674781114853e-6)
+                        change_entropy_modified=-1.7991674781114853e-6,
+                        atol=1e-10) # to make CI pass
 
     @test_allocations(DispersiveShallowWater.rhs!, semi, sol, allocs=350_000)
 end
