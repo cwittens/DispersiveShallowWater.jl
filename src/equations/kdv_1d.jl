@@ -268,3 +268,18 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
 
     return nothing
 end
+
+"""
+    energy_total(q, equations::KdVEquation1D)
+"""
+@inline function energy_total(q, equations::KdVEquation1D)
+    eta = waterheight_total(q, equations)
+    return 0.5f0 * gravity(equations) * eta^2
+end
+
+"""
+    entropy(q, equations::KdVEquation1D)
+"""
+function entropy(q, equations::KdVEquation1D)
+    return energy_total(q, equations)
+end
