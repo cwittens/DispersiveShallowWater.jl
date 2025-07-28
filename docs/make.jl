@@ -101,5 +101,5 @@ makedocs(;
 #            push_preview = true)
 deploydocs(;
            repo = "github.com/cwittens/DispersiveShallowWater.jl", 
-           devbranch = "main",
+           devbranch = "improved-documantation",
            push_preview = true)
