@@ -1,6 +1,6 @@
 # Running a simulation
 
-## Introduction
+## Basic Example
 
 In this tutorial we describe how to numerically solve the BBM-BBM (Benjamin-Bona-Mahony) equations with variable bottom topography in one dimension. The equations describe a dispersive shallow water model,
 i.e. they extend the well-known shallow water equations in the sense that dispersion is modeled. The shallow water equations are a system of first
@@ -65,8 +65,7 @@ If an analytical solution is available, the time variable `t` can be used, and t
 An initial condition in DispersiveShallowWater.jl is supposed to return an `SVector` holding the values for each of the unknown variables. Since the bathymetry is
 treated as a variable (with time derivative 0) for convenience, we need to provide the value for the primitive variables `eta` and `v` as well as for `D`.
 
-Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for some but not all equations. For reference see the 
-<!-- [equation support overview](miscellaneous.md#equation-support-overview). -->
+Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for some but not all equations. For more information see the [equation capabilities overview](@ref eq_overview).
 
 Lastly, we define the physical domain as the interval from -130 to 20 (in meters) and we choose 512 nodes. The mesh is always homogeneous, i.e. the distance between consecutive nodes is constant. We choose the left boundary very far to the left in order to avoid interactions between left- and right-traveling waves. This prevents unwanted wave interference that could occur when waves wrap around due to the periodic boundary conditions.
 

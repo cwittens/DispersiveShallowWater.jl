@@ -1,6 +1,7 @@
 # Miscellaneous
 
-## Equation Support Overview
+## [Equation Capabilities Overview](@id eq_overview)
+
 
 The following table provides an overview of the supported features for each equation type in DispersiveShallowWater.jl:
 
@@ -8,26 +9,33 @@ TODO: check for correctness!!
 
 | Equation | Variables | Periodic boundary conditions | Reflecting boundary conditions | Flat Bathymetry | Mild-slope Bathymetry* | Variable Bathymetry | Relaxation | Source Terms |
 |----------|:---------:|:-----------:|:-------------:|:---------------:|:---------------------:|:-------------------:|:----------:|:------------:|
-| [`BBMEquation1D`](@ref) | 1 (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| [`BBMBBMEquations1D`](@ref) | 3 (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| [`KdVEquation1D`](@ref) | 1 (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| [`SvaerdKalischEquations1D`](@ref) | 3 (`η`, `v`, `D`) | ✅ | ✅**| ❌ | ❌ | ✅ | ✅ | ✅ |
-| [`SerreGreenNaghdiEquations1D`](@ref) | 3 (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [`HyperbolicSerreGreenNaghdiEquations1D`](@ref) | 5 (`η`, `v`, `D`, `w`, `H`) | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
-
-* \* Variable bathymetry with mild-slope approximation (some higher order terms are neglected)*
-
-* \Reflecting boundary conditions for Svärd-Kalisch equations require `alpha = gamma = 0`*
+| [`BBMEquation1D`](@ref) | (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`BBMBBMEquations1D`](@ref) | (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| [`KdVEquation1D`](@ref) | (`η`) | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`SvaerdKalischEquations1D`](@ref) | (`η`, `v`, `D`) | ✅ | ✅**| ❌ | ❌ | ✅ | ✅ | ✅ |
+| [`SerreGreenNaghdiEquations1D`](@ref) | (`η`, `v`, `D`) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`HyperbolicSerreGreenNaghdiEquations1D`](@ref) | (`η`, `v`, `D`, `w`, `H`) | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
 
 
 | Equation | Variables | [Periodic boundary conditions](@ref boundary_condition_periodic) | [Reflecting boundary conditions](@ref boundary_condition_reflecting) | [Flat Bathymetry](@ref bathymetry_flat) | [Mild-slope Bathymetry](@ref bathymetry_mild_slope) | [Variable Bathymetry](@ref bathymetry_variable) | Relaxation | Source Terms |
 |----------|:---------:|:-----------:|:-------------:|:----:|:-----------:|:--------:|:----------:|:-------:|
-| [`BBM`](@ref BBMEquation1D) | 1 ``(\eta)`` | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| [`BBM-BBM`](@ref BBMBBMEquations1D) | 3 ``(\eta, v, D)`` | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| [`KdV`](@ref KdVEquation1D) | 1 ``(\eta)`` | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| [`Svärd-Kalisch`](@ref SvaerdKalischEquations1D) | 3 ``(\eta, v, D)`` | ✅ | ✅** | ❌ | ❌ | ✅ | ✅ | ✅ |
-| [`Serre-Green-Naghdi`](@ref SerreGreenNaghdiEquations1D) | 3 ``(\eta, v, D)`` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [`Hyperbolic SGN`](@ref HyperbolicSerreGreenNaghdiEquations1D) | 5 ``(\eta, v, D, w, H)`` | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
+| [`BBM`](@ref BBMEquation1D) | ``(\eta)`` | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`BBM-BBM`](@ref BBMBBMEquations1D) | ``(\eta, v, D)`` | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| [`KdV`](@ref KdVEquation1D) | ``(\eta)`` | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`Svärd-Kalisch`](@ref SvaerdKalischEquations1D) | ``(\eta, v, D)`` | ✅ | ✅* | ❌ | ❌ | ✅ | ✅ | ✅ |
+| [`Serre-Green-Naghdi`](@ref SerreGreenNaghdiEquations1D) | ``(\eta, v, D)`` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`Hyperbolic SGN`](@ref HyperbolicSerreGreenNaghdiEquations1D) |``(\eta, v, D, w, H)`` | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
+
+*\*Reflecting boundary conditions for Svärd-Kalisch equations require `alpha = gamma = 0`*
+
+## Variable Descriptions
+
+- ``\eta``: Total water height
+- ``v``: Velocity in horizontal direction  
+- ``D``: Still-water depth
+- ``w``: Auxiliary variable in hyperbolic approximation (``\approx -h v_x``)
+- ``H``: Auxiliary variable in hyperbolic approximation (``\approx h``)
+
 
 
 ## AnalysisCallback (maybe put it somewhere else but not in overview!)
