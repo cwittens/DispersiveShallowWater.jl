@@ -1,8 +1,6 @@
-# SBP Operators
+# [Summation by Parts Operators](@id sbp_operates)
 
-how do SPB Operators work... 
-
-# SBP Operators
+This chapter covers the analytical and mathematical background of Summation by Parts Operators in general. To lean more about different solvers and how to use them in DispersivShallowWater.jl. To learn more about different solvers and how to use them in DispersivShallowWater.jl, go to the chapter about [Solvers](@ref solvers).
 
 ## 1. Introduction & Overview
 
@@ -87,53 +85,9 @@ where ``\boldsymbol{x}^k = (x_1^k, \dots, x_N^k)^T`` and the operations are perf
 D\, \boldsymbol{1} = \boldsymbol{0}.
 ```
 
-However, approximating derivatives near boundaries poses a challenge: interior points can use standard finite difference stencils, but near the edges (e.g., at `x_1` or `x_N`), one must use specially designed one-sided approximations that still preserve stability and accuracy. SBP operators handle this via their defining identity:
-
-```math
-MD + D^T M = t_R t_R^T - t_L t_L^T,
-```
-
-which ensures that the discrete scheme mimics **integration by parts**, and hence inherits stability properties from the continuous problem.
-
-In **periodic domains**, the boundary terms vanish, and we recover:
-
-```math
-MD + D^T M = 0,
-```
-
-which corresponds to skew-symmetry with respect to the discrete inner product.
-
-Thus, the SBP derivative operator plays a crucial role in ensuring both **accuracy** and **energy stability** of the numerical method. Its structure is deliberately crafted to balance interior approximations with boundary treatments in a way that mirrors the analytical tools used in PDE theory.
+However, approximating derivatives near boundaries poses a challenge: interior points can use standard finite difference stencils, but near the edges (e.g., at `x_1` or `x_N`), one must use specially designed one-sided approximations that still preserve stability and accuracy. Periodic SBP Operators done have this problem.
 
 
-
-
-### Discrete Integration by Parts in Action
-
-To see how this works in practice, consider computing ``u^T M D v``:
-
-```math
-u^T M D v + u^T D^T M v = u^T t_R t_R^T v - u^T t_L t_L^T v = u_N v_N - u_1 v_1
-```
-
-This shows that:
-```math
-\langle u, Dv \rangle_M + \langle Du, v \rangle_M = u(x_{max})v(x_{max}) - u(x_{min})v(x_{min})
-```
-
-ver1
-```math
-\underbrace{ \underline{u}^T M D \underline{v} + \underline{u}^T D^T M \underline{v} }_{\substack{\textstyle \text{ } \\ \approx \int_{x_{\min}}^{x_{\max}} u \, (\partial_x v) + \int_{x_{\min}}^{x_{\max}} (\partial_x u)\, v }} 
-= 
-\underbrace{ \underline{u}^T \underline{t}_R \underline{t}_R^T \underline{v} - \underline{u}^T \underline{t}_L \underline{t}_L^T \underline{v} }_{\substack{\textstyle \text{ } \\ \approx u(x_{\max}) v(x_{\max}) - u(x_{\min}) v(x_{\min}) }}
-
-```
-
-ver2
-
-
-
-which is exactly the discrete analog of integration by parts!
 
 ### Example: Central Difference Operator
 
@@ -157,6 +111,10 @@ M = \Delta x \cdot \text{diag}(1/2, 1, 1, \ldots, 1, 1/2)
 You can verify that this satisfies the SBP property and provides second-order accuracy in the interior with first-order accuracy at the boundaries.
 
 ## 3. Types of SBP Operators
+
+In practice SBP Operators come in all kind of *flavours*. 
+
+upwind vs. central vs. FD vs. DG vs. CG vs. Fourier
 
 ### Central vs. Upwind SBP Operators
 
@@ -229,31 +187,10 @@ The narrow stencil naturally damps high-frequency oscillations, leading to **bet
 | Periodic smooth solutions | Fourier | Spectral accuracy |
 | Complex geometries | DG | Geometric flexibility |
 
-### Resolution Comparison Example
-
-Here's a simple comparison showing the resolution difference:
-
-```julia
-# Central operators - may have oscillations
-solver_central = Solver(mesh, 4)  # Uses central differences
-
-# Upwind operators - higher resolution
-using SummationByPartsOperators: couple_discontinuously, PeriodicUpwindOperators
-D_legendre = legendre_derivative_operator(-1.0, 1.0, 4)
-uniform_mesh = UniformPeriodicMesh1D(xmin, xmax, div(N, 4))
-minus = couple_discontinuously(D_legendre, uniform_mesh, Val(:minus))
-plus = couple_discontinuously(D_legendre, uniform_mesh, Val(:plus))
-central = couple_discontinuously(D_legendre, uniform_mesh)
-
-D1 = PeriodicUpwindOperators(minus, central, plus)
-D2 = sparse(plus) * sparse(minus)  # Creates narrow-stencil second derivative
-solver_upwind = Solver(D1, D2)
-```
-
-The upwind solver will typically provide sharper resolution of features like wave fronts and boundary layers, at the cost of slightly more computational work per time step.
 
 
-
+# Creating different solvers in DSW.jl
+maybe new page and cross reference.
 ## [Customize solver](@id customize_solver)
 
 In the semidiscretization created above, we used the default SBP operators, which are periodic finite difference operators. Using different SBP operators for the
