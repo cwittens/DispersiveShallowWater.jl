@@ -1,64 +1,95 @@
 # Miscellaneous
 
+# Callbacks
 
-## Callbacks 
+Callbacks provide additional functionality during simulations, such as monitoring solution properties, analyzing errors, or ensuring conservation of physical quantities. DispersiveShallowWater.jl implements three main callback types that can be used individually or in combination to enhance simulation analysis and performance monitoring.
 
-### Summary Callback
+## Summary Callback
 
-HERE PUT A SHORT DISCRITOPN ABOUT THE SummaryCallback()
+The [`SummaryCallback`](@ref) provides performance profiling information at the end of a simulation. It tracks computational time spent in different parts of the code and memory allocations, giving insights into the computational efficiency of the simulation.
 
+The callback automatically prints a detailed timing breakdown showing:
+- Total simulation time and memory allocations
+- Time spent in different computational sections
+- Number of function calls and average execution time per call
 
-Eg that it will return something like
-```
-──────────────────────────────────────────────────────────────────────────────────────
-           DispersiveSWE                     Time                    Allocations
-                                    ───────────────────────   ────────────────────────
-         Tot / % measured:              7.04ms /  54.6%            420KiB /   0.3%
-
-Section                     ncalls     time    %tot     avg     alloc    %tot      avg
-──────────────────────────────────────────────────────────────────────────────────────
-rhs!                         3.56k   3.84ms  100.0%  1.08μs   1.25KiB  100.0%    0.36B
-  hyperbolic                 3.56k   1.34ms   34.8%   377ns     0.00B    0.0%    0.00B
-  third-order derivatives    3.56k   1.32ms   34.2%   370ns     0.00B    0.0%    0.00B
-  ~rhs!~                     3.56k   1.11ms   28.8%   312ns   1.25KiB  100.0%    0.36B
-  source terms               3.56k   81.2μs    2.1%  22.8ns     0.00B    0.0%    0.00B
-──────────────────────────────────────────────────────────────────────────────────────
-```
-
-in the end. So show an overview of the time it took and the number of alliocations etc
-
-use it by doing:
-```
+```julia
 summary_callback = SummaryCallback()
 sol = solve(ode, Tsit5(), callback = summary_callback)
 ```
 
+At the end of the simulation, the callback will display output similar to:
 
-### Analysis Callback
+```
+───────────────────────────────────────────────────────────────────────────────────────────
+              DispersiveSWE                       Time                    Allocations
+                                         ───────────────────────   ────────────────────────
+            Tot / % measured:                 440ms /  98.4%            867MiB /  99.9%
 
-Additionally, we can analyze the numerical solution using an [`AnalysisCallback`](@ref).
-The analysis includes computing the ``L^2`` error and ``L^\infty`` error of the different solution's variables compared to the initial condition (or, if available,
-at the same time analytical solution). Additional errors can be passed by the keyword argument `extra_analysis_errors`. Additional integral quantities that should
-be analyzed can be passed by keyword argument `extra_analysis_integrals`. In this example we pass the `conservation_error`, which computes the temporal change of
-the total amount (i.e. integral) of the different variables over time. In addition, the integrals of the total water height ``\eta`` [`waterheight_total`](@ref),
-the [`velocity`](@ref) and the [`entropy`](@ref) are computed and saved for each time step. The total water height and the total velocity are linear invariants of
-the BBM-BBM equations, i.e. they do not change over time. The total entropy
-HERE MAKE CLEAR THAT THIS VARIES FOR THE DIFFERENT MODELS
+Section                          ncalls     time    %tot     avg     alloc    %tot      avg
+───────────────────────────────────────────────────────────────────────────────────────────
+rhs!                              1.62k    420ms   97.0%   258μs    866MiB  100.0%   546KiB
+  solving elliptic system         1.62k    247ms   57.2%   152μs    357MiB   41.2%   225KiB
+  assembling elliptic operator    1.62k    167ms   38.6%   103μs    509MiB   58.8%   321KiB
+  hyperbolic terms                1.62k   3.49ms    0.8%  2.15μs     0.00B    0.0%    0.00B
+  ~rhs!~                          1.62k   1.46ms    0.3%   902ns   1.55KiB    0.0%    0.98B
+  source terms                    1.62k   42.0μs    0.0%  25.9ns     0.00B    0.0%    0.00B
+analyze solution                      3   13.2ms    3.0%  4.39ms    147KiB    0.0%  49.1KiB
+───────────────────────────────────────────────────────────────────────────────────────────
+```
+
+
+## Analysis Callback
+
+The [`AnalysisCallback`](@ref) monitors solution quality and physical properties during the simulation. It computes error norms and tracks conservation of important physical quantities at specified time intervals.
+
+### Setting up the Analysis Callback
+
+First, let's set up a basic simulation using the Serre-Green-Naghdi equations:
+
+```@example callback
+using DispersiveShallowWater, OrdinaryDiffEqTsit5
+
+# Define the physical setup
+equations = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_flat,
+                                        gravity = 9.81)
+
+initial_condition = initial_condition_convergence_test
+
+# Create mesh and solver
+coordinates_min = -10.0
+coordinates_max = 10.0
+N = 128
+mesh = Mesh1D(coordinates_min, coordinates_max, N)
+solver = Solver(mesh, 4)
+
+# Create semidiscretization
+semi = Semidiscretization(mesh, equations, initial_condition, solver,
+                          boundary_conditions = boundary_condition_periodic)
+nothing # hide
+```
+
+### Error Analysis and Conservation Monitoring
+
+The analysis callback computes ``L^2`` and ``L^\infty`` errors by comparing the numerical solution to the initial condition (or analytical solution if available). Additional error types can be specified using the `extra_analysis_errors` parameter, and physical quantities can be monitored using `extra_analysis_integrals`.
+
+The conservation error measures the temporal change of conserved quantities. For the Serre-Green-Naghdi equations, important conserved quantities include the total water mass (integral of water height `h`), the total momentum (integral of `h v` for flat bathymetry), and the [`entropy`](@ref). The specific form of the entropy varies between different equation systems.
+
+For the Serre-Green-Naghdi equations, the entropy for flat bathymetry is:
 ```math
-\mathcal E(t; \eta, v) = \frac{1}{2}\int_\Omega g\eta^2 + (\eta + D)v^2\textrm{d}x
+\mathcal E(t; \eta, v) = \int_\Omega \frac{1}{2} g\eta^2 + \frac{1}{2} h v^2 + \frac{1}{6} h^3 v_x^2 \, dx
 ```
 
-is a nonlinear invariant and should be constant over time as well. During the simulation, the `AnalysisCallback` will print the results to the terminal.
+where ``h`` is the water height above the bathymetry.
 
-THIS WAS ORIGINIALLY PART OF THE OVERVIEW. NOW THAT IT IS STAND ALONE MAKE SURE ALL THE RELEVANT CODE FROM BEFORE TO DEFINE THE SETUP WILL ALSO BE HERE AND EXECUTED WHEN DOING DOCUMENTER.JL BY DOING ```@example callback ...
-USE THE SGN EQUATIONS HERE.
-```
-tspan = (0.0, 25.0)
+```@example callback
+tspan = (0.0, 2.0)
 ode = semidiscretize(semi, tspan)
+
 analysis_callback = AnalysisCallback(semi; interval = 10,
                                      extra_analysis_errors = (:conservation_error,),
                                      extra_analysis_integrals = (waterheight_total,
-                                                                 velocity, entropy),
+                                                                 entropy_modified),
                                      io = devnull)
 summary_callback = SummaryCallback() # also include the summary callback here
 callbacks = CallbackSet(analysis_callback, summary_callback)
@@ -66,58 +97,48 @@ callbacks = CallbackSet(analysis_callback, summary_callback)
 saveat = range(tspan..., length = 100)
 sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,
             save_everystep = false, callback = callbacks, saveat = saveat)
+nothing # hide
 ```
 
+The recorded errors and integrals can be accessed as `NamedTuple`s using [`errors(analysis_callback)`](@ref) and [`integrals(analysis_callback)`](@ref).
 
-The errors and
-integrals recorded by the `AnalysisCallback` can be obtained as `NamedTuple`s by [`errors(analysis_callback)`](@ref) and [`integrals(analysis_callback)`](@ref).
+### Visualizing Conservation Properties
 
-Often, it is interesting to have a look at how the quantities that are recorded by the `AnalysisCallback` evolve in time. To this end, you can `plot` the `AnalysisCallback` by
+The temporal evolution of monitored quantities can be visualized by plotting the analysis callback:
 
-```
+```@example callback
+using Plots
 plot(analysis_callback)
 savefig("analysis_callback.png") # hide
 nothing # hide
 ```
 
-This creates the following figure:
-
 ![analysis callback](analysis_callback.png)
 
-You can see that the linear invariants ``\int_\Omega\eta\textrm{d}x`` and ``\int_\Omega v\textrm{d}x`` are indeed conserved exactly. The entropy, however, starts
-growing at around ``t = 17``  and rises up to approximately `5e-5`. This is because of the fact that, during the time integration, a nonlinear invariant is not
-necessarily conserved, even if the semidiscretization conserves the quantity exactly. How to obtain a fully-discrete structure-preserving numerical scheme is explained
-in the following section.
+The plot shows that linear invariants like ``\int_\Omega\eta\,dx`` and ``\int_\Omega v\,dx`` are conserved exactly. However, nonlinear invariants such as the entropy may exhibit small growth over time. This occurs because standard time integration methods do not necessarily preserve nonlinear invariants, even when the spatial discretization is conservative.
 
+## Relaxation Callback
 
-### Relaxation Callback
+The [`RelaxationCallback`](@ref) ensures exact conservation of nonlinear invariants during time integration using the relaxation method [^Ketcheson2019] [^RanochaSayyariDalcinParsaniKetcheson2020]. MORE ABOUT IT IN CHAPTER [Relaxation](@ref relaxation_explained). This callback modifies the time step to maintain conservation of a specified quantity.
 
-## Use entropy-conserving time integration
+### Entropy-Conserving Time Integration
 
-To obtain entropy-conserving time-stepping schemes DispersiveShallowWater.jl uses the relaxation method introduced in [^Ketcheson2019] and further developed in
-[^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved
-quantity as the keyword argument `invariant`. Therefore, we can run the same example as above, but using relaxation on the entropy by simply adding another callback
-to the `CallbackSet`:
-
-USE THE SETUP FROM BEFORE TO DO THE RELAXATION CALLBACK NOW
+To achieve exact conservation of the entropy, we add a relaxation callback to the simulation:
 
 ```@example callback
-analysis_callback = AnalysisCallback(semi; interval = 10,
-                                     extra_analysis_errors = (:conservation_error,),
-                                     extra_analysis_integrals = (waterheight_total,
-                                                                 velocity, entropy),
-                                     io = devnull)
 relaxation_callback = RelaxationCallback(invariant = entropy)
-# Always put relaxation_callback before analysis_callback to guarantee conservation of the invariant
+
+# Important: RelaxationCallback must come before AnalysisCallback
 callbacks = CallbackSet(relaxation_callback, analysis_callback)
 sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,
             save_everystep = false, callback = callbacks, saveat = saveat)
+nothing # hide
 ```
 
-When you use both, an `AnalysisCallback` and a `RelaxationCallback`, note that the `relaxation_callback` needs to come first inside the `CallbackSet` as it needs to be
-invoked prior to the `analysis_callback`, such that the `analysis_callback` analyzes the solution with the already updated values.
+!!! note "Callback Ordering"
+    When using both `RelaxationCallback` and `AnalysisCallback`, the relaxation callback must be placed first in the `CallbackSet`. This ensures that the analysis callback monitors the solution after the relaxation step has been applied.
 
-Plotting the `analysis_callback` again, we can see that now also the `entropy` is conserved up to machine precision.
+The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation up to machine precision:
 
 ```@example callback
 plot(analysis_callback, ylims = (-5e-16, 5e-16))
@@ -127,24 +148,19 @@ nothing # hide
 
 ![analysis callback relaxation](analysis_callback_relaxation.png)
 
+The plot demonstrates that with the relaxation callback, the entropy is conserved to machine precision throughout the simulation, providing a fully discrete structure-preserving numerical scheme.
 
-
-
-
-
-[^RanochaSayyariDalcinParsaniKetcheson2020]:
-    Ranocha, Sayyari, Dalcin, Parsani, Ketcheson (2020):
-    Relaxation Runge–Kutta Methods: Fully-Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier–Stokes Equations
-    [DOI: 10.1137/19M1263480](https://doi.org/10.1137/19M1263480)
-
+## References
 
 [^Ketcheson2019]:
     Ketcheson (2019):
     Relaxation Runge-Kutta Methods: Conservation and stability for Inner-Product Norms.
     [DOI: 10.1137/19M1263662](https://doi.org/10.1137/19M1263662)
 
-
-
+[^RanochaSayyariDalcinParsaniKetcheson2020]:
+    Ranocha, Sayyari, Dalcin, Parsani, Ketcheson (2020):
+    Relaxation Runge–Kutta Methods: Fully-Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier–Stokes Equations.
+    [DOI: 10.1137/19M1263480](https://doi.org/10.1137/19M1263480)
 
 ## conversion functions
 
