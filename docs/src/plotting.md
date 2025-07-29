@@ -130,15 +130,15 @@ time_points = tstops(analysis_callback2)
 
 p1 = plot(time_points, error_data.l2_error[1, :], 
           title = "L² Error Evolution", xlabel = "t", ylabel = "L² error", 
-          label = "η", color = :blue)
+          label = "η")
 plot!(p1, time_points, error_data.l2_error[2, :], 
-      label = "v", color = :red)
+      label = "v")
 
 p2 = plot(time_points, error_data.linf_error[1, :], 
           title = "L∞ Error Evolution", xlabel = "t", ylabel = "L∞ error",
-          label = "η", color = :blue)
+          label = "η")
 plot!(p2, time_points, error_data.linf_error[2, :], 
-      label = "v", color = :red)
+      label = "v")
 
 plot(p1, p2, layout = (1, 2), size = (800, 400))
 savefig("error_analysis.png") # hide
