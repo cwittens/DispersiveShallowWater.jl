@@ -85,6 +85,7 @@ makedocs(;
              "Dingemans" => "dingemans.md",
             #  "Relaxation" => "relaxation.md",
              "Dispersion" => "dispersion.md",
+             "Callbacks" => "callbacks.md",
              "SBP Operators" => "SBP_Operators.md",
              "Plotting" => "plotting.md",
              "Miscellaneous" => "miscellaneous.md",
