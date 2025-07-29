@@ -4,6 +4,13 @@
 
 Callbacks provide additional functionality during simulations, such as monitoring solution properties, analyzing errors, or ensuring conservation of physical quantities. DispersiveShallowWater.jl implements three main callback types that can be used individually or in combination to enhance simulation analysis and performance monitoring.
 
+When using multiple callbacks simultaneously, combine them using a `CallbackSet`:
+
+```julia
+callbacks = CallbackSet(analysis_callback, summary_callback)
+sol = solve(ode, Tsit5(), callback = callbacks)
+```
+
 ## Summary Callback
 
 The [`SummaryCallback`](@ref) provides performance profiling information at the end of a simulation. It tracks computational time spent in different parts of the code and memory allocations, giving insights into the computational efficiency of the simulation.
