@@ -112,7 +112,7 @@ The temporal evolution of monitored quantities can be visualized by plotting the
 
 ```@example callback
 using Plots
-default( grid=true, box=:on, size=(700, 500), dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
+default(grid=true, box=:on, dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
 
 plot(analysis_callback)
 savefig("analysis_callback.png") # hide

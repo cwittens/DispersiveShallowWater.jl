@@ -143,7 +143,7 @@ plot the solution at the final time by calling `plot` on a `Pair` of the `Semidi
 
 ```@example overview
 using Plots
-
+default( grid=true, box=:on, dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
 plot(semi => sol)
 savefig("shoaling_solution.png") # hide
 nothing # hide
