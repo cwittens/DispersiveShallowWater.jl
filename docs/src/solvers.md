@@ -19,7 +19,7 @@ DispersiveShallowWater.jl follows a modular design that separates the choice of 
 
 This modularity is particularly relevant for research applications where the choice of discretization can significantly impact the preservation of physical invariants and long-time numerical stability. The unified interface enables systematic studies of numerical method performance without requiring separate implementations for each approach.
 
-## Basic Summation by Parts Operator
+## Basic Summation by Parts Solver
 
 As we have already seen in the [basic example](@ref basic_example), the easiest way to create a solver is to pass both a mesh and the desired accuracy order to the [`Solver`](@ref) function. This creates first-, second-, and third-derivative periodic summation-by-parts operators of the given accuracy order on the specified mesh:
 
@@ -64,7 +64,7 @@ The `MattssonNordström2004()` operator family provides SBP operators that satis
 
 ### Upwind Operators
 
-For equations that benefit from upwind discretizations (such as the Serre-Green-Naghdi equations), you can use upwind SBP operators:
+For equations that benefit from upwind discretizations (such as the Serre-Green-Naghdi equations), you can use [upwind SBP Operators](@ref upwind_sbp):
 
 **For periodic boundary conditions:**
 ```julia
@@ -127,7 +127,7 @@ solver = Solver(D1, D2)
 
 ### Discontinuous Galerkin Methods
 
-DispersiveShallowWater.jl supports discontinuous Galerkin (DG) methods through coupled Legendre operators:
+DispersiveShallowWater.jl supports [discontinuous Galerkin (DG)](@ref dg_sbp) methods through coupled Legendre operators:
 
 ```julia
 using SummationByPartsOperators: legendre_derivative_operator,
@@ -152,10 +152,10 @@ This approach creates a DG discretization with polynomial degree `p` within each
 
 ### Fourier Spectral Methods
 
-Fourier collocation methods can be interpreted as periodic SBP operators, which can be constructed via fourier_derivative_operator:
+[Fourier collocation methods](@ref fourier_sbp) can be interpreted as periodic SBP operators, which can be constructed via fourier_derivative_operator:
 
 ```julia
-using SummationByPartsOperators: fourier_derivative_operator
+using SummationByPartsOperators: fourier\_derivative\_operator
 
 # Create solver with Fourier pseudospectral collocation method
 D1 = fourier_derivative_operator(xmin(mesh), xmax(mesh), nnodes(mesh))

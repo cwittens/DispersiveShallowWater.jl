@@ -37,9 +37,6 @@ analysis callback relaxation_analysis_callback_relaxation.png
 
 
 
-
-
-
 [^RanochaSayyariDalcinParsaniKetcheson2020]:
     Ranocha, Sayyari, Dalcin, Parsani, Ketcheson (2020):
     Relaxation Runge–Kutta Methods: Fully-Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier–Stokes Equations

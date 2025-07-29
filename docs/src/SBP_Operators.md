@@ -142,7 +142,7 @@ The choice between central and upwind SBP operators is crucial and depends on th
 #### Central SBP Operators
 
 
-#### Upwind SBP Operators
+#### [Upwind SBP Operators](@id upwind_sbp)
 
 Upwind operators come in pairs ``D_+`` and ``D_-`` with additional dissipation:
 - **Key Property**: ``M(D_+ - D_-)`` is negative semidefinite (provides controlled dissipation)
@@ -173,10 +173,10 @@ The narrow stencil naturally damps high-frequency oscillations, leading to **bet
 
 #### Finite Difference (FD) SBP
 
-#### Discontinuous Galerkin (DG) SBP
+#### [Discontinuous Galerkin (DG) SBP](@id dg_sbp)
 
 #### Continuous Galerkin (CG) SBP
 
-#### Fourier/Spectral SBP
+#### [Fourier/Spectral SBP](@id fourier_sbp)
 
 
