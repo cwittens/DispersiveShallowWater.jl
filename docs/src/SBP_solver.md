@@ -51,10 +51,9 @@ This property is the discrete analog of integration by parts:
 \end{aligned}
 ```
 
-
-h
+where for periodic SBP operators their property naturally simplifies to
 ```math
-\int_a^b u \frac{dv}{dx} dx + \int_a^b \frac{du}{dx} v dx = u(b)v(b) - u(a)v(a)
+MD + D^T M = 0.
 ```
 
 ### Understanding the Mass Matrix
@@ -62,7 +61,7 @@ h
 The mass matrix ``M`` approximates the continuous inner product:
 
 ```math
-\langle u, v \rangle_M = u^T M v \approx \int_a^b u(x) v(x) dx
+\langle u, v \rangle_M = u^T M v \approx \int_{x_{min}}^{x_{max}} u(x) v(x) dx
 ```
 
 For the approximation to be meaningful, we require:
@@ -71,6 +70,43 @@ For the approximation to be meaningful, we require:
 ```
 
 This ensures that the discrete inner product correctly integrates constants.
+
+### Understanding the Derivative Operator
+
+The derivative operator ``D`` approximates the spatial derivative of a function on a discrete grid. That is, for a smooth function ``u(x)``, we want the discrete expression ``D \boldsymbol{u}`` to approximate ``\partial_x u(x)`` at the grid points.
+
+A first-derivative SBP operator is said to be **$p$-th order accurate** if it satisfies:
+
+```math
+D\, \boldsymbol{x}^k = k\, \boldsymbol{x}^{k-1}, \quad \text{for all } k = 0, 1, ..., p,
+```
+
+where ``\boldsymbol{x}^k = (x_1^k, \dots, x_N^k)^T`` and the operations are performed pointwise. This means the discrete operator correctly differentiates monomials up to degree $p$. In particular, **consistency** requires at least zeroth-order accuracy, i.e.,
+
+```math
+D\, \boldsymbol{1} = \boldsymbol{0}.
+```
+
+However, approximating derivatives near boundaries poses a challenge: interior points can use standard finite difference stencils, but near the edges (e.g., at `x_1` or `x_N`), one must use specially designed one-sided approximations that still preserve stability and accuracy. SBP operators handle this via their defining identity:
+
+```math
+MD + D^T M = t_R t_R^T - t_L t_L^T,
+```
+
+which ensures that the discrete scheme mimics **integration by parts**, and hence inherits stability properties from the continuous problem.
+
+In **periodic domains**, the boundary terms vanish, and we recover:
+
+```math
+MD + D^T M = 0,
+```
+
+which corresponds to skew-symmetry with respect to the discrete inner product.
+
+Thus, the SBP derivative operator plays a crucial role in ensuring both **accuracy** and **energy stability** of the numerical method. Its structure is deliberately crafted to balance interior approximations with boundary treatments in a way that mirrors the analytical tools used in PDE theory.
+
+
+
 
 ### Discrete Integration by Parts in Action
 
