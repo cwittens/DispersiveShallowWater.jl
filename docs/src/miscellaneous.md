@@ -166,7 +166,7 @@ Using relaxation, that is conserving nonlinear invariants up to machine pression
 ```@example callback
 plot(errors(analysis_callback).l2_error[1, :], label = "with relaxation",
      xlabel = "time", ylabel = "L2 error", title = "L2 error ")
-plot!(errors(analysis_callback1).l2_error[1, :], label = "without relaxation",
+plot!(errors(analysis_callback2).l2_error[1, :], label = "without relaxation",
       xlabel = "time", ylabel = "L2 error", title = "L2 error")
 savefig("error_growth_relaxation.png") # hide
 nothing # hide
