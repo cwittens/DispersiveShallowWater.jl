@@ -112,7 +112,8 @@ The temporal evolution of monitored quantities can be visualized by plotting the
 
 ```@example callback
 using Plots
-default(; dpi = 200) # hide
+default( grid=true, box=:on, size=(700, 500), dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
+
 plot(analysis_callback)
 savefig("analysis_callback.png") # hide
 nothing # hide
@@ -203,7 +204,7 @@ p3 = plot(semi => sol, conversion = waterheight_total, plot_bathymetry = true,
 p4 = plot(semi => sol, conversion = velocity, plot_initial = true,
           suptitle = "Velocity with Initial Condition", step = step_idx)
 
-plot(p1, p2, p3, p4, layout = (2, 2), size = (800, 600))
+plot(p1, p2, p3, p4, layout = (2, 2), size = (1000, 700))
 savefig("variable_conversions.png") # hide
 nothing # hide
 ```
@@ -251,7 +252,7 @@ p3 = plot(tstops(analysis_callback2), conservation_data.entropy .- conservation_
           title = "Energy Conservation\n(with relaxation)", xlabel = "t", ylabel = "ΔE",
           label = "Energy change", color = :green)
 
-plot(p1, p2, p3, layout = (1, 3), size = (900, 300))
+plot(p1, p2, p3, layout = (3, 1), size = (500, 900))
 savefig("conservation_analysis.png") # hide
 nothing # hide
 ```
