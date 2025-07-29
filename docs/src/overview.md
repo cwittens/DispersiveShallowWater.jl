@@ -44,7 +44,7 @@ A sketch of the water height and bathymetry can be found below.
 
 ![water height and bathymetry](bathymetry.png)
 
-## Basic Example
+## [Basic Example](@id basic_example)
 
 In order to conduct a numerical simulation with DispersiveShallowWater.jl, we perform the following steps.
 
@@ -106,7 +106,8 @@ How to use other summation-by-parts operators, is described in the section on [h
 operators, see, e.g. [examples/bbm\_bbm\_1d/bbm\_bbm\_1d\_basic\_reflecting.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/blob/main/examples/bbm_bbm_1d/bbm_bbm_1d_basic_reflecting.jl).
 
 ```@example overview
-solver = Solver(mesh, 4)
+accuracy_order = 4
+solver = Solver(mesh, accuracy_order)
 
 semi = Semidiscretization(mesh, equations, initial_condition, solver, boundary_conditions = boundary_conditions)
 ```
