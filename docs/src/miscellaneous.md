@@ -89,7 +89,7 @@ The conservation error measures the temporal change of conserved quantities. For
 where ``\eta`` is the total water height and ``D`` is the still-water depth.
 
 ```@example callback
-tspan = (0.0, 2.0)
+tspan = (0.0, 20.0)
 ode = semidiscretize(semi, tspan)
 
 analysis_callback = AnalysisCallback(semi; interval = 10,
@@ -142,10 +142,10 @@ nothing # hide
 !!! note "Callback Ordering"
     When using both `RelaxationCallback` and `AnalysisCallback`, the relaxation callback must be placed first in the `CallbackSet`. This ensures that the analysis callback monitors the solution after the relaxation step has been applied.
 
-The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation up to machine precision:
+The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation up to machine precision: NOT MACHINE PRECISION. WHY?
 
 ```@example callback
-plot(analysis_callback, ylims = (-5e-16, 5e-16))
+plot(analysis_callback, ylims = (-5e-12, 5e-12))
 savefig("analysis_callback_relaxation.png") # hide
 nothing # hide
 ```
