@@ -123,17 +123,22 @@ The plot shows that linear invariants such as the total water mass and total vel
 
 ## Relaxation Callback
 
-The [`RelaxationCallback`](@ref) ensures exact conservation of nonlinear invariants during time integration using the relaxation method [^Ketcheson2019] [^RanochaSayyariDalcinParsaniKetcheson2020]. MORE ABOUT IT IN CHAPTER [Relaxation](@ref relaxation_explained). This callback modifies the time step to maintain conservation of a specified quantity.
+To obtain entropy-conserving time-stepping schemes DispersiveShallowWater.jl uses the relaxation method introduced in [^Ketcheson2019] and further developed in [^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved quantity as the keyword argument `invariant`. This callback modifies the time step to maintain conservation of a specified quantity.
 
 ### Entropy-Conserving Time Integration
 
 To achieve exact conservation of the entropy, we add a relaxation callback to the simulation:
 
 ```@example callback
+analysis_callback2 = AnalysisCallback(semi; interval = 10,
+                                     extra_analysis_errors = (:conservation_error,),
+                                     extra_analysis_integrals = (waterheight_total,
+                                                                 velocity, entropy),
+                                     io = devnull)
 relaxation_callback = RelaxationCallback(invariant = entropy)
 
 # Important: RelaxationCallback must come before AnalysisCallback
-callbacks = CallbackSet(relaxation_callback, analysis_callback)
+callbacks = CallbackSet(relaxation_callback, analysis_callback2)
 sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,
             save_everystep = false, callback = callbacks, saveat = saveat)
 nothing # hide
@@ -142,7 +147,7 @@ nothing # hide
 !!! note "Callback Ordering"
     When using both `RelaxationCallback` and `AnalysisCallback`, the relaxation callback must be placed first in the `CallbackSet`. This ensures that the analysis callback monitors the solution after the relaxation step has been applied.
 
-The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation up to machine precision: NOT MACHINE PRECISION. WHY?
+The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation up to machine precision: NOT MACHINE PRECISION. WHY? Something strange with BBMBBM it feels like.
 
 ```@example callback
 plot(analysis_callback, ylims = (-5e-12, 5e-12))
@@ -153,6 +158,23 @@ nothing # hide
 ![analysis callback relaxation](analysis_callback_relaxation.png)
 
 The plot demonstrates that with the relaxation callback, the entropy is conserved to machine precision throughout the simulation, providing a fully discrete structure-preserving numerical scheme.
+
+## Relaxation
+
+Using relaxation, that is conserving nonlinear invariants up to machine pression not only in the special discretization but also in the temporal discretization with litlle computaional overhead, can improve the stability and the accuracy of the solution. With errow groth over time reducing from quadratic to linear in many cases.
+
+```@example callback
+plot(errors(analysis_callback).l2_error[1, :], label = "with relaxation",
+     xlabel = "time", ylabel = "L2 error", title = "L2 error ")
+plot!(errors(analysis_callback1).l2_error[1, :], label = "without relaxation",
+      xlabel = "time", ylabel = "L2 error", title = "L2 error")
+savefig("error_growth_relaxation.png") # hide
+nothing # hide
+```
+
+![error growth relaxation](error_growth_relaxation.png)
+
+For additional information, consult: https://doi.org/10.1137/19M1263480.
 
 ## References
 
