@@ -219,4 +219,9 @@ sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7, saveat = saveat)
 
 using Plots
 plot(semi => sol)
+
+anim = @animate for step in 1:length(sol.u)
+    plot(semi => sol, plot_initial = true, conversion = waterheight_total, step = step, xlims = (-50, 20), ylims = (-0.8, 0.1))
+end
+gif(anim, "shoaling_solution.gif", fps = 25)
 ```
