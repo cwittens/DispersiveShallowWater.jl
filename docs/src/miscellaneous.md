@@ -166,8 +166,8 @@ The relaxation method conserves nonlinear invariants up to machine precision in 
 The following comparison shows error growth with and without the relaxation method using the above simulation setup:
 
 ```@example callback
-plot(errors(analysis_callback).l2_error[1, :], label = "with relaxation")
-plot!(errors(analysis_callback2).l2_error[1, :], label = "without relaxation")
+plot(errors(analysis_callback).l2_error[1, :], label = "without relaxation")
+plot!(errors(analysis_callback2).l2_error[1, :], label = "with relaxation")
 savefig("error_growth_relaxation.png") # hide
 nothing # hide
 ```
