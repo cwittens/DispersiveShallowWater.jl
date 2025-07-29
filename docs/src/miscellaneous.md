@@ -112,6 +112,7 @@ The temporal evolution of monitored quantities can be visualized by plotting the
 
 ```@example callback
 using Plots
+default(; dpi = 200) # hide
 plot(analysis_callback)
 savefig("analysis_callback.png") # hide
 nothing # hide
