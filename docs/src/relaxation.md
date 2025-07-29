@@ -2,7 +2,7 @@
 
 ## [Relaxation](@id relaxation_explained)
 
-how does relaxation work??...
+delete this file???
 
 To obtain entropy-conserving time-stepping schemes DispersiveShallowWater.jl uses the relaxation method introduced in [^Ketcheson2019] and further developed in
 [^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved
