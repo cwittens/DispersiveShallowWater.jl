@@ -16,6 +16,7 @@ sol = solve(ode, Tsit5(), callback = callbacks)
 The [`SummaryCallback`](@ref) provides performance profiling information at the end of a simulation. It tracks computational time spent in different parts of the code and memory allocations, giving insights into the computational efficiency of the simulation.
 
 The callback automatically prints a detailed timing breakdown showing:
+
 - Total simulation time and memory allocations
 - Time spent in different computational sections
 - Number of function calls and average execution time per call
@@ -52,14 +53,13 @@ The [`AnalysisCallback`](@ref) monitors solution quality and physical properties
 
 ### Setting up the Analysis Callback
 
-First, let's set up a basic simulation using the Serre-Green-Naghdi equations:
+First, let's set up a basic simulation using the BBM-BBM equations:
 
 ```@example callback
 using DispersiveShallowWater, OrdinaryDiffEqTsit5
 
 # Define the physical setup
-equations = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_flat,
-                                        gravity = 9.81)
+equations = BBMBBMEquations1D(gravity = 9.81)
 
 initial_condition = initial_condition_convergence_test
 
@@ -80,14 +80,13 @@ nothing # hide
 
 The analysis callback computes ``L^2`` and ``L^\infty`` errors by comparing the numerical solution to the initial condition (or analytical solution if available). Additional error types can be specified using the `extra_analysis_errors` parameter, and physical quantities can be monitored using `extra_analysis_integrals`.
 
-The conservation error measures the temporal change of conserved quantities. For the Serre-Green-Naghdi equations, important conserved quantities include the total water mass (integral of water height `h`), the total momentum (integral of `h v` for flat bathymetry), and the [`entropy`](@ref). The specific form of the entropy varies between different equation systems.
+The conservation error measures the temporal change of conserved quantities. For the BBM-BBM equations, important conserved quantities include the total water mass (integral of water height `h`), the total momentum (integral of `v` for flat bathymetry), and the [`entropy`](@ref). The specific form of the entropy varies between different equation systems. For the BBM-BBM equations, the entropy is:
 
-For the Serre-Green-Naghdi equations, the entropy for flat bathymetry is:
 ```math
-\mathcal E(t; \eta, v) = \int_\Omega \frac{1}{2} g\eta^2 + \frac{1}{2} h v^2 + \frac{1}{6} h^3 v_x^2 \, dx
+\mathcal E(t; \eta, v) = \frac{1}{2}\int_\Omega g\eta^2 + (\eta + D)v^2 \, dx
 ```
 
-where ``h`` is the water height above the bathymetry.
+where ``\eta`` is the total water height and ``D`` is the still-water depth.
 
 ```@example callback
 tspan = (0.0, 2.0)
@@ -96,7 +95,7 @@ ode = semidiscretize(semi, tspan)
 analysis_callback = AnalysisCallback(semi; interval = 10,
                                      extra_analysis_errors = (:conservation_error,),
                                      extra_analysis_integrals = (waterheight_total,
-                                                                 entropy_modified),
+                                                                 velocity, entropy),
                                      io = devnull)
 
 saveat = range(tspan..., length = 100)
@@ -120,7 +119,7 @@ nothing # hide
 
 ![analysis callback](analysis_callback.png)
 
-The plot shows that linear invariants like ``\int_\Omega\eta\,dx`` and ``\int_\Omega v\,dx`` are conserved exactly. However, nonlinear invariants such as the entropy may exhibit small growth over time. This occurs because standard time integration methods do not necessarily preserve nonlinear invariants, even when the spatial discretization is conservative.
+The plot shows that linear invariants such as the total water mass and total velocity are conserved exactly. However, nonlinear invariants such as the entropy may exhibit small growth over time. This occurs because standard time integration methods do not necessarily preserve nonlinear invariants, even when the spatial discretization is conservative.
 
 ## Relaxation Callback
 
