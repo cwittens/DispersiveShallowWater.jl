@@ -85,7 +85,7 @@ The first line specifies that we want to solve the BBM-BBM equations with variab
 Afterwards, we define the initial condition, which is described as a function with the spatial variable `x`, the time `t`, the `equations` and
 a `mesh` as parameters.
 
-If an analytical solution is available, the time variable `t` can be used, and the initial condition can serve as an analytical solution to be compared with the numerical solution. Otherwise, you can just keep the time variable unused. 
+If an analytical solution is available, the time variable `t` can be used, and the initial condition can serve as an analytical solution to be compared with the numerical solution. Otherwise, you can just keep the time variable unused.
 
 An initial condition in DispersiveShallowWater.jl is supposed to return an `SVector` holding the values for each of the unknown variables. Since the bathymetry is
 treated as a variable (with time derivative 0) for convenience, we need to provide the value for the primitive variables `eta` and `v` as well as for `D`.

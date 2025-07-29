@@ -78,7 +78,7 @@ nothing # hide
 
 ### Error Analysis and Conservation Monitoring
 
-The analysis callback computes ``L^2`` and ``L^\infty`` errors by comparing the numerical solution to the initial condition (or analytical solution if available). Additional error types can be specified using the `extra_analysis_errors` parameter, and physical quantities can be monitored using `extra_analysis_integrals`.
+The analysis callback computes ``L^2`` and ``L^\infty`` errors by comparing the numerical solution to the initial condition at time ``t`` (which can be the analytical solution, if available). Additional error types can be specified using the `extra_analysis_errors` parameter, and physical quantities can be monitored using `extra_analysis_integrals`.
 
 The conservation error measures the temporal change of conserved quantities. For the BBM-BBM equations, important conserved quantities include the total water mass (integral of water height `h`), the total momentum (integral of `v` for flat bathymetry), and the [`entropy`](@ref). The specific form of the entropy varies between different equation systems. For the BBM-BBM equations, the entropy is:
 
