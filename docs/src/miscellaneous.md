@@ -91,12 +91,10 @@ analysis_callback = AnalysisCallback(semi; interval = 10,
                                      extra_analysis_integrals = (waterheight_total,
                                                                  entropy_modified),
                                      io = devnull)
-summary_callback = SummaryCallback() # also include the summary callback here
-callbacks = CallbackSet(analysis_callback, summary_callback)
 
 saveat = range(tspan..., length = 100)
 sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,
-            save_everystep = false, callback = callbacks, saveat = saveat)
+            save_everystep = false, callback = analysis_callback, saveat = saveat)
 nothing # hide
 ```
 
@@ -162,9 +160,13 @@ The plot demonstrates that with the relaxation callback, the entropy is conserve
     Relaxation Runge–Kutta Methods: Fully-Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier–Stokes Equations.
     [DOI: 10.1137/19M1263480](https://doi.org/10.1137/19M1263480)
 
+
+
+# Plotting the solution
+
 ## conversion functions
 
-You can also provide a `conversion` function that converts the solution. A conversion function should take the values
+when plotting can also provide a `conversion` function that converts the solution. A conversion function should take the values
 of the primitive variables `q` at one node, and the `equations` as input and should return an `SVector` of any length as output. For a user defined conversion function,
 there should also exist a function `varnames(conversion, equations)` that returns a `Tuple` of the variable names used for labelling. The conversion function can, e.g.,
 be [`prim2cons`](@ref) or [`waterheight_total`](@ref) if one only wants to plot the total water height. The resulting plot will have one subplot for each of the returned

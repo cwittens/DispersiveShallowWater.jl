@@ -1,3 +1,7 @@
+# SBP Operators
+
+how do SPB Operators work... 
+
 
 ## [Customize solver](@id customize_solver)
 
