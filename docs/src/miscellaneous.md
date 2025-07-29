@@ -123,7 +123,7 @@ The plot shows that linear invariants such as the total water mass and total vel
 
 ## Relaxation Callback
 
-To obtain entropy-conserving time-stepping schemes DispersiveShallowWater.jl uses the relaxation method introduced in [^Ketcheson2019] and further developed in [^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved quantity as the keyword argument `invariant`. This callback modifies the time step to maintain conservation of a specified quantity.
+To obtain entropy-conserving time-stepping schemes, DispersiveShallowWater.jl uses the relaxation method introduced in [^Ketcheson2019] and further developed in [^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved quantity as the keyword argument `invariant`. This callback modifies the time step to maintain conservation of a specified quantity.
 
 ### Entropy-Conserving Time Integration
 
@@ -150,7 +150,7 @@ nothing # hide
 The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation up to machine precision: NOT MACHINE PRECISION. WHY? Something strange with BBMBBM it feels like.
 
 ```@example callback
-plot(analysis_callback, ylims = (-5e-12, 5e-12))
+plot(analysis_callback2, ylims = (-2e-12, 2e-12))
 savefig("analysis_callback_relaxation.png") # hide
 nothing # hide
 ```
@@ -161,20 +161,21 @@ The plot demonstrates that with the relaxation callback, the entropy is conserve
 
 ## Relaxation
 
-Using relaxation, that is conserving nonlinear invariants up to machine pression not only in the special discretization but also in the temporal discretization with litlle computaional overhead, can improve the stability and the accuracy of the solution. With errow groth over time reducing from quadratic to linear in many cases.
+The relaxation method conserves nonlinear invariants up to machine precision in both the spatial and temporal discretization with minimal computational overhead. This can improve solution stability and accuracy, often reducing error growth over time from quadratic to linear.
+
+The following comparison shows error growth with and without the relaxation method using the above simulation setup:
 
 ```@example callback
-plot(errors(analysis_callback).l2_error[1, :], label = "with relaxation",
-     xlabel = "time", ylabel = "L2 error", title = "L2 error ")
-plot!(errors(analysis_callback2).l2_error[1, :], label = "without relaxation",
-      xlabel = "time", ylabel = "L2 error", title = "L2 error")
+plot(errors(analysis_callback).l2_error[1, :], label = "with relaxation")
+plot!(errors(analysis_callback2).l2_error[1, :], label = "without relaxation")
 savefig("error_growth_relaxation.png") # hide
 nothing # hide
 ```
 
+
 ![error growth relaxation](error_growth_relaxation.png)
 
-For additional information, consult: https://doi.org/10.1137/19M1263480.
+For additional information, see [Ranocha et al. (2020)](https://doi.org/10.1137/19M1263480).
 
 ## References
 
