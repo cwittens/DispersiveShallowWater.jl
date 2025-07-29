@@ -1,6 +1,30 @@
-# Running a simulation
+# Overview and Tutorial
 
-## Short Introduction
+## [Dispersive Shallow Water Models](@id eq_overview)
+
+DispersiveShallowWater.jl currently provides six different dispersive shallow water equation systems that can be used for modeling water waves. Each equation system offers different levels of physical accuracy, computational complexity, and supports various boundary conditions and bathymetry types. The following table provides an overview of the supported features for each equation type:
+
+| Equation | Variables | [Periodic boundary conditions](@ref boundary_condition_periodic) | [Reflecting boundary conditions](@ref boundary_condition_reflecting) | [Flat Bathymetry](@ref bathymetry_flat) | [Mild-slope Bathymetry](@ref bathymetry_mild_slope) | [Variable Bathymetry](@ref bathymetry_variable) | Relaxation | Source Terms |
+|----------|:---------:|:-----------:|:-------------:|:----:|:-----------:|:--------:|:----------:|:-------:|
+| [`KdV`](@ref KdVEquation1D) | ``(\eta)`` | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`BBM`](@ref BBMEquation1D) | ``(\eta)`` | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| [`BBM-BBM`](@ref BBMBBMEquations1D) | ``(\eta, v, D)`` | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
+| [`Svärd-Kalisch`](@ref SvaerdKalischEquations1D) | ``(\eta, v, D)`` | ✅ | ✅ᵃ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| [`Serre-Green-Naghdi`](@ref SerreGreenNaghdiEquations1D) | ``(\eta, v, D)`` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [`Hyperbolic SGN`](@ref HyperbolicSerreGreenNaghdiEquations1D) |``(\eta, v, D, w, H)`` | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
+
+*ᵃReflecting boundary conditions for Svärd-Kalisch equations require `alpha = gamma = 0`*
+
+### Variable Descriptions
+
+- ``\eta``: Total water height
+- ``v``: Velocity in horizontal direction  
+- ``D``: Still-water depth
+- ``w``: Auxiliary variable in hyperbolic approximation (``\approx -h v_x``)
+- ``H``: Auxiliary variable in hyperbolic approximation (``\approx h``)
+
+
+## Introduction
 
 In this tutorial we describe how to numerically solve the BBM-BBM (Benjamin-Bona-Mahony) equations with variable bottom topography in one dimension. The equations describe a dispersive shallow water model,
 i.e. they extend the well-known shallow water equations in the sense that dispersion is modeled. The shallow water equations are a system of first
@@ -14,10 +38,9 @@ include third-order mixed derivatives. In primitive variables ``q = (\eta, v)`` 
 \end{aligned}
 ```
 
-Here, as in all equations in DispersiveShallowWater.jl ``\eta = h + b`` describes the total water height, ``h`` the water height above the bottom topography (bathymetry), ``b = \eta_0 - D``
-the bathymetry and ``v`` the velocity in horizontal direction. ``\eta_0`` is a reference water height also called still water height.
-In the case of the BBM-BBM equations, ``\eta_0`` is usually taken to be 0. The gravitational acceleration is denoted as ``g``. A sketch of
-the water height and the bathymetry can be found below.
+All equations in DispersiveShallowWater.jl follow the same variable conventions: ``\eta = h + b`` describes the total water height, ``h`` the water height above the bottom topography (bathymetry), ``b = \eta_0 - D`` the bathymetry, and ``v`` the velocity in horizontal direction. The reference water height ``\eta_0`` (also called still water height) and gravitational acceleration ``g`` are used consistently across all equations. For the BBM-BBM equations specifically, ``\eta_0`` is typically set to 0.
+
+A sketch of the water height and bathymetry can be found below.
 
 ![water height and bathymetry](bathymetry.png)
 
@@ -67,7 +90,7 @@ If an analytical solution is available, the time variable `t` can be used, and t
 An initial condition in DispersiveShallowWater.jl is supposed to return an `SVector` holding the values for each of the unknown variables. Since the bathymetry is
 treated as a variable (with time derivative 0) for convenience, we need to provide the value for the primitive variables `eta` and `v` as well as for `D`.
 
-Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for some but not all equations. For more information see the [equation capabilities overview](@ref eq_overview).
+Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for some but not all equations. For more information see the [Dispersive Shallow Water Models overview](@ref eq_overview).
 
 Lastly, we define the physical domain as the interval from -130 to 20 (in meters) and we choose 512 nodes. The mesh is always homogeneous, i.e. the distance between consecutive nodes is constant. We choose the left boundary very far to the left in order to avoid interactions between left- and right-traveling waves. This prevents unwanted wave interference that could occur when waves wrap around due to the periodic boundary conditions.
 
