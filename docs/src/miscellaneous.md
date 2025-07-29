@@ -177,22 +177,10 @@ nothing # hide
 
 For additional information on relaxation, how it works, and why and when it is useful, see [Ranocha et al. (2020)](https://doi.org/10.1137/19M1263480).
 
-## References
-
-[^Ketcheson2019]:
-    Ketcheson (2019):
-    Relaxation Runge-Kutta Methods: Conservation and stability for Inner-Product Norms.
-    [DOI: 10.1137/19M1263662](https://doi.org/10.1137/19M1263662)
-
-[^RanochaSayyariDalcinParsaniKetcheson2020]:
-    Ranocha, Sayyari, Dalcin, Parsani, Ketcheson (2020):
-    Relaxation Runge–Kutta Methods: Fully-Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier–Stokes Equations.
-    [DOI: 10.1137/19M1263480](https://doi.org/10.1137/19M1263480)
-
 
 # Plotting Simulation Results
 
-DispersiveShallowWater.jl provides flexible plotting capabilities through [Plots.jl](https://github.com/JuliaPlots/Plots.jl) integration. The plotting system supports various conversion functions, visualization options, and analysis tools.
+DispersiveShallowWater.jl provides flexible plotting capabilities through [Plots.jl](https://github.com/JuliaPlots/Plots.jl) recipes. The plotting system supports various conversion functions, visualization options, and analysis tools.
 
 ## Variable Conversion and Visualization Options
 
@@ -202,14 +190,17 @@ The plotting system supports different variable conversions and visualization op
 using Plots
 
 # Plot different variable representations
+
+t = 13.37 # plot solution at (roughly) t = 13.37s
+step_idx = argmin(abs.(saveat .- t)) # get the closed point to 13.37
 p1 = plot(semi => sol, conversion = prim2prim, plot_bathymetry = false, 
-          suptitle = "Primitive Variables", step = 50)
+          suptitle = "Primitive Variables", step = step_idx)
 p2 = plot(semi => sol, conversion = prim2cons, plot_bathymetry = false,
-          suptitle = "Conservative Variables", step = 50)
+          suptitle = "Conservative Variables", step = step_idx)
 p3 = plot(semi => sol, conversion = waterheight_total, plot_bathymetry = true,
-          suptitle = "Total Water Height", step = 50)
+          suptitle = "Total Water Height", step = step_idx)
 p4 = plot(semi => sol, conversion = velocity, plot_initial = true,
-          suptitle = "Velocity with Initial Condition", step = 50)
+          suptitle = "Velocity with Initial Condition", step = step_idx)
 
 plot(p1, p2, p3, p4, layout = (2, 2), size = (800, 600))
 savefig("variable_conversions.png") # hide
@@ -227,14 +218,10 @@ You can analyze the temporal evolution of the solution at specific spatial locat
 x_location = 0.0
 
 p1 = plot(semi => sol, x_location, conversion = waterheight_total,
-          title = "Water Height Evolution at x = $x_location", 
-          xlabel = "t", ylabel = "η", color = :blue, linewidth = 2, 
-          label = "η")
+          suptitle = "Water Height Evolution at x = $x_location")
 
 p2 = plot(semi => sol, x_location, conversion = velocity,
-          title = "Velocity Evolution at x = $x_location", 
-          xlabel = "t", ylabel = "v", color = :red, linewidth = 2,
-          label = "v")
+          suptitle = "Velocity Evolution at x = $x_location")
 
 plot(p1, p2, layout = (1, 2), size = (800, 400))
 savefig("time_series_analysis.png") # hide
@@ -253,15 +240,15 @@ conservation_data = integrals(analysis_callback2)
 
 p1 = plot(tstops(analysis_callback2), conservation_data.waterheight_total,
           title = "Water Mass Conservation", xlabel = "t", ylabel = "∫η",
-          label = "Total water height", color = :blue, linewidth = 2)
+          label = "Total water height", color = :blue)
 
 p2 = plot(tstops(analysis_callback2), conservation_data.velocity,
           title = "Momentum Conservation", xlabel = "t", ylabel = "∫v", 
-          label = "Total velocity", color = :red, linewidth = 2)
+          label = "Total velocity", color = :red)
 
 p3 = plot(tstops(analysis_callback2), conservation_data.entropy .- conservation_data.entropy[1],
-          title = "Energy Conservation (with relaxation)", xlabel = "t", ylabel = "ΔE",
-          label = "Energy change", color = :green, linewidth = 2)
+          title = "Energy Conservation\n(with relaxation)", xlabel = "t", ylabel = "ΔE",
+          label = "Energy change", color = :green)
 
 plot(p1, p2, p3, layout = (1, 3), size = (900, 300))
 savefig("conservation_analysis.png") # hide
@@ -281,15 +268,15 @@ time_points = tstops(analysis_callback2)
 
 p1 = plot(time_points, error_data.l2_error[1, :], 
           title = "L² Error Evolution", xlabel = "t", ylabel = "L² error", 
-          label = "η", color = :blue, linewidth = 2)
+          label = "η", color = :blue)
 plot!(p1, time_points, error_data.l2_error[2, :], 
-      label = "v", color = :red, linewidth = 2)
+      label = "v", color = :red)
 
 p2 = plot(time_points, error_data.linf_error[1, :], 
           title = "L∞ Error Evolution", xlabel = "t", ylabel = "L∞ error",
-          label = "η", color = :blue, linewidth = 2)
+          label = "η", color = :blue)
 plot!(p2, time_points, error_data.linf_error[2, :], 
-      label = "v", color = :red, linewidth = 2)
+      label = "v", color = :red)
 
 plot(p1, p2, layout = (1, 2), size = (800, 400))
 savefig("error_analysis.png") # hide
@@ -299,3 +286,17 @@ nothing # hide
 ![error analysis](error_analysis.png)
 
 The plotting system supports all standard Plots.jl features like custom color schemes, annotations, and interactive backends. For more advanced plotting options, consult the [Plots.jl documentation](https://docs.juliaplots.org/).
+
+
+
+### References
+
+[^Ketcheson2019]:
+    Ketcheson (2019):
+    Relaxation Runge-Kutta Methods: Conservation and stability for Inner-Product Norms.
+    [DOI: 10.1137/19M1263662](https://doi.org/10.1137/19M1263662)
+
+[^RanochaSayyariDalcinParsaniKetcheson2020]:
+    Ranocha, Sayyari, Dalcin, Parsani, Ketcheson (2020):
+    Relaxation Runge–Kutta Methods: Fully-Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier–Stokes Equations.
+    [DOI: 10.1137/19M1263480](https://doi.org/10.1137/19M1263480)
