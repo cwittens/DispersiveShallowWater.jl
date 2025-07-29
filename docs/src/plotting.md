@@ -35,6 +35,7 @@ relaxation_callback = RelaxationCallback(invariant = entropy)# hide
 callbacks = CallbackSet(relaxation_callback, analysis_callback2)# hide
 sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,# hide
             save_everystep = false, callback = callbacks, saveat = saveat)# hide
+
 nothing # hide
 ```
 
@@ -48,6 +49,7 @@ The plotting system supports different variable conversions and visualization op
 
 ```@example plotting
 using Plots
+default(grid=true, box=:on, dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
 
 # Plot different variable representations
 
