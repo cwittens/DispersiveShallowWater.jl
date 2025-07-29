@@ -175,7 +175,7 @@ nothing # hide
 
 ![error growth relaxation](error_growth_relaxation.png)
 
-For additional information, see [Ranocha et al. (2020)](https://doi.org/10.1137/19M1263480).
+For additional information on relaxation, how it works, and why and when it is useful, see [Ranocha et al. (2020)](https://doi.org/10.1137/19M1263480).
 
 ## References
 
@@ -190,14 +190,112 @@ For additional information, see [Ranocha et al. (2020)](https://doi.org/10.1137/
     [DOI: 10.1137/19M1263480](https://doi.org/10.1137/19M1263480)
 
 
+# Plotting Simulation Results
 
-# Plotting the solution
+DispersiveShallowWater.jl provides flexible plotting capabilities through [Plots.jl](https://github.com/JuliaPlots/Plots.jl) integration. The plotting system supports various conversion functions, visualization options, and analysis tools.
 
-## conversion functions
+## Variable Conversion and Visualization Options
 
-when plotting can also provide a `conversion` function that converts the solution. A conversion function should take the values
-of the primitive variables `q` at one node, and the `equations` as input and should return an `SVector` of any length as output. For a user defined conversion function,
-there should also exist a function `varnames(conversion, equations)` that returns a `Tuple` of the variable names used for labelling. The conversion function can, e.g.,
-be [`prim2cons`](@ref) or [`waterheight_total`](@ref) if one only wants to plot the total water height. The resulting plot will have one subplot for each of the returned
-variables of the conversion variable. By default, the conversion function is just [`prim2phys`](@ref), which computes the physical variables
-from the primitive ones. For most equations this is the identity, but for hyperbolic approximations like [`HyperbolicSerreGreenNaghdiEquations1D`](@ref), it returns a reduced set of variables (excluding auxiliary variables like `w` and `H`).
+The plotting system supports different variable conversions and visualization options. You can plot conservative variables, specific physical quantities, and control what additional information is displayed:
+
+```@example callback
+using Plots
+
+# Plot different variable representations
+p1 = plot(semi => sol, conversion = prim2prim, plot_bathymetry = false, 
+          suptitle = "Primitive Variables", step = 50)
+p2 = plot(semi => sol, conversion = prim2cons, plot_bathymetry = false,
+          suptitle = "Conservative Variables", step = 50)
+p3 = plot(semi => sol, conversion = waterheight_total, plot_bathymetry = true,
+          suptitle = "Total Water Height", step = 50)
+p4 = plot(semi => sol, conversion = velocity, plot_initial = true,
+          suptitle = "Velocity with Initial Condition", step = 50)
+
+plot(p1, p2, p3, p4, layout = (2, 2), size = (800, 600))
+savefig("variable_conversions.png") # hide
+nothing # hide
+```
+
+![variable conversions](variable_conversions.png)
+
+## Time Series Analysis at Spatial Points
+
+You can analyze the temporal evolution of the solution at specific spatial locations. This is particularly useful for understanding wave propagation and local dynamics:
+
+```@example callback
+# Analyze solution at a single spatial point
+x_location = 0.0
+
+p1 = plot(semi => sol, x_location, conversion = waterheight_total,
+          title = "Water Height Evolution at x = $x_location", 
+          xlabel = "t", ylabel = "η", color = :blue, linewidth = 2, 
+          label = "η")
+
+p2 = plot(semi => sol, x_location, conversion = velocity,
+          title = "Velocity Evolution at x = $x_location", 
+          xlabel = "t", ylabel = "v", color = :red, linewidth = 2,
+          label = "v")
+
+plot(p1, p2, layout = (1, 2), size = (800, 400))
+savefig("time_series_analysis.png") # hide
+nothing # hide
+```
+
+![time series analysis](time_series_analysis.png)
+
+## Energy and Momentum Evolution
+
+Using the analysis callback results, we can visualize how conserved quantities evolve over time:
+
+```@example callback
+# Plot conservation properties
+conservation_data = integrals(analysis_callback2)
+
+p1 = plot(tstops(analysis_callback2), conservation_data.waterheight_total,
+          title = "Water Mass Conservation", xlabel = "t", ylabel = "∫η",
+          label = "Total water height", color = :blue, linewidth = 2)
+
+p2 = plot(tstops(analysis_callback2), conservation_data.velocity,
+          title = "Momentum Conservation", xlabel = "t", ylabel = "∫v", 
+          label = "Total velocity", color = :red, linewidth = 2)
+
+p3 = plot(tstops(analysis_callback2), conservation_data.entropy .- conservation_data.entropy[1],
+          title = "Energy Conservation (with relaxation)", xlabel = "t", ylabel = "ΔE",
+          label = "Energy change", color = :green, linewidth = 2)
+
+plot(p1, p2, p3, layout = (1, 3), size = (900, 300))
+savefig("conservation_analysis.png") # hide
+nothing # hide
+```
+
+![conservation analysis](conservation_analysis.png)
+
+## Error Analysis Visualization
+
+Compare the numerical solution with the initial condition evaluated at time t. Note that this represents the analytical solution only if the initial condition function describes an exact solution that varies with time. You can either plot the errors manually or use the built-in plotting recipe with `plot(analysis_callback, what = (:errors,))`:
+
+```@example callback
+# Calculate and plot errors over time
+error_data = errors(analysis_callback2)
+time_points = tstops(analysis_callback2)
+
+p1 = plot(time_points, error_data.l2_error[1, :], 
+          title = "L² Error Evolution", xlabel = "t", ylabel = "L² error", 
+          label = "η", color = :blue, linewidth = 2)
+plot!(p1, time_points, error_data.l2_error[2, :], 
+      label = "v", color = :red, linewidth = 2)
+
+p2 = plot(time_points, error_data.linf_error[1, :], 
+          title = "L∞ Error Evolution", xlabel = "t", ylabel = "L∞ error",
+          label = "η", color = :blue, linewidth = 2)
+plot!(p2, time_points, error_data.linf_error[2, :], 
+      label = "v", color = :red, linewidth = 2)
+
+plot(p1, p2, layout = (1, 2), size = (800, 400))
+savefig("error_analysis.png") # hide
+nothing # hide
+```
+
+![error analysis](error_analysis.png)
+
+The plotting system supports all standard Plots.jl features like custom color schemes, annotations, and interactive backends. For more advanced plotting options, consult the [Plots.jl documentation](https://docs.juliaplots.org/).

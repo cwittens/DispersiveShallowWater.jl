@@ -83,7 +83,7 @@ makedocs(;
              "Overview" => "overview.md",
              "Different Solvers" => "solvers.md",
              "Dingemans" => "dingemans.md",
-             "Relaxation" => "relaxation.md",
+            #  "Relaxation" => "relaxation.md",
              "Dispersion" => "dispersion.md",
              "SBP Operators" => "SBP_Operators.md",
              "Miscellaneous" => "miscellaneous.md",
