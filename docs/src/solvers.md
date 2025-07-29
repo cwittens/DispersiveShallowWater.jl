@@ -10,6 +10,15 @@ DispersiveShallowWater.jl uses [SummationByPartsOperators.jl](https://github.com
 
 The [`Solver`](@ref) struct in DispersiveShallowWater.jl wraps the SBP operators needed for spatial discretization: typically a first-derivative operator `D1`, and optionally second- and third-derivative operators `D2` and `D3`, depending on the equation system being solved.
 
+## Design Philosophy: Flexibility and Modularity
+
+DispersiveShallowWater.jl follows a modular design that separates the choice of spatial discretization from the underlying equation systems. This design allows users to:
+
+- **Compare discretization methods**: Test finite difference, discontinuous Galerkin, continuous Galerkin, and Fourier spectral approaches on identical problems
+- **Investigate operator properties**: Analyze how different SBP operators preserve conservation laws and stability properties
+
+This modularity is particularly relevant for research applications where the choice of discretization can significantly impact the preservation of physical invariants and long-time numerical stability. The unified interface enables systematic studies of numerical method performance without requiring separate implementations for each approach.
+
 ## Basic Summation by Parts Operator
 
 As we have already seen in the [basic example](@ref basic_example), the easiest way to create a solver is to pass both a mesh and the desired accuracy order to the [`Solver`](@ref) function. This creates first-, second-, and third-derivative periodic summation-by-parts operators of the given accuracy order on the specified mesh:
@@ -143,7 +152,7 @@ This approach creates a DG discretization with polynomial degree `p` within each
 
 ### Fourier Spectral Methods
 
-For problems with smooth, periodic solutions, Fourier spectral methods provide exponential convergence:
+Fourier collocation methods can be interpreted as periodic SBP operators, which can be constructed via fourier_derivative_operator:
 
 ```julia
 using SummationByPartsOperators: fourier_derivative_operator
@@ -153,11 +162,10 @@ D1 = fourier_derivative_operator(xmin(mesh), xmax(mesh), nnodes(mesh))
 solver = Solver(D1)
 ```
 
-Fourier methods are particularly effective for problems with high regularity and periodic boundary conditions.
-
 ### Variable Coefficient Operators
 
-For problems with spatially varying coefficients in the differential operator, you can use variable coefficient derivative operators:
+Variable coefficient operators can be useful when solving PDEs that involve elliptic systems with variable coefficients. Using them can lead to fewer allocations.
+
 
 ```julia
 using SummationByPartsOperators: Mattsson2012, derivative_operator,
@@ -191,26 +199,7 @@ The solver you choose should be compatible with your boundary conditions:
 - Periodic operators (created with `periodic_derivative_operator` or `fourier_derivative_operator`) require `boundary_condition_periodic`
 - Non-periodic operators (created with `MattssonNordström2004`, etc.) are needed for `boundary_condition_reflecting`
 
-## Compatibility Matrix
 
-The following table shows which combinations of equations, operators, and boundary conditions are supported:
-
-| Equation System | Periodic BC | Reflecting BC | Supported Operators |
-|-----------------|-------------|---------------|-------------------|
-| **KdV** | ✅ | ❌ | Periodic operators, Fourier, Periodic upwind |
-| **BBM** | ✅ | ❌ | Periodic operators, Fourier, Periodic upwind |
-| **BBM-BBM** | ✅ | ✅ | All operator types |
-| **Svärd-Kalisch** | ✅ | ✅ᵃ | All operator types |
-| **Serre-Green-Naghdi** | ✅ | ✅ | All operator types, Variable coefficient operators |
-| **Hyperbolic SGN** | ✅ | ✅ | All operator types |
-
-**Operator Categories:**
-- **Periodic operators**: `periodic_derivative_operator`, `fourier_derivative_operator`, `couple_discontinuously` (with periodic mesh)
-- **Non-periodic operators**: `MattssonNordström2004`, `Mattsson2017`, `Mattsson2012`
-- **Upwind operators**: Available in both periodic (`periodic_derivative_operator` + `upwind_operators`) and non-periodic (`Mattsson2017` + `upwind_operators`) versions
-- **Variable coefficient operators**: `var_coef_derivative_operator` (SGN + reflecting BC + flat bathymetry only)
-
-ᵃ *Reflecting boundary conditions for Svärd-Kalisch equations require `alpha = gamma = 0`*
 
 ## Common Pitfalls
 
@@ -235,54 +224,20 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver,
                           boundary_conditions = boundary_condition_reflecting)
 ```
 
-### Incompatible Equation-Boundary Condition Combinations
-
-**Problem**: Using reflecting boundary conditions with equations that don't support them.
-```julia
-# ❌ KdV doesn't support reflecting boundary conditions
-equations = KdVEquation1D(gravity = 9.81, D = 1.0)
-semi = Semidiscretization(mesh, equations, initial_condition, solver,
-                          boundary_conditions = boundary_condition_reflecting)  # Error!
-```
-
-**Solution**: Check the compatibility matrix above and use appropriate boundary conditions.
-
 ### Incorrect Grid Size for DG Methods
 
 **Problem**: Grid size not divisible by polynomial degree + 1 for DG methods.
 ```julia
-# ❌ N = 100, p = 3, but 100 is not divisible by (3+1) = 4
-N = 100
+# ❌ N = 101, p = 3, but 101 is not divisible by (3+1) = 4
+N = 101
 p = 3
 mesh = Mesh1D(coordinates_min, coordinates_max, N)  # Error in DG setup!
 ```
 
 **Solution**: Ensure `N` is divisible by `p + 1`:
 ```julia
-# ✅ N = 100, p = 3, use N = 100 with adjusted element count
+# ✅ Adjust N to be divisible by p + 1
 p = 3
-N = 100
-num_elements = div(N, p + 1)  # = 25 elements
-# Or adjust N to be divisible: N = 96 for exact division
+N = 100  # 100 ÷ 4 = 25 elements exactly
+# Or N = 96, 104, etc. - any multiple of 4
 ```
-
-### Using Variable Coefficient Operators Incorrectly
-
-**Problem**: Attempting to use `VarCoefDerivativeOperator` with unsupported configurations.
-```julia
-# ❌ Variable coefficient operators only work with SGN + reflecting + flat bathymetry
-equations = BBMBBMEquations1D(bathymetry_type = bathymetry_variable, gravity = 9.81)
-D2 = var_coef_derivative_operator(...)  # Will fail during simulation
-```
-
-**Solution**: Use variable coefficient operators only with supported configurations as documented.
-
-### Fourier Operators with Non-Smooth Solutions
-
-**Problem**: Using Fourier operators for problems with discontinuities or sharp gradients.
-```julia
-# ❌ Fourier methods struggle with non-smooth solutions
-# This can lead to Gibbs phenomena and poor convergence
-```
-
-**Solution**: Use finite difference or DG methods for non-smooth solutions, reserve Fourier methods for smooth, periodic problems.
