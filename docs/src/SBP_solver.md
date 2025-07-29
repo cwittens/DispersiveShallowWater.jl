@@ -44,6 +44,16 @@ where:
 This property is the discrete analog of integration by parts:
 
 ```math
+\begin{aligned}
+\underbrace{ \boldsymbol{u}^T M D \boldsymbol{v} + \boldsymbol{u}^T D^T M \boldsymbol{v} }_{\displaystyle \approx \int_{x_{\min}}^{x_{\max}} u\, (\partial_x v) + \int_{x_{\min}}^{x_{\max}} (\partial_x u)\, v } 
+&= 
+\underbrace{ \boldsymbol{u}^T \boldsymbol{t}_R \boldsymbol{t}_R^T \boldsymbol{v} - \boldsymbol{u}^T \boldsymbol{t}_L \boldsymbol{t}_L^T \boldsymbol{v} }_{\displaystyle \approx u(x_{\max})\,v(x_{\max}) - u(x_{\min})\,v(x_{\min}) }.
+\end{aligned}
+```
+
+
+h
+```math
 \int_a^b u \frac{dv}{dx} dx + \int_a^b \frac{du}{dx} v dx = u(b)v(b) - u(a)v(a)
 ```
 
@@ -74,6 +84,18 @@ This shows that:
 ```math
 \langle u, Dv \rangle_M + \langle Du, v \rangle_M = u(x_{max})v(x_{max}) - u(x_{min})v(x_{min})
 ```
+
+ver1
+```math
+\underbrace{ \underline{u}^T M D \underline{v} + \underline{u}^T D^T M \underline{v} }_{\substack{\textstyle \text{ } \\ \approx \int_{x_{\min}}^{x_{\max}} u \, (\partial_x v) + \int_{x_{\min}}^{x_{\max}} (\partial_x u)\, v }} 
+= 
+\underbrace{ \underline{u}^T \underline{t}_R \underline{t}_R^T \underline{v} - \underline{u}^T \underline{t}_L \underline{t}_L^T \underline{v} }_{\substack{\textstyle \text{ } \\ \approx u(x_{\max}) v(x_{\max}) - u(x_{\min}) v(x_{\min}) }}
+
+```
+
+ver2
+
+
 
 which is exactly the discrete analog of integration by parts!
 
