@@ -86,6 +86,7 @@ makedocs(;
             #  "Relaxation" => "relaxation.md",
              "Dispersion" => "dispersion.md",
              "SBP Operators" => "SBP_Operators.md",
+             "Plotting" => "plotting.md",
              "Miscellaneous" => "miscellaneous.md",
              "Development" => "development.md",
              "Reference" => [
