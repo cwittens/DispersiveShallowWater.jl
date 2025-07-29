@@ -152,10 +152,10 @@ This approach creates a DG discretization with polynomial degree `p` within each
 
 ### Fourier Spectral Methods
 
-[Fourier collocation methods](@ref fourier_sbp) can be interpreted as periodic SBP operators, which can be constructed via fourier_derivative_operator:
+[Fourier collocation methods](@ref fourier_sbp) can be interpreted as periodic SBP operators, which can be constructed via fourier\_derivative\_operator:
 
 ```julia
-using SummationByPartsOperators: fourier\_derivative\_operator
+using SummationByPartsOperators: fourier_derivative_operator
 
 # Create solver with Fourier pseudospectral collocation method
 D1 = fourier_derivative_operator(xmin(mesh), xmax(mesh), nnodes(mesh))

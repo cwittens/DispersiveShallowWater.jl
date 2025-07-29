@@ -81,13 +81,13 @@ makedocs(;
                                   size_threshold_warn = 1000 * 1024),
          pages = ["Home" => "index.md",
              "Overview" => "overview.md",
-             "Dispersion" => "dispersion.md",
-             "Relaxation" => "relaxation.md",
-             "SBP Operators" => "SBP_Operators.md",
              "Different Solvers" => "solvers.md",
              "Dingemans" => "dingemans.md",
-             "Development" => "development.md",
+             "Relaxation" => "relaxation.md",
+             "Dispersion" => "dispersion.md",
+             "SBP Operators" => "SBP_Operators.md",
              "Miscellaneous" => "miscellaneous.md",
+             "Development" => "development.md",
              "Reference" => [
                  "TrixiBase" => "ref-trixibase.md",
                  "DispersiveShallowWater" => "ref.md"
