@@ -26,7 +26,7 @@ First, we load the necessary packages:
 using DispersiveShallowWater, OrdinaryDiffEqTsit5, Plots
 ```
 
-Next, we set up the different equation systems we want to compare. Each represents a different level of approximation to the full water wave equations:
+Next, we set up the different equation systems we want to compare:
 
 ```@example dingemans
 # BBM-BBM equations with variable bathymetry
@@ -46,7 +46,7 @@ hysgn = HyperbolicSerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_mild_
                                               lambda = 500.0, gravity = 9.81)
 ```
 
-The initial condition [`initial_condition_dingemans`](@ref) automatically sets up the trapezoidal bathymetry and initial wave field based on the dispersion relation of the Euler equations:
+The initial condition [`initial_condition_dingemans`](@ref) automatically sets up the trapezoidal bathymetry and initial wave field.
 
 ```@example dingemans
 initial_condition = initial_condition_dingemans
@@ -62,14 +62,14 @@ N = 512
 mesh = Mesh1D(coordinates_min, coordinates_max, N)
 ```
 
-For the spatial discretization, we use fourth-order accurate summation-by-parts operators:
+For the spatial discretization, we use fourth-order accurate [summation-by-parts operators](@ref sbp_operates):
 
 ```@example dingemans
 accuracy_order = 4
 solver = Solver(mesh, accuracy_order)
 ```
 
-We set up the time integration parameters. The experiment runs for a relatively long time (70 time units) to observe the full wave propagation and interaction with the bathymetry:
+We set up the time integration parameters. The experiment runs for a relatively long time to observe the full wave propagation and interaction with the bathymetry:
 
 ```@example dingemans
 tspan = (0.0, 70.0)
@@ -105,11 +105,12 @@ sol_sgn = solve(ode_sgn, Tsit5(), abstol = 1e-7, reltol = 1e-7,
                 save_everystep = false, saveat = saveat)
 sol_hysgn = solve(ode_hysgn, Tsit5(), abstol = 1e-7, reltol = 1e-7,
                   save_everystep = false, saveat = saveat)
+nothing # hide
 ```
 
 ## Visualization and Comparison
 
-For proper comparison, we need to account for the fact that the BBM-BBM equations use a different reference level (η₀ = 0) compared to the other equations. We create a custom conversion function to shift the BBM-BBM results:
+For proper comparison, we need to account for the fact that the BBM-BBM equations use a different reference level (η₀ = 0) compared to the other equations. We create a custom conversion function which allows us to easily shift the BBM-BBM results:
 
 ```@example dingemans
 # BBM-BBM equations need to be translated vertically for comparison
@@ -120,7 +121,7 @@ DispersiveShallowWater.varnames(::typeof(shifted_waterheight), equations) = ("η
 Finally, we create comparison plots at four different time instances to observe how the waves evolve as they interact with the bathymetry:
 
 ```@example dingemans
-# Define simulation parameters
+# Define parameters
 times = [14.0, 28.0, 42.0, 70.0]
 y_limits = (-0.03, 0.87)
 
@@ -135,19 +136,19 @@ models = [
 # Create snapshot plots for each time
 snapshot_plots = []
 for time_val in times
-    step_idx = argmin(abs.(saveat .- time_val))
+    step_idx = argmin(abs.(saveat .- time_val)) # get the closed point to the time_val
     p = plot(title = "t = $time_val", ylims = y_limits)
     
     for (i, (semi, sol, label, conversion)) in enumerate(models)
-        # Only show bathymetry on the last model to avoid clutter
-        show_bathy = (i == length(models))
-        
         plot!(p, semi => sol, 
+              step = step_idx,
               label = label,
               conversion = conversion,
-              plot_bathymetry = show_bathy,
-              step = step_idx,
-              legend = false, suptitle = "Dingemans at t = $(time_val)", title = "")
+              plot_bathymetry = true,
+              legend = false,
+              suptitle = "Dingemans at t = $(time_val)",
+              title = ""
+              )
     end
     
     push!(snapshot_plots, p)
@@ -173,11 +174,4 @@ nothing # hide
 
 ![Dingemans comparison](dingemans_comparison.png)
 
-The results show how different dispersive wave models capture the wave evolution over the trapezoidal bathymetry. Key observations:
-
-- **Wave transformation**: All models show the characteristic changes in wave amplitude and wavelength as waves encounter the changing depth
-- **Model agreement**: The Svärd-Kalisch, Serre-Green-Naghdi, and Hyperbolic Serre-Green-Naghdi models show good agreement, indicating their similar level of physical accuracy
-- **BBM-BBM behavior**: The BBM-BBM model captures the overall wave behavior well, though with some differences in fine details
-- **Bathymetry effects**: The black line shows the underwater topography, clearly illustrating how the waves respond to depth changes
-
-This comparison demonstrates the capability of DispersiveShallowWater.jl to simulate complex wave-bathymetry interactions and provides insight into the relative performance of different dispersive wave models for practical applications.
+The results show how different dispersive wave models capture the wave evolution over the trapezoidal bathymetry.
