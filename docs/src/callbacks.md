@@ -1,4 +1,4 @@
-# Callbacks
+    # Callbacks
 
 Callbacks provide additional functionality during simulations, such as monitoring solution properties, analyzing errors, or ensuring conservation of physical quantities. DispersiveShallowWater.jl implements three main callback types that can be used individually or in combination to enhance simulation analysis and performance monitoring.
 
@@ -172,6 +172,7 @@ savefig("error_growth_relaxation.png") # hide
 nothing # hide
 ```
 
+SOMETHING IS WRONG HERE AND I CURRENTLY DONT KNOW WHAT
 
 ![error growth relaxation](error_growth_relaxation.png)
 

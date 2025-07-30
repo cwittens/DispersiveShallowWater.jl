@@ -51,16 +51,16 @@ Each equation system below includes its complete mathematical formulation, physi
 
 this with doing "at docs" is currently not working because they are also loaded in ref.md, but i think it makes more sense to have them here. i couldnt figure out yet how do get ride of them in ref.md
 
-```@docs
+at docs
 DispersiveShallowWater.KdVEquation1D
 DispersiveShallowWater.BBMEquation1D
-```
+
 
 ### Multi-Variable Systems
 
-```@docs
+at docs
 DispersiveShallowWater.BBMBBMEquations1D
 DispersiveShallowWater.SvaerdKalischEquations1D
 DispersiveShallowWater.SerreGreenNaghdiEquations1D
 DispersiveShallowWater.HyperbolicSerreGreenNaghdiEquations1D
-```
+

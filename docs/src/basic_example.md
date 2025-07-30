@@ -30,7 +30,7 @@ First, we load the necessary libraries:
 using DispersiveShallowWater, OrdinaryDiffEqTsit5
 ```
 
-### Define physical setup
+## Define physical setup
 
 As a first step of a numerical simulation, we define the physical setup we want to solve. This includes the set of equations, potentially
 including physical parameters, initial and boundary conditions as well as the domain. In the following example, the initial condition
@@ -70,7 +70,7 @@ Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also sup
 
 Lastly, we define the physical domain as the interval from -130 to 20 (in meters) and we choose 512 nodes. The mesh is always homogeneous, i.e. the distance between consecutive nodes is constant. We choose the left boundary very far to the left in order to avoid interactions between left- and right-traveling waves. This prevents unwanted wave interference that could occur when waves wrap around due to the periodic boundary conditions.
 
-### Define numerical solver
+## Define numerical solver
 
 In the next step, we build a [`Semidiscretization`](@ref) that bundles all ingredients for the spatial discretization of the model. Especially, we need to define a [`Solver`](@ref). 
 
@@ -90,7 +90,7 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver, boundary_c
 
 Finally, we put the `mesh`, the `equations`, the `initial_condition`, the `solver` and the `boundary_conditions` together in a semidiscretization `semi`.
 
-### Solve system of ordinary differential equations
+## Solve system of ordinary differential equations
 
 Once we have obtained a semidiscretization, we can solve the resulting system of ordinary differential equations. To do so, we specify the time interval that
 we want to simulate and obtain an `ODEProblem` from the [SciML ecosystem for ordinary differential equations](https://diffeq.sciml.ai/latest/) by calling
@@ -112,7 +112,7 @@ sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7, saveat = saveat)
 
 After solving the equations, `sol` contains the solution for each of the—in this case—three variables at every spatial point for each of the 100 points in time.
 
-### [Visualize results](@id visualize_results)
+## [Visualize results](@id visualize_results)
 
 After running the simulation, the results can be visualized using [Plots.jl](https://github.com/JuliaPlots/Plots.jl), which needs to be imported first. Then, we can
 plot the solution at the final time by calling `plot` on a `Pair` of the `Semidiscretization` and the corresponding `ODESolution` `sol`. The result is depicted in the following picture.

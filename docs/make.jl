@@ -83,7 +83,7 @@ makedocs(;
              "Overview" => "overview.md",
              "Basic Example" => "basic_example.md",
              "Customizing Solvers" => "solvers.md",
-             "Callbacks" => "callbacks.md",
+             "Callbacks and Relaxation" => "callbacks.md",
              "Plotting" => "plotting.md",
              "Dispersion" => "dispersion.md",
              "Dingemans" => "dingemans.md",
