@@ -1,8 +1,10 @@
-# Overview
+# [Equations](@id equations)
 
-## [Models in DispersiveShallowWater.jl](@id eq_overview)
+DispersiveShallowWater.jl provides six different dispersive shallow water equation systems for modeling water waves. Each equation system offers different levels of physical accuracy, computational complexity, and supports various boundary conditions and bathymetry types.
 
-DispersiveShallowWater.jl currently provides six different dispersive shallow water equation systems that can be used for modeling water waves. Each equation system offers different levels of physical accuracy, computational complexity, and supports various boundary conditions and bathymetry types. To learn more about the mathematical definition of each model, go to the chapter [Equations](@id all_eq). The following table provides an overview of the supported features for each equation type:
+## [Supported Models and Features](@id eq_overview)
+
+The following table provides an overview of all available equation systems and their supported features:
 
 | Equation | Variables | [Periodic boundary conditions](@ref boundary_condition_periodic) | [Reflecting boundary conditions](@ref boundary_condition_reflecting) | [Flat Bathymetry](@ref bathymetry_flat) | [Mild-slope Bathymetry](@ref bathymetry_mild_slope) | [Variable Bathymetry](@ref bathymetry_variable) | Relaxation | Source Terms |
 |----------|:---------:|:-----------:|:-------------:|:----:|:-----------:|:--------:|:----------:|:-------:|
@@ -23,31 +25,40 @@ DispersiveShallowWater.jl currently provides six different dispersive shallow wa
 - ``w``: Auxiliary variable in hyperbolic approximation (``\approx -h v_x``)
 - ``H``: Auxiliary variable in hyperbolic approximation (``\approx h``)
 
-# [Equations](@id all_eq)
+## Equation Categories
 
-DispersiveShallowWater.jl provides several dispersive shallow water equation systems, each with different levels of physical accuracy and computational complexity.
+The equations can be categorized based on their complexity and number of variables:
 
-## Overview
+### Single Variable Equations
+These equations describe wave propagation using a single primary variable (the total water height η) and are computationally efficient but with limited physical accuracy:
 
-The package currently implements the following equation systems:
+- **KdV (Korteweg-de Vries)**: The classic integrable equation for weakly nonlinear, long waves
+- **BBM (Benjamin-Bona-Mahony)**: An alternative to KdV with better stability properties
 
-- [`KdVEquation1D`](@ref): Korteweg-de Vries equation
-- [`BBMEquation1D`](@ref): Benjamin-Bona-Mahony equation  
-- [`BBMBBMEquations1D`](@ref): BBM-BBM system
-- [`SvaerdKalischEquations1D`](@ref): Svärd-Kalisch equations
-- [`SerreGreenNaghdiEquations1D`](@ref): Serre-Green-Naghdi equations
-- [`HyperbolicSerreGreenNaghdiEquations1D`](@ref): Hyperbolic approximation of Serre-Green-Naghdi equations
+### Multi-Variable Systems
+These systems use multiple variables for more accurate wave modeling, capturing both water height and velocity dynamics:
 
-## Single Variable Equations
+- **BBM-BBM**: A coupled system extending BBM to include velocity evolution
+- **Svärd-Kalisch**: A recent model with tunable parameters for optimal dispersion properties
+- **Serre-Green-Naghdi**: A comprehensive system with excellent dispersion characteristics
+- **Hyperbolic SGN**: A hyperbolic approximation of Serre-Green-Naghdi with additional auxiliary variables
 
-```@docs
+## Detailed Documentation
+
+Each equation system below includes its complete mathematical formulation, physical background, implementation details, conservation properties, and relevant literature references.
+
+### Single Variable Equations
+
+this with doing "at docs" is currently not working because they are also loaded in ref.md, but i think it makes more sense to have them here. i couldnt figure out yet how do get ride of them in ref.md
+
+```
 DispersiveShallowWater.KdVEquation1D
 DispersiveShallowWater.BBMEquation1D
 ```
 
-## Multi-Variable Systems
+### Multi-Variable Systems
 
-```@docs
+```
 DispersiveShallowWater.BBMBBMEquations1D
 DispersiveShallowWater.SvaerdKalischEquations1D
 DispersiveShallowWater.SerreGreenNaghdiEquations1D

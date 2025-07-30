@@ -14,7 +14,7 @@ Pages = ["DispersiveShallowWater.jl"]
 ```@autodocs
 Modules = [DispersiveShallowWater]
 Pages = Main.EQUATIONS_FILES
-Filter = t -> !(typeof(t) <: Type && t <: DispersiveShallowWater.AbstractEquations)
+
 ```
 
 ## Linear dispersion relations
