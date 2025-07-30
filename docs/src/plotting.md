@@ -39,9 +39,11 @@ sol = solve(ode, Tsit5(), abstol = 1e-7, reltol = 1e-7,# hide
 nothing # hide
 ```
 
-# Plotting Simulation Results
+# [Plotting Simulation Results](@id plotting)
 
-DispersiveShallowWater.jl provides flexible plotting capabilities through [Plots.jl](https://github.com/JuliaPlots/Plots.jl) recipes. The plotting system supports various conversion functions, visualization options, and analysis tools.
+DispersiveShallowWater.jl provides flexible plotting capabilities through [Plots.jl](https://github.com/JuliaPlots/Plots.jl) recipes. The plotting system supports various conversion functions, visualization options, and analysis tools. 
+
+[Markie.jl](https://docs.makie.org/stable/) is not supported yet. [Contributions are welcome](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/issues/220).
 
 ## Variable Conversion and Visualization Options
 
@@ -49,7 +51,7 @@ The plotting system supports different variable conversions and visualization op
 
 ```@example plotting
 using Plots
-default(grid=true, box=:on, dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
+# default(grid=true, box=:on, dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
 
 # Plot different variable representations
 

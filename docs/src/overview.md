@@ -143,7 +143,7 @@ plot the solution at the final time by calling `plot` on a `Pair` of the `Semidi
 
 ```@example overview
 using Plots
-default( grid=true, box=:on, dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
+# default( grid=true, box=:on, dpi=100, titlefont=font(16), linewidth=3, gridlinewidth=2, markersize=4, markerstrokewidth=2, xtickfontsize=14, ytickfontsize=14, xguidefontsize=16, yguidefontsize=16, ztickfontsize=14, zguidefontsize=16, legendfontsize=14) # hide
 plot(semi => sol)
 savefig("shoaling_solution.png") # hide
 nothing # hide
@@ -169,16 +169,11 @@ nothing # hide
 ![shoaling solution](shoaling_solution.gif)
 
 It is also possible to plot the solution variables at a fixed spatial point over time by calling `plot(semi => sol, x)` for some `x`-value, see
-[plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/plot_examples.jl) from the reproducibility repository of the master
-thesis of Joshua Lampert for some examples.
+[plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/plot_examples.jl) and the scripts [create_figures.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/create_figures.jl) from the reproducibility repository of the master thesis of Joshua Lampert or the chapter [Plotting Simulation Results](@ref plotting) in this documentation for some examples.
 
-## Additional resources
+## More examples
 
 A lot more examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
-
-
-More examples, especially focussing on plotting, can be found in the scripts [create_figures.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/create_figures.jl)
-and [plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/plot_examples.jl) from the reproducibility repository of the master thesis of Joshua Lampert.
 
 
 ## [Plain program](@id overview-plain-program)
