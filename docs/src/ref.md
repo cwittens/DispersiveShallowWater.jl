@@ -9,12 +9,6 @@ Modules = [DispersiveShallowWater]
 Pages = ["DispersiveShallowWater.jl"]
 ```
 
-## Equations
-
-```@autodocs
-Modules = [DispersiveShallowWater]
-Pages = Main.EQUATIONS_FILES
-```
 
 ## Linear dispersion relations
 
