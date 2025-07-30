@@ -25,27 +25,7 @@ The following table provides an overview of all available equation systems and t
 - ``w``: Auxiliary variable in hyperbolic approximation (``\approx -h v_x``)
 - ``H``: Auxiliary variable in hyperbolic approximation (``\approx h``)
 
-## Equation Categories
-
-The equations can be categorized based on their complexity and number of variables:
-
-### Single Variable Equations
-
-These equations describe wave propagation using a single primary variable (the total water height η) and are computationally efficient but with limited physical accuracy:
-
-- **KdV (Korteweg-de Vries)**: The classic integrable equation for weakly nonlinear, long waves
-- **BBM (Benjamin-Bona-Mahony)**: An alternative to KdV with better stability properties
-
-### Multi-Variable Systems
-
-These systems use multiple variables for more accurate wave modeling, capturing both water height and velocity dynamics:
-
-- **BBM-BBM**: A coupled system extending BBM to include velocity evolution
-- **Svärd-Kalisch**: A recent model with tunable parameters for optimal dispersion properties
-- **Serre-Green-Naghdi**: A comprehensive system with excellent dispersion characteristics
-- **Hyperbolic SGN**: A hyperbolic approximation of Serre-Green-Naghdi with additional auxiliary variables
-
-## Detailed Documentation
+### Detailed Documentation
 
 Each equation system below includes its complete mathematical formulation, physical background, implementation details, conservation properties, and relevant literature references.
 
