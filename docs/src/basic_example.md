@@ -149,7 +149,7 @@ It is also possible to plot the solution variables at a fixed spatial point over
 
 ## More examples
 
-A lot more examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
+About 50 more examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
 
 
 ## [Plain program](@id overview-plain-program)

@@ -66,6 +66,7 @@ DispersiveShallowWater.BBMEquation1D
 ```@docs
 DispersiveShallowWater.BBMBBMEquations1D
 DispersiveShallowWater.SvaerdKalischEquations1D
+DispersiveShallowWater.SvärdKalischEquations1D
 DispersiveShallowWater.SerreGreenNaghdiEquations1D
 DispersiveShallowWater.HyperbolicSerreGreenNaghdiEquations1D
 ```
