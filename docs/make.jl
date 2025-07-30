@@ -82,7 +82,7 @@ makedocs(;
          pages = ["Home" => "index.md",
              "Overview" => "overview.md",
              "Basic Example" => "basic_example.md",
-             "Customizing Solvers" => "solvers.md",
+             "Using different Solvers" => "solvers.md",
              "Callbacks and Relaxation" => "callbacks.md",
              "Plotting" => "plotting.md",
              "Dispersion" => "dispersion.md",

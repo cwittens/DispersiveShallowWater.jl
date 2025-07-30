@@ -44,6 +44,7 @@ sgn = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_variable,
 # Hyperbolic approximation of Serre-Green-Naghdi equations
 hysgn = HyperbolicSerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_mild_slope,
                                               lambda = 500.0, gravity = 9.81)
+nothing # hide
 ```
 
 The initial condition [`initial_condition_dingemans`](@ref) automatically sets up the trapezoidal bathymetry and initial wave field.
@@ -51,6 +52,7 @@ The initial condition [`initial_condition_dingemans`](@ref) automatically sets u
 ```@example dingemans
 initial_condition = initial_condition_dingemans
 boundary_conditions = boundary_condition_periodic
+nothing # hide
 ```
 
 We create a computational domain that's large enough to contain the entire experimental setup, with the wave maker positioned appropriately:
@@ -60,6 +62,7 @@ coordinates_min = -138.0
 coordinates_max = 46.0
 N = 512
 mesh = Mesh1D(coordinates_min, coordinates_max, N)
+nothing # hide
 ```
 
 For the spatial discretization, we use fourth-order accurate [summation-by-parts operators](@ref sbp_operates):
@@ -67,6 +70,7 @@ For the spatial discretization, we use fourth-order accurate [summation-by-parts
 ```@example dingemans
 accuracy_order = 4
 solver = Solver(mesh, accuracy_order)
+nothing # hide
 ```
 
 We set up the time integration parameters. The experiment runs for a relatively long time to observe the full wave propagation and interaction with the bathymetry:
@@ -74,6 +78,7 @@ We set up the time integration parameters. The experiment runs for a relatively 
 ```@example dingemans
 tspan = (0.0, 70.0)
 saveat = range(tspan..., length = 500)
+nothing # hide
 ```
 
 Now we create semidiscretizations for each equation system. Each semidiscretization bundles the mesh, equations, initial condition, solver, and boundary conditions:
@@ -87,6 +92,7 @@ semi_sgn = Semidiscretization(mesh, sgn, initial_condition, solver,
                               boundary_conditions = boundary_conditions)
 semi_hysgn = Semidiscretization(mesh, hysgn, initial_condition, solver,
                                 boundary_conditions = boundary_conditions)
+nothing # hide
 ```
 
 We convert each semidiscretization to an ODE problem and solve using the Tsit5 time integrator:

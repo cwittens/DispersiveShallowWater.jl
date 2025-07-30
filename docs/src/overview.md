@@ -30,12 +30,14 @@ The following table provides an overview of all available equation systems and t
 The equations can be categorized based on their complexity and number of variables:
 
 ### Single Variable Equations
+
 These equations describe wave propagation using a single primary variable (the total water height η) and are computationally efficient but with limited physical accuracy:
 
 - **KdV (Korteweg-de Vries)**: The classic integrable equation for weakly nonlinear, long waves
 - **BBM (Benjamin-Bona-Mahony)**: An alternative to KdV with better stability properties
 
 ### Multi-Variable Systems
+
 These systems use multiple variables for more accurate wave modeling, capturing both water height and velocity dynamics:
 
 - **BBM-BBM**: A coupled system extending BBM to include velocity evolution
@@ -47,26 +49,39 @@ These systems use multiple variables for more accurate wave modeling, capturing 
 
 Each equation system below includes its complete mathematical formulation, physical background, implementation details, conservation properties, and relevant literature references.
 
-### Single Variable Equations
-
-this with doing "at docs" is currently not working because they are also loaded in ref.md, but i think it makes more sense to have them here. i couldnt figure out yet how do get ride of them in ref.md
-
-I tried 
-
-
-but this did not work
+## Benjamin-Bona-Mahony (BBM)
 
 ```@docs
-DispersiveShallowWater.KdVEquation1D
 DispersiveShallowWater.BBMEquation1D
 ```
 
-### Multi-Variable Systems
+## Korteweg–De Vries (KdV)
+
+```@docs
+DispersiveShallowWater.KdVEquation1D
+```
+
+## BBM-BBM
 
 ```@docs
 DispersiveShallowWater.BBMBBMEquations1D
+```
+
+## Svärd-Kalisch
+
+```@docs
 DispersiveShallowWater.SvaerdKalischEquations1D
 DispersiveShallowWater.SvärdKalischEquations1D
+```
+
+## Serre-Green-Naghdi
+
+```@docs
 DispersiveShallowWater.SerreGreenNaghdiEquations1D
+```
+
+## Hyperbolic Serre-Green-Naghdi
+
+```@docs
 DispersiveShallowWater.HyperbolicSerreGreenNaghdiEquations1D
 ```

@@ -45,7 +45,7 @@ where:
 - `D1` is always required and must be an `AbstractDerivativeOperator` 
 - `D2` and `D3` are optional and can be either `AbstractDerivativeOperator`s, `AbstractMatrix`es, or `nothing`
 
-### Reflecting Boundary Conditions
+## Reflecting Boundary Conditions
 
 For non-periodic boundary conditions, you need to use non-periodic SBP operators. Here's how to create a solver for reflecting boundary conditions:
 
@@ -62,7 +62,7 @@ solver = Solver(D1)
 
 The `MattssonNordström2004()` operator family provides SBP operators that satisfy the SBP property with non-periodic boundary conditions, making them suitable for reflecting boundary conditions.
 
-### Upwind Operators
+## Upwind Operators
 
 For equations that benefit from upwind discretizations (such as the Serre-Green-Naghdi equations), you can use [upwind SBP Operators](@ref upwind_sbp):
 
@@ -92,7 +92,7 @@ solver = Solver(D1)
 
 Upwind operators provide additional dissipation and often achieve higher resolution for sharp features compared to central operators.
 
-### KdV Equations with Third-Derivative Operators
+## KdV Equations with Third-Derivative Operators
 
 The KdV equation requires first- and third-derivative operators, but no second-derivative operator. You can specify this by passing `nothing` for the second argument:
 
@@ -106,7 +106,7 @@ D3 = D1^3  # Third derivative via composition
 solver = Solver(D1, nothing, D3)
 ```
 
-### Using Sparse Matrices for Derivative Operators
+## Using Sparse Matrices for Derivative Operators
 
 While `D1` must always be an SBP operator, `D2` and `D3` can be regular sparse matrices. This can be useful for creating custom discretizations:
 
@@ -125,7 +125,7 @@ solver = Solver(D1, D2)
 !!! warning "Performance consideration"
     While using sparse matrices for `D2` and `D3` provides flexibility, SBP operator-vector products are typically about an order of magnitude faster than sparse matrix-vector products. See the [SummationByPartsOperators.jl benchmarks](https://ranocha.de/SummationByPartsOperators.jl/stable/benchmarks/) for details.
 
-### Discontinuous Galerkin Methods
+## Discontinuous Galerkin Methods
 
 DispersiveShallowWater.jl supports [discontinuous Galerkin (DG)](@ref dg_sbp) methods through coupled Legendre operators:
 
@@ -150,7 +150,7 @@ solver = Solver(D1, D2)
 
 This approach creates a DG discretization with polynomial degree `p` within each element.
 
-### Fourier Spectral Methods
+## Fourier Spectral Methods
 
 [Fourier collocation methods](@ref fourier_sbp) can be interpreted as periodic SBP operators, which can be constructed via fourier\_derivative\_operator:
 
@@ -162,7 +162,7 @@ D1 = fourier_derivative_operator(xmin(mesh), xmax(mesh), nnodes(mesh))
 solver = Solver(D1)
 ```
 
-### Variable Coefficient Operators
+## Variable Coefficient Operators
 
 Variable coefficient operators can be useful when solving PDEs that involve elliptic systems with variable coefficients. Using them can lead to fewer allocations.
 
