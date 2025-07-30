@@ -116,13 +116,11 @@ for time_val in times
     p = plot(title = "t = $time_val", ylims = y_limits)
     
     for (i, (semi, sol, label, conversion)) in enumerate(models)
-        # Only show bathymetry on the last model to avoid clutter
-        show_bathy = (i == length(models))
-        
+
         plot!(p, semi => sol, 
               label = label,
               conversion = conversion,
-              plot_bathymetry = show_bathy,
+              plot_bathymetry = true,
               step = step_idx,
               legend = false, suptitle = "Dingemans at t = $(time_val)", title = "")
     end

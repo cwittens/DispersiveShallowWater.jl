@@ -81,6 +81,7 @@ makedocs(;
                                   size_threshold_warn = 1000 * 1024),
          pages = ["Home" => "index.md",
              "Overview" => "overview.md",
+             "Equations" => "equations.md",
              "Customizing Solvers" => "solvers.md",
              "Dingemans" => "dingemans.md",
             #  "Relaxation" => "relaxation.md",
