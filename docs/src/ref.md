@@ -9,7 +9,7 @@ Modules = [DispersiveShallowWater]
 Pages = ["DispersiveShallowWater.jl"]
 ```
 
-## Equations
+## Model specific equations
 
 ```@autodocs
 Modules = [DispersiveShallowWater]
