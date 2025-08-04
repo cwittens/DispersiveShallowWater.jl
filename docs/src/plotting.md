@@ -96,57 +96,35 @@ nothing # hide
 
 ## Energy and Momentum Evolution
 
-Using the analysis callback results, we can visualize how conserved quantities evolve over time:
+Using the analysis callback results, we can visualize how conserved quantities evolve over time. The built-in plotting recipe shows the **change** of each invariant from its initial value:
 
-```@example plotting
-# Plot conservation properties
-conservation_data = integrals(analysis_callback2)
-
-p1 = plot(tstops(analysis_callback2), conservation_data.waterheight_total,
-          title = "Water Mass Conservation", xlabel = "t", ylabel = "∫η",
-          label = "Total water height", color = :blue)
-
-p2 = plot(tstops(analysis_callback2), conservation_data.velocity,
-          title = "Momentum Conservation", xlabel = "t", ylabel = "∫v", 
-          label = "Total velocity", color = :red)
-
-p3 = plot(tstops(analysis_callback2), conservation_data.entropy .- conservation_data.entropy[1],
-          title = "Energy Conservation\n(with relaxation)", xlabel = "t", ylabel = "ΔE",
-          label = "Energy change", color = :green)
-
-plot(p1, p2, p3, layout = (3, 1), size = (500, 900))
+```@example callback
+# Plot conservation properties using the built-in recipe
+# This shows how each conserved quantity deviates from its initial value over time
+plot(analysis_callback2, exclude = (:velocity,))
 savefig("conservation_analysis.png") # hide
 nothing # hide
 ```
 
 ![conservation analysis](conservation_analysis.png)
 
+The plot shows the change of invariants over time (i.e., `integral(t) - integral(t=0)`). The `exclude` parameter allows you to hide specific quantities from the plot - here we exclude velocity to focus on other conserved quantities.
+
 ## Error Analysis Visualization
 
-Compare the numerical solution with the initial condition evaluated at time t. Note that this represents the analytical solution only if the initial condition function describes an exact solution that varies with time. You can either plot the errors manually or use the built-in plotting recipe with `plot(analysis_callback, what = (:errors,))`:
+The error analysis compares the numerical solution with the initial condition evaluated at time t. Note that this represents the analytical solution only if the initial condition function describes an exact solution that varies with time:
 
-```@example plotting
-# Calculate and plot errors over time
-error_data = errors(analysis_callback2)
-time_points = tstops(analysis_callback2)
-
-p1 = plot(time_points, error_data.l2_error[1, :], 
-          title = "L² Error Evolution", xlabel = "t", ylabel = "L² error", 
-          label = "η")
-plot!(p1, time_points, error_data.l2_error[2, :], 
-      label = "v")
-
-p2 = plot(time_points, error_data.linf_error[1, :], 
-          title = "L∞ Error Evolution", xlabel = "t", ylabel = "L∞ error",
-          label = "η")
-plot!(p2, time_points, error_data.linf_error[2, :], 
-      label = "v")
-
-plot(p1, p2, layout = (1, 2), size = (800, 400))
+```@example callback
+# Plot error evolution using the built-in recipe
+# The 'what' parameter controls what gets plotted: (:integrals,), (:errors,), or both
+# The 'exclude' parameter removes specific error types from the plot
+plot(analysis_callback2, what = (:errors,), exclude = (:conservation_error,))
 savefig("error_analysis.png") # hide
 nothing # hide
 ```
 
 ![error analysis](error_analysis.png)
+
+The `what = (:errors,)` parameter tells the plotting recipe to show errors instead of the default invariants. The errors plotted are the **total errors summed over all variables** (L² and L∞ norms). The `exclude = (:conservation_error,)` parameter removes the conservation error from the plot, focusing only on the discretization errors (L² and L∞).
 
 The plotting system supports all standard Plots.jl features like custom color schemes, annotations, and interactive backends. For more advanced plotting options, consult the [Plots.jl documentation](https://docs.juliaplots.org/).
