@@ -132,10 +132,10 @@ To achieve exact conservation of the entropy, we add a relaxation callback to th
 
 ```@example callback
 analysis_callback2 = AnalysisCallback(semi; interval = 10,
-                                     extra_analysis_errors = (:conservation_error,),
-                                     extra_analysis_integrals = (waterheight_total,
-                                                                 velocity, entropy),
-                                     io = devnull)
+                                      extra_analysis_errors = (:conservation_error,),
+                                      extra_analysis_integrals = (waterheight_total,
+                                                                  velocity, entropy),
+                                      io = devnull)
 relaxation_callback = RelaxationCallback(invariant = entropy)
 
 # Important: RelaxationCallback must come before AnalysisCallback
@@ -167,15 +167,15 @@ The relaxation method conserves nonlinear invariants up to machine precision in 
 The following comparison shows error growth with and without the relaxation method using the above simulation setup. For the comparison, it is important that we use a high accuracy order of our spatial discretization and sufficiently fine grid resolution. Otherwise, spatial discretization errors will dominate the total error, making it difficult to observe the improvements that relaxation provides to the temporal error behavior.
 
 ```@example callback
-plot(analysis_callback2, what = (:errors,), exclude = (:conservation_error, :linf_error), label= "L2 error with relaxation")
-plot!(analysis_callback, what = (:errors,), exclude = (:conservation_error, :linf_error), label= "L2 error without relaxation")
+plot(analysis_callback2, what = (:errors,), exclude = (:conservation_error, :linf_error),
+     label = "L2 error with relaxation")
+plot!(analysis_callback, what = (:errors,), exclude = (:conservation_error, :linf_error),
+      label = "L2 error without relaxation")
 
 
 savefig("error_growth_relaxation.png") # hide
 nothing # hide
 ```
-
-SOMETHING IS WRONG HERE AND I CURRENTLY DONT KNOW WHAT
 
 ![error growth relaxation](error_growth_relaxation.png)
 
