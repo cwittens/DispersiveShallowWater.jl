@@ -98,7 +98,7 @@ nothing # hide
 
 Using the analysis callback results, we can visualize how conserved quantities evolve over time. The built-in plotting recipe shows the **change** of each invariant from its initial value:
 
-```@example callback
+```@example plotting
 # Plot conservation properties using the built-in recipe
 # This shows how each conserved quantity deviates from its initial value over time
 plot(analysis_callback2, exclude = (:velocity,))
@@ -114,7 +114,7 @@ The plot shows the change of invariants over time (i.e., `integral(t) - integral
 
 The error analysis compares the numerical solution with the initial condition evaluated at time t. Note that this represents the analytical solution only if the initial condition function describes an exact solution that varies with time:
 
-```@example callback
+```@example plotting
 # Plot error evolution using the built-in recipe
 # The 'what' parameter controls what gets plotted: (:integrals,), (:errors,), or both
 # The 'exclude' parameter removes specific error types from the plot
