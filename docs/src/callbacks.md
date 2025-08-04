@@ -62,11 +62,12 @@ equations = BBMBBMEquations1D(gravity = 9.81)
 initial_condition = initial_condition_convergence_test
 
 # Create mesh and solver
-coordinates_min = -10.0
-coordinates_max = 10.0
-N = 128
+coordinates_min = -35.0
+coordinates_max = 35.0
+N = 512
 mesh = Mesh1D(coordinates_min, coordinates_max, N)
-solver = Solver(mesh, 4)
+accuracy_order = 8
+solver = Solver(mesh, accuracy_order)
 
 # Create semidiscretization
 semi = Semidiscretization(mesh, equations, initial_condition, solver,
@@ -147,10 +148,10 @@ nothing # hide
 !!! note "Callback Ordering"
     When using both `RelaxationCallback` and `AnalysisCallback`, the relaxation callback must be placed first in the `CallbackSet`. This ensures that the analysis callback monitors the solution after the relaxation step has been applied.
 
-The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation up to machine precision: NOT MACHINE PRECISION. WHY? Something strange with BBMBBM it feels like.
+The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation almost up to machine precision:
 
 ```@example callback
-plot(analysis_callback2, ylims = (-2e-12, 2e-12))
+plot(analysis_callback2, ylims = (-4e-12, 4e-12))
 savefig("analysis_callback_relaxation.png") # hide
 nothing # hide
 ```
@@ -163,11 +164,13 @@ The plot demonstrates that with the relaxation callback, the entropy is conserve
 
 The relaxation method conserves nonlinear invariants up to machine precision in both the spatial and temporal discretization with minimal computational overhead. This can improve solution stability and accuracy, often reducing error growth over time from quadratic to linear.
 
-The following comparison shows error growth with and without the relaxation method using the above simulation setup:
+The following comparison shows error growth with and without the relaxation method using the above simulation setup. For the comparison, it is important that we use a high accuracy order of our spatial discretization and sufficiently fine grid resolution. Otherwise, spatial discretization errors will dominate the total error, making it difficult to observe the improvements that relaxation provides to the temporal error behavior.
 
 ```@example callback
-plot(errors(analysis_callback).l2_error[1, :], label = "without relaxation")
-plot!(errors(analysis_callback2).l2_error[1, :], label = "with relaxation")
+plot(analysis_callback2, what = (:errors,), exclude = (:conservation_error, :linf_error), label= "L2 error with relaxation")
+plot!(analysis_callback, what = (:errors,), exclude = (:conservation_error, :linf_error), label= "L2 error without relaxation")
+
+
 savefig("error_growth_relaxation.png") # hide
 nothing # hide
 ```
