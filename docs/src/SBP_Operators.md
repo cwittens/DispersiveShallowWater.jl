@@ -38,7 +38,7 @@ SBP operators achieve this by providing:
 The fundamental property that defines a first-derivative SBP operator is:
 
 ```math
-MD + D^T M = t_R t_R^T - t_L t_L^T
+MD + D^T M = \boldsymbol{e}_R \boldsymbol{e}_R^T - \boldsymbol{e}_L \boldsymbol{e}_L^T
 ```
 
 where:
