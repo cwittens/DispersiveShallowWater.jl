@@ -56,6 +56,7 @@ This property is the discrete analog of integration by parts:
 \end{array}
 ```
 
+where for periodic SBP operators their property naturally simplifies to
 
 ```math
 MD + D^T M = 0.
