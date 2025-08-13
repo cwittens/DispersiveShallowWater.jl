@@ -43,7 +43,7 @@ nothing # hide
 
 DispersiveShallowWater.jl provides flexible plotting capabilities through [Plots.jl](https://github.com/JuliaPlots/Plots.jl) recipes. The plotting system supports various conversion functions, visualization options, and analysis tools. 
 
-[Markie.jl](https://docs.makie.org/stable/) is not supported yet. [Contributions are welcome](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/issues/220).
+[Makie.jl](https://docs.makie.org/stable/) is not supported yet. [Contributions are welcome](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/issues/220).
 
 ## Variable Conversion and Visualization Options
 
@@ -56,14 +56,14 @@ using Plots
 # Plot different variable representations
 
 t = 13.37 # plot solution at (roughly) t = 13.37s
-step_idx = argmin(abs.(saveat .- t)) # get the closed point to 13.37
+step_idx = argmin(abs.(saveat .- t)) # get the closest point to 13.37
 p1 = plot(semi => sol, conversion = prim2prim, plot_bathymetry = false, 
           suptitle = "Primitive Variables", step = step_idx)
 p2 = plot(semi => sol, conversion = prim2cons, plot_bathymetry = false,
           suptitle = "Conservative Variables", step = step_idx)
 p3 = plot(semi => sol, conversion = waterheight_total, plot_bathymetry = true,
           suptitle = "Total Water Height", step = step_idx)
-p4 = plot(semi => sol, conversion = velocity, plot_initial = true,
+p4 = plot(semi => sol, conversion = velocity, plot_initial = true, plot_bathymetry = false,
           suptitle = "Velocity with Initial Condition", step = step_idx)
 
 plot(p1, p2, p3, p4, layout = (2, 2), size = (1000, 700))

@@ -49,8 +49,6 @@ analyze solution                      3   13.2ms    3.0%  4.39ms    147KiB    0.
 
 The [`AnalysisCallback`](@ref) monitors solution quality and physical properties during the simulation. It computes error norms and tracks conservation of important physical quantities at specified time intervals.
 
-### Setting up the Analysis Callback
-
 First, let's set up a basic simulation using the BBM-BBM equations:
 
 ```@example callback
@@ -74,8 +72,6 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver,
                           boundary_conditions = boundary_condition_periodic)
 nothing # hide
 ```
-
-### Error Analysis and Conservation Monitoring
 
 The analysis callback computes ``L^2`` and ``L^\infty`` errors by comparing the numerical solution to the initial condition at time ``t`` (which can be the analytical solution, if available). Additional error types can be specified using the `extra_analysis_errors` parameter, and physical quantities can be monitored using `extra_analysis_integrals`.
 
@@ -105,8 +101,6 @@ nothing # hide
 
 The recorded errors and integrals can be accessed as `NamedTuple`s using [`errors(analysis_callback)`](@ref) and [`integrals(analysis_callback)`](@ref).
 
-### Visualizing Conservation Properties
-
 The temporal evolution of monitored quantities can be visualized by plotting the analysis callback:
 
 ```@example callback
@@ -121,6 +115,8 @@ nothing # hide
 ![analysis callback](analysis_callback.png)
 
 The plot shows that linear invariants such as the total water mass and total velocity are conserved exactly. However, nonlinear invariants such as the entropy may exhibit small growth over time. This occurs because standard time integration methods do not necessarily preserve nonlinear invariants, even when the spatial discretization is conservative.
+
+For a fully discrete entropy-conservative method, see also the following section about relaxation and the `RelaxationCallback`.
 
 ## Relaxation Callback
 
@@ -148,7 +144,7 @@ nothing # hide
 !!! note "Callback Ordering"
     When using both `RelaxationCallback` and `AnalysisCallback`, the relaxation callback must be placed first in the `CallbackSet`. This ensures that the analysis callback monitors the solution after the relaxation step has been applied.
 
-The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation almost up to machine precision:
+The relaxation method modifies each time step by finding an optimal relaxation parameter that preserves the specified invariant exactly. This results in entropy conservation almost up to machine precision and therefore provides a fully discrete structure-preserving numerical scheme:
 
 ```@example callback
 plot(analysis_callback2, ylims = (-4e-12, 4e-12))
@@ -158,11 +154,9 @@ nothing # hide
 
 ![analysis callback relaxation](analysis_callback_relaxation.png)
 
-The plot demonstrates that with the relaxation callback, the entropy is conserved to machine precision throughout the simulation, providing a fully discrete structure-preserving numerical scheme.
-
 ## Relaxation
 
-The relaxation method conserves nonlinear invariants up to machine precision in both the spatial and temporal discretization with minimal computational overhead. This can improve solution stability and accuracy, often reducing error growth over time from quadratic to linear.
+For a semidiscretization, which conserves a nonlinear invariant, the relaxation method conserves this nonlinear invariant up to machine precision also in the temporal discretization with minimal computational overhead. This can improve solution stability and accuracy, often reducing error growth over time from quadratic to linear.
 
 The following comparison shows error growth with and without the relaxation method using the above simulation setup. For the comparison, it is important that we use a high accuracy order of our spatial discretization and sufficiently fine grid resolution. Otherwise, spatial discretization errors will dominate the total error, making it difficult to observe the improvements that relaxation provides to the temporal error behavior.
 

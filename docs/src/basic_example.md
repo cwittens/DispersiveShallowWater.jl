@@ -58,7 +58,7 @@ mesh = Mesh1D(coordinates_min, coordinates_max, N)
 ```
 
 The first line specifies that we want to solve the BBM-BBM equations with variable bathymetry using a gravitational acceleration of ``g = 9.81``.
-Afterwards, we define the initial condition, which is described as a function with the spatial variable `x`, the time `t`, the `equations` and
+Afterwards, we define the initial condition, which is described as a function with the spatial variable `x`, the time `t`, the `equations`, and
 a `mesh` as parameters.
 
 If an analytical solution is available, the time variable `t` can be used, and the initial condition can serve as an analytical solution to be compared with the numerical solution. Otherwise, you can just keep the time variable unused.
@@ -68,7 +68,7 @@ treated as a variable (with time derivative 0) for convenience, we need to provi
 
 Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for some but not all equations. For more information see the [Dispersive Shallow Water Models overview](@ref eq_overview).
 
-Lastly, we define the physical domain as the interval from -130 to 20 (in meters) and we choose 512 nodes. The mesh is always homogeneous, i.e. the distance between consecutive nodes is constant. We choose the left boundary very far to the left in order to avoid interactions between left- and right-traveling waves. This prevents unwanted wave interference that could occur when waves wrap around due to the periodic boundary conditions.
+Lastly, we define the physical domain as the interval from -130 to 20 and we choose 512 nodes. The mesh is always homogeneous, i.e. the distance between consecutive nodes is constant. We choose the left boundary very far to the left in order to avoid interactions between left- and right-traveling waves. This prevents unwanted wave interference that could occur when waves wrap around due to the periodic boundary conditions.
 
 ## Define numerical solver
 
@@ -88,7 +88,7 @@ solver = Solver(mesh, accuracy_order)
 semi = Semidiscretization(mesh, equations, initial_condition, solver, boundary_conditions = boundary_conditions)
 ```
 
-Finally, we put the `mesh`, the `equations`, the `initial_condition`, the `solver` and the `boundary_conditions` together in a semidiscretization `semi`.
+Finally, we put the `mesh`, the `equations`, the `initial_condition`, the `solver`, and the `boundary_conditions` together in a semidiscretization `semi`.
 
 ## Solve system of ordinary differential equations
 
@@ -100,7 +100,7 @@ Finally, the `ode` can be `solve`d using the interface from [OrdinaryDiffEq.jl](
 scheme we want to use, the tolerances for the adaptive time-stepping, and the time values, where the solution values should be saved. In this case, we use the adaptive
 explicit Runge-Kutta method `Tsit5` by Tsitouras of order 5(4), which is implemented in the subpackage OrdinaryDiffEqTsit5.jl. If you want to use other time-stepping
 schemes, you can install the respective subpackage or the whole package OrdinaryDiffEq.jl, which will install every available solver.
-Here, we save the solution at 100 equidistant points.
+Here, we save the solution at 100 equidistant points in time.
 
 ```@example overview
 tspan = (0.0, 25.0)
@@ -144,12 +144,11 @@ nothing # hide
 
 ![shoaling solution](shoaling_solution.gif)
 
-It is also possible to plot the solution variables at a fixed spatial point over time by calling `plot(semi => sol, x)` for some `x`-value, see
-[plot_examples.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/plot_examples.jl) and the scripts [create_figures.jl](https://github.com/JoshuaLampert/2023-master-thesis/blob/main/code/create_figures.jl) from the reproducibility repository of the master thesis of Joshua Lampert or the chapter [Plotting Simulation Results](@ref plotting) in this documentation for some examples.
+It is also possible to plot the solution variables at a fixed spatial point over time by calling `plot(semi => sol, x)` for some `x`-value, see the chapter [Plotting Simulation Results](@ref plotting) in this documentation for some examples.
 
 ## More examples
 
-About 50 more examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
+More examples sorted by the simulated equations can be found in the [examples/](https://github.com/NumericalMathematics/DispersiveShallowWater.jl/tree/main/examples) subdirectory.
 
 
 ## [Plain program](@id overview-plain-program)
