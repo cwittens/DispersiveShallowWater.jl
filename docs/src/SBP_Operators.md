@@ -49,15 +49,15 @@ where:
 
 This property is the discrete analog of integration by parts:
 
-```math
-\begin{aligned}
-\underbrace{ \boldsymbol{u}^T M D \boldsymbol{v} + \boldsymbol{u}^T D^T M \boldsymbol{v} }_{\displaystyle \approx \int_{x_{\min}}^{x_{\max}} u\, (\partial_x v)\textrm{d}x + \int_{x_{\min}}^{x_{\max}} (\partial_x u)\, v\textrm{d}x } 
-&= 
-\underbrace{ \boldsymbol{u}^T \boldsymbol{t}_R \boldsymbol{t}_R^T \boldsymbol{v} - \boldsymbol{u}^T \boldsymbol{t}_L \boldsymbol{t}_L^T \boldsymbol{v} }_{\displaystyle = u(x_{\max})\,v(x_{\max}) - u(x_{\min})\,v(x_{\min}) }.
-\end{aligned}
-```
+$$
+\begin{equation*}
+        \begin{array}{ccccccc}
+            \underbrace{\bm u^TMD_1\bm v}_{\approx} &+& \underbrace{\bm u^TD_1^TM\bm v}_{\approx} &=& \underbrace{\bm u^T\bm e_R\bm e_R^T\bm v}_{=} &-& \underbrace{\bm u^T\bm e_L\bm e_L^T\bm v}_{=}\\
+            \overbrace{\displaystyle\int_\Omega uv_x \textrm dx} &+& \overbrace{\displaystyle\int_\Omega u_xv \textrm dx} &=& \overbrace{u(x_{\text{max}})v(x_{\text{max}})} &-& \overbrace{u(x_{\text{min}})v(x_{\text{min}})}.
+        \end{array}
+    \end{equation*}
+$$
 
-where for periodic SBP operators their property naturally simplifies to
 
 ```math
 MD + D^T M = 0.

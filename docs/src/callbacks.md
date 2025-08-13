@@ -112,6 +112,8 @@ savefig("analysis_callback.png") # hide
 nothing # hide
 ```
 
+More on specify options for plotting the analysis callback can be found in the chapter [Plotting Simulation Results](@ref plotting).
+
 ![analysis callback](analysis_callback.png)
 
 The plot shows that linear invariants such as the total water mass and total velocity are conserved exactly. However, nonlinear invariants such as the entropy may exhibit small growth over time. This occurs because standard time integration methods do not necessarily preserve nonlinear invariants, even when the spatial discretization is conservative.
