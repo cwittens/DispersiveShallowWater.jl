@@ -128,7 +128,7 @@ solver = Solver(D1, D2)
 
 ## Discontinuous and continuous Galerkin Methods
 
-DispersiveShallowWater.jl supports [discontinuous Galerkin (DG)](@ref dg_sbp) and [continuous Galerkin (CG)](@ref cg_sbp) methods through coupled Legendre operators:
+DispersiveShallowWater.jl supports [discontinuous Galerkin (DG)](@ref dg_sbp) and [continuous Galerkin (CG)](@ref cg_sbp) methods through coupled Lobatto-Legendre operators:
 
 ```julia
 using SummationByPartsOperators: legendre_derivative_operator,
