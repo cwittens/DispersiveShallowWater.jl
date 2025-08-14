@@ -76,7 +76,7 @@ For the approximation to be meaningful, we require:
 \boldsymbol{1}^T M \boldsymbol{1} = x_{\max} - x_{\min}
 ```
 
-This ensures that the discrete inner product correctly integrates constants.
+This ensures that the discrete inner product correctly integrates constants. This property is always fulfilled for at least first-order SBP operators.
 
 ### Understanding the Derivative Operator
 
@@ -95,8 +95,6 @@ D\, \boldsymbol{1} = \boldsymbol{0}.
 ```
 
 However, approximating derivatives near boundaries poses a challenge: interior points can use standard finite difference stencils, but near the edges (e.g., at `x_1` or `x_N`), one must use specially designed one-sided approximations that still preserve stability and accuracy. Periodic SBP Operators do not have this problem.
-
-
 
 ### Example: Central Difference Operator
 
@@ -166,7 +164,7 @@ The narrow stencil naturally damps high-frequency oscillations, leading to **bet
 
 #### [Discontinuous Galerkin (DG) SBP](@id dg_sbp)
 
-#### Continuous Galerkin (CG) SBP
+#### [Continuous Galerkin (CG) SBP](@id cg_sbp)
 
 #### [Fourier/Spectral SBP](@id fourier_sbp)
 

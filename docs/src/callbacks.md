@@ -112,7 +112,7 @@ savefig("analysis_callback.png") # hide
 nothing # hide
 ```
 
-More on specify options for plotting the analysis callback can be found in the chapter [Plotting Simulation Results](@ref plotting).
+More on different options for plotting the analysis callback can be found in the chapter [Plotting Simulation Results](@ref plotting).
 
 ![analysis callback](analysis_callback.png)
 
@@ -176,9 +176,6 @@ nothing # hide
 ![error growth relaxation](error_growth_relaxation.png)
 
 For additional information on relaxation, how it works, and why and when it is useful, see [Ranocha et al. (2020)](https://doi.org/10.1137/19M1263480).
-
-
-
 
 ### References
 
