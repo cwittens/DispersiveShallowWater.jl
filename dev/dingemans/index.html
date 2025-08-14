@@ -43,10 +43,10 @@ y_limits = (-0.03, 0.87)
 
 # Model configurations: (semidiscretization, solution, label, conversion_function)
 models = [
-    (semi_bbmbbm, sol_bbmbbm, &quot;BBM-BBM&quot;, shifted_waterheight),
-    (semi_sk, sol_sk, &quot;Svärd-Kalisch&quot;, waterheight_total),
-    (semi_sgn, sol_sgn, &quot;Serre-Green-Naghdi&quot;, waterheight_total),
-    (semi_hysgn, sol_hysgn, &quot;Hyperbolic Serre-Green-Naghdi&quot;, waterheight_total)
+    (semi_bbmbbm, sol_bbmbbm, &quot;BBM-BBM&quot;, shifted_waterheight, :solid),
+    (semi_sk, sol_sk, &quot;Svärd-Kalisch&quot;, waterheight_total, :dashdotdot),
+    (semi_sgn, sol_sgn, &quot;Serre-Green-Naghdi&quot;, waterheight_total, :dot),
+    (semi_hysgn, sol_hysgn, &quot;Hyperbolic Serre-Green-Naghdi&quot;, waterheight_total, :dashdot)
 ]
 
 # Create snapshot plots for each time
@@ -55,7 +55,7 @@ for time_val in times
     step_idx = argmin(abs.(saveat .- time_val)) # get the closed point to the time_val
     p = plot(title = &quot;t = $time_val&quot;, ylims = y_limits)
 
-    for (semi, sol, label, conversion) in models
+    for (semi, sol, label, conversion, linestyle) in models
         plot!(p, semi =&gt; sol,
               step = step_idx,
               label = label,
@@ -63,7 +63,8 @@ for time_val in times
               plot_bathymetry = true,
               legend = false,
               suptitle = &quot;Dingemans at t = $(time_val)&quot;,
-              title = &quot;&quot;
+              title = &quot;&quot;,
+              linestyles = linestyle
               )
     end
 
@@ -73,16 +74,16 @@ end
 # Create legend plot
 legend_plot = plot(legend=:top, framestyle = :none, legendfontsize = 11)
 
-for (_, _, label, _) in models
-    plot!(legend_plot, [], [], label = label)
+for (_, _, label, _, linestyle) in models
+    plot!(legend_plot, [], [], label = label, linestyles = linestyle)
 end
-plot!(legend_plot, [], [], label = &quot;Bathymetry&quot;, color = :black)
+plot!(legend_plot, [], [], label = &quot;Bathymetry&quot;, color = :black,)
 
 # Combine all plots
 all_plots = [snapshot_plots..., legend_plot]
 plot(all_plots...,
-     size = (900, 800),
-     layout = @layout([a b; c d; e]),
+     size = (900, 700),
+     layout = @layout([a b; c d; e{0.2h}]),
 )</code></pre><p><img src="../dingemans_comparison.png" alt="Dingemans comparison"/></p><p>The results show how different dispersive wave models capture the wave evolution over the trapezoidal bathymetry.</p><h2 id="overview-plain-program-dingemans"><a class="docs-heading-anchor" href="#overview-plain-program-dingemans">Plain program</a><a id="overview-plain-program-dingemans-1"></a><a class="docs-heading-anchor-permalink" href="#overview-plain-program-dingemans" title="Permalink"></a></h2><p>Here follows a version of the program without any comments.</p><pre><code class="language-julia hljs">using DispersiveShallowWater, OrdinaryDiffEqTsit5, Plots
 
 # BBM-BBM equations with variable bathymetry
@@ -186,4 +187,4 @@ plot!(legend_plot, [], [], label = &quot;Bathymetry&quot;, color = :black)
 all_plots = [snapshot_plots..., legend_plot]
 plot(all_plots...,
      size = (900, 800),
-     layout = @layout([a b; c d; e]))</code></pre><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><section class="footnotes is-size-7"><ul><li class="footnote" id="footnote-Dingemans1994"><a class="tag is-link" href="#citeref-Dingemans1994">Dingemans1994</a>Dingemans (1994): Comparison of computations with Boussinesq-like models and laboratory measurements. <a href="https://resolver.tudelft.nl/uuid:c2091d53-f455-48af-a84b-ac86680455e9">URL: https://resolver.tudelft.nl/uuid:c2091d53-f455-48af-a84b-ac86680455e9</a></li><li class="footnote" id="footnote-Dingemans1997"><a class="tag is-link" href="#citeref-Dingemans1997">Dingemans1997</a>Dingemans (1997): Water Wave Propagation Over Uneven Bottoms (In 2 Parts). <a href="https://doi.org/10.1142/1241">DOI: 10.1142/1241</a></li></ul></section></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../plotting/">« Plotting</a><a class="docs-footer-nextpage" href="../development/">Development »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 14 August 2025 18:46">Thursday 14 August 2025</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+     layout = @layout([a b; c d; e]))</code></pre><h3 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h3><section class="footnotes is-size-7"><ul><li class="footnote" id="footnote-Dingemans1994"><a class="tag is-link" href="#citeref-Dingemans1994">Dingemans1994</a>Dingemans (1994): Comparison of computations with Boussinesq-like models and laboratory measurements. <a href="https://resolver.tudelft.nl/uuid:c2091d53-f455-48af-a84b-ac86680455e9">URL: https://resolver.tudelft.nl/uuid:c2091d53-f455-48af-a84b-ac86680455e9</a></li><li class="footnote" id="footnote-Dingemans1997"><a class="tag is-link" href="#citeref-Dingemans1997">Dingemans1997</a>Dingemans (1997): Water Wave Propagation Over Uneven Bottoms (In 2 Parts). <a href="https://doi.org/10.1142/1241">DOI: 10.1142/1241</a></li></ul></section></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../plotting/">« Plotting</a><a class="docs-footer-nextpage" href="../development/">Development »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Thursday 14 August 2025 18:54">Thursday 14 August 2025</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
