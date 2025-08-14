@@ -130,10 +130,10 @@ y_limits = (-0.03, 0.87)
 
 # Model configurations: (semidiscretization, solution, label, conversion_function)
 models = [
-    (semi_bbmbbm, sol_bbmbbm, "BBM-BBM", shifted_waterheight),
-    (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total),
-    (semi_sgn, sol_sgn, "Serre-Green-Naghdi", waterheight_total),
-    (semi_hysgn, sol_hysgn, "Hyperbolic Serre-Green-Naghdi", waterheight_total)
+    (semi_bbmbbm, sol_bbmbbm, "BBM-BBM", shifted_waterheight, :solid),
+    (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total, :dashdotdot),
+    (semi_sgn, sol_sgn, "Serre-Green-Naghdi", waterheight_total, :dot),
+    (semi_hysgn, sol_hysgn, "Hyperbolic Serre-Green-Naghdi", waterheight_total, :dashdot)
 ]
 
 # Create snapshot plots for each time
@@ -142,7 +142,7 @@ for time_val in times
     step_idx = argmin(abs.(saveat .- time_val)) # get the closed point to the time_val
     p = plot(title = "t = $time_val", ylims = y_limits)
     
-    for (semi, sol, label, conversion) in models
+    for (semi, sol, label, conversion, linestyle) in models
         plot!(p, semi => sol, 
               step = step_idx,
               label = label,
@@ -150,7 +150,8 @@ for time_val in times
               plot_bathymetry = true,
               legend = false,
               suptitle = "Dingemans at t = $(time_val)",
-              title = ""
+              title = "",
+              linestyles = linestyle
               )
     end
     
@@ -160,16 +161,16 @@ end
 # Create legend plot 
 legend_plot = plot(legend=:top, framestyle = :none, legendfontsize = 11)
 
-for (_, _, label, _) in models
-    plot!(legend_plot, [], [], label = label)
+for (_, _, label, _, linestyle) in models
+    plot!(legend_plot, [], [], label = label, linestyles = linestyle)
 end
-plot!(legend_plot, [], [], label = "Bathymetry", color = :black)
+plot!(legend_plot, [], [], label = "Bathymetry", color = :black,)
 
 # Combine all plots
 all_plots = [snapshot_plots..., legend_plot]
 plot(all_plots..., 
-     size = (900, 800), 
-     layout = @layout([a b; c d; e]),
+     size = (900, 700), 
+     layout = @layout([a b; c d; e{0.2h}]),
 )
 savefig("dingemans_comparison.png") # hide
 nothing # hide
