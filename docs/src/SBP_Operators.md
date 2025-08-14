@@ -1,4 +1,4 @@
-# [Summation-by-Parts Operators](@id sbp_operates)
+# [Summation-by-Parts Operators](@id sbp_operators)
 
 This chapter covers the analytical and mathematical background of summation-by-parts operators in general.
 

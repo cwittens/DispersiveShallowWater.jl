@@ -2,7 +2,7 @@
 
 This chapter covers different solvers and how to use them in DispersiveShallowWater.jl.
 
-To learn more about the analytical and mathematical background, go to the chapter about [Summation by Parts Operators](@ref sbp_operates).
+To learn more about the analytical and mathematical background, go to the chapter about [Summation by Parts Operators](@ref sbp_operators).
 
 ## Introduction
 
