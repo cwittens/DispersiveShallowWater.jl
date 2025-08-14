@@ -169,8 +169,8 @@ plot!(legend_plot, [], [], label = "Bathymetry", color = :black,)
 # Combine all plots
 all_plots = [snapshot_plots..., legend_plot]
 plot(all_plots..., 
-     size = (900, 700), 
-     layout = @layout([a b; c d; e{0.2h}]),
+     size = (900, 1000), 
+     layout = @layout([a b; c d; e{0.13h}]),
 )
 savefig("dingemans_comparison.png") # hide
 nothing # hide
