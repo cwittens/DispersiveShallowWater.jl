@@ -19,7 +19,7 @@ DispersiveShallowWater.jl follows a modular design that separates the choice of 
 
 This modularity is particularly relevant for research applications where the choice of discretization can significantly impact the preservation of physical invariants and long-time numerical stability. The unified interface enables systematic studies of numerical method performance without requiring separate implementations for each approach.
 
-## Basic Summation by Parts Solver
+## Basic Summation-by-Parts Solver
 
 As we have already seen in the [basic example](@ref basic_example), the easiest way to create a solver is to pass both a mesh and the desired accuracy order to the [`Solver`](@ref) function. This creates first-, second-, and third-derivative periodic summation-by-parts operators of the given accuracy order on the specified mesh:
 
@@ -61,6 +61,7 @@ solver = Solver(D1)
 ```
 
 The `MattssonNordström2004()` operator family provides SBP operators that satisfy the SBP property with non-periodic boundary conditions, making them suitable for reflecting boundary conditions.
+Other possible choices for sources can be found in the [documentation of SummationByPartsOperators.jl](https://ranocha.de/SummationByPartsOperators.jl/stable/).
 
 ## Upwind Operators
 
@@ -125,9 +126,9 @@ solver = Solver(D1, D2)
 !!! warning "Performance consideration"
     While using sparse matrices for `D2` and `D3` provides flexibility, SBP operator-vector products are typically about an order of magnitude faster than sparse matrix-vector products. See the [SummationByPartsOperators.jl benchmarks](https://ranocha.de/SummationByPartsOperators.jl/stable/benchmarks/) for details.
 
-## Discontinuous Galerkin Methods
+## Discontinuous and continuous Galerkin Methods
 
-DispersiveShallowWater.jl supports [discontinuous Galerkin (DG)](@ref dg_sbp) methods through coupled Legendre operators:
+DispersiveShallowWater.jl supports [discontinuous Galerkin (DG)](@ref dg_sbp) and [continuous Galerkin (CG)](@ref cg_sbp) methods through coupled Legendre operators:
 
 ```julia
 using SummationByPartsOperators: legendre_derivative_operator,
@@ -148,11 +149,11 @@ D2 = sparse(D_pl) * sparse(D_min)
 solver = Solver(D1, D2)
 ```
 
-This approach creates a DG discretization with polynomial degree `p` within each element.
+This approach creates a DG discretization with polynomial degree `p` within each element. Similarly, you can create a CG discretization using `couple_continuously`. Note that in this case, `N` needs to be divisible by `p` instead of `p + 1`.
 
 ## Fourier Spectral Methods
 
-[Fourier collocation methods](@ref fourier_sbp) can be interpreted as periodic SBP operators, which can be constructed via fourier\_derivative\_operator:
+[Fourier collocation methods](@ref fourier_sbp) can be interpreted as periodic SBP operators, which can be constructed via `fourier_derivative_operator`:
 
 ```julia
 using SummationByPartsOperators: fourier_derivative_operator
@@ -165,7 +166,6 @@ solver = Solver(D1)
 ## Variable Coefficient Operators
 
 Variable coefficient operators can be useful when solving PDEs that involve elliptic systems with variable coefficients. Using them can lead to fewer allocations.
-
 
 ```julia
 using SummationByPartsOperators: Mattsson2012, derivative_operator,
@@ -198,8 +198,6 @@ semi = Semidiscretization(mesh, equations, initial_condition, solver,
 The solver you choose should be compatible with your boundary conditions:
 - Periodic operators (created with `periodic_derivative_operator` or `fourier_derivative_operator`) require `boundary_condition_periodic`
 - Non-periodic operators (created with `MattssonNordström2004`, etc.) are needed for `boundary_condition_reflecting`
-
-
 
 ## Common Pitfalls
 
