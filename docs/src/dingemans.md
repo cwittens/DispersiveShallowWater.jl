@@ -131,7 +131,8 @@ y_limits = (-0.03, 0.87)
 # Model configurations: (semidiscretization, solution, label, conversion_function, linestyle)
 models = [
     (semi_bbmbbm, sol_bbmbbm, "BBM-BBM", shifted_waterheight, :solid),
-    (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total, :dashdotdot),
+    # Svärd-Kalisch has a phase shift which need to be adjusted for in the initial condition
+    # (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total, :dashdotdot), 
     (semi_sgn, sol_sgn, "Serre-Green-Naghdi", waterheight_total, :dot),
     (semi_hysgn, sol_hysgn, "Hyperbolic Serre-Green-Naghdi", waterheight_total, :dashdot)
 ]
@@ -255,7 +256,8 @@ y_limits = (-0.03, 0.87)
 # Model configurations: (semidiscretization, solution, label, conversion_function, linestyle)
 models = [
     (semi_bbmbbm, sol_bbmbbm, "BBM-BBM", shifted_waterheight, :solid),
-    (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total, :dashdotdot),
+    # Svärd-Kalisch has a phase shift which need to be adjusted for in the initial condition
+    # (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total, :dashdotdot), 
     (semi_sgn, sol_sgn, "Serre-Green-Naghdi", waterheight_total, :dot),
     (semi_hysgn, sol_hysgn, "Hyperbolic Serre-Green-Naghdi", waterheight_total, :dashdot)
 ]
