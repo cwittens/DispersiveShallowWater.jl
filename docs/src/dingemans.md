@@ -128,7 +128,7 @@ Finally, we create comparison plots at four different time instances to observe 
 times = [14.0, 28.0, 42.0, 70.0]
 y_limits = (-0.03, 0.87)
 
-# Model configurations: (semidiscretization, solution, label, conversion_function)
+# Model configurations: (semidiscretization, solution, label, conversion_function, linestyle)
 models = [
     (semi_bbmbbm, sol_bbmbbm, "BBM-BBM", shifted_waterheight, :solid),
     (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total, :dashdotdot),
@@ -139,39 +139,45 @@ models = [
 # Create snapshot plots for each time
 snapshot_plots = []
 for time_val in times
-    step_idx = argmin(abs.(saveat .- time_val)) # get the closed point to the time_val
-    p = plot(title = "t = $time_val", ylims = y_limits)
-    
-    for (semi, sol, label, conversion, linestyle) in models
-        plot!(p, semi => sol, 
-              step = step_idx,
-              label = label,
-              conversion = conversion,
-              plot_bathymetry = true,
-              legend = false,
-              suptitle = "Dingemans at t = $(time_val)",
-              title = "",
-              linestyles = linestyle
-              )
+    step_idx = argmin(abs.(saveat .- time_val)) # get the closest point to the time_val
+    p = plot(title="t = $time_val", ylims=y_limits)
+
+    for (i, (semi, sol, label, conversion, linestyle)) in enumerate(models)
+        plot!(p, semi => sol,
+            step=step_idx,
+            label=label,
+            conversion=conversion,
+            plot_bathymetry=true,
+            legend=false,
+            title="Dingemans at t = $(time_val)",
+            suptitle="",
+            linewidth=[2 1], # 1 for the bathymetry
+            linestyles=[linestyle :solid], # :solid for the bathymetry
+            color=[i :black], # black for the bathymetry
+        )
     end
-    
+
     push!(snapshot_plots, p)
 end
 
 # Create legend plot 
-legend_plot = plot(legend=:top, framestyle = :none, legendfontsize = 11)
+legend_plot = plot(legend=:top, framestyle=:none, legendfontsize=11)
 
-for (_, _, label, _, linestyle) in models
-    plot!(legend_plot, [], [], label = label, linestyles = linestyle)
+for (i, (_, _, label, _, linestyle)) in enumerate(models)
+    plot!(legend_plot, [], [], label=label, linestyles=linestyle, linewidth=2, color=i)
 end
-plot!(legend_plot, [], [], label = "Bathymetry", color = :black,)
+plot!(legend_plot, [], [], label="Bathymetry", color=:black,)
+
+xlims_zoom = [(-25, 15), (0, 40), (5, 45), (-100, -60)]
+snapshot_plots_zoom = [plot(snapshot_plots[i], xlims=xlims_zoom[i], ylims=(0.75, 0.85), title="Zoomed in at t = $(times[i])") for i in 1:4]
 
 # Combine all plots
-all_plots = [snapshot_plots..., legend_plot]
-plot(all_plots..., 
-     size = (900, 1000), 
-     layout = @layout([a b; c d; e{0.13h}]),
+all_plots = [snapshot_plots..., legend_plot, snapshot_plots_zoom...]
+plot(all_plots...,
+    size=(900, 1100),
+    layout=@layout([a b; c d; e{0.14h}; f g; h i]),
 )
+
 savefig("dingemans_comparison.png") # hide
 nothing # hide
 ```
@@ -246,7 +252,7 @@ DispersiveShallowWater.varnames(::typeof(shifted_waterheight), equations) = ("η
 times = [14.0, 28.0, 42.0, 70.0]
 y_limits = (-0.03, 0.87)
 
-# Model configurations: (semidiscretization, solution, label, conversion_function)
+# Model configurations: (semidiscretization, solution, label, conversion_function, linestyle)
 models = [
     (semi_bbmbbm, sol_bbmbbm, "BBM-BBM", shifted_waterheight, :solid),
     (semi_sk, sol_sk, "Svärd-Kalisch", waterheight_total, :dashdotdot),
@@ -257,39 +263,45 @@ models = [
 # Create snapshot plots for each time
 snapshot_plots = []
 for time_val in times
-    step_idx = argmin(abs.(saveat .- time_val)) # get the closed point to the time_val
-    p = plot(title = "t = $time_val", ylims = y_limits)
-    
-    for (semi, sol, label, conversion, linestyle) in models
-        plot!(p, semi => sol, 
-              step = step_idx,
-              label = label,
-              conversion = conversion,
-              plot_bathymetry = true,
-              legend = false,
-              suptitle = "Dingemans at t = $(time_val)",
-              title = "",
-              linestyles = linestyle
-              )
+    step_idx = argmin(abs.(saveat .- time_val)) # get the closest point to the time_val
+    p = plot(title="t = $time_val", ylims=y_limits)
+
+    for (i, (semi, sol, label, conversion, linestyle)) in enumerate(models)
+        plot!(p, semi => sol,
+            step=step_idx,
+            label=label,
+            conversion=conversion,
+            plot_bathymetry=true,
+            legend=false,
+            title="Dingemans at t = $(time_val)",
+            suptitle="",
+            linewidth=[2 1], # 1 for the bathymetry
+            linestyles=[linestyle :solid], # :solid for the bathymetry
+            color=[i :black], # black for the bathymetry
+        )
     end
-    
+
     push!(snapshot_plots, p)
 end
 
 # Create legend plot 
-legend_plot = plot(legend=:top, framestyle = :none, legendfontsize = 11)
+legend_plot = plot(legend=:top, framestyle=:none, legendfontsize=11)
 
-for (_, _, label, _, linestyle) in models
-    plot!(legend_plot, [], [], label = label, linestyles = linestyle)
+for (i, (_, _, label, _, linestyle)) in enumerate(models)
+    plot!(legend_plot, [], [], label=label, linestyles=linestyle, linewidth=2, color=i)
 end
-plot!(legend_plot, [], [], label = "Bathymetry", color = :black,)
+plot!(legend_plot, [], [], label="Bathymetry", color=:black,)
+
+xlims_zoom = [(-25, 15), (0, 40), (5, 45), (-100, -60)]
+snapshot_plots_zoom = [plot(snapshot_plots[i], xlims=xlims_zoom[i], ylims=(0.75, 0.85), title="Zoomed in at t = $(times[i])") for i in 1:4]
 
 # Combine all plots
-all_plots = [snapshot_plots..., legend_plot]
-plot(all_plots..., 
-     size = (900, 1000), 
-     layout = @layout([a b; c d; e{0.13h}]),
+all_plots = [snapshot_plots..., legend_plot, snapshot_plots_zoom...]
+plot(all_plots...,
+    size=(900, 1100),
+    layout=@layout([a b; c d; e{0.14h}; f g; h i]),
 )
+```
 
 ### References
 
