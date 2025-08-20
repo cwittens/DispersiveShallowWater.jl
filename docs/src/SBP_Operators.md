@@ -120,52 +120,74 @@ You can verify that this satisfies the SBP property and provides second-order ac
 
 ## 3. Types of SBP Operators
 
-In practice SBP operators come in various *flavours*. 
+In practice SBP operators come in various *flavours*. Consult the [documentation of SummationByPartsOperators.jl](https://ranocha.de/SummationByPartsOperators.jl/stable/)
+for more details on how to construct the different types.
 
-upwind vs. central vs. FD vs. DG vs. CG vs. Fourier
+### Central Finite Difference (FD) SBP Operators
 
-### Central vs. Upwind SBP Operators
-
-The choice between central and upwind SBP operators is crucial and depends on the nature of your problem.
-
-#### Central SBP Operators
-
+The simplest form of SBP operators are central finite difference operators and these are the operators that are mostly used in DispersiveShallowWater.jl
+For periodic boundary conditions, they can be created with `periodic_derivative_operator` and for non-periodic boundary conditions with `derivative_operator`
+from SummationByPartsOperators.jl.
 
 #### [Upwind SBP Operators](@id upwind_sbp)
 
-Upwind operators come in pairs ``D_+`` and ``D_-`` with additional dissipation:
-- **Key Property**: ``M(D_+ - D_-)`` is negative semidefinite (provides controlled dissipation)
-- **Major Advantage**: **Higher resolution** - better at resolving sharp features
-- **Construction**: ``D = (D_+ + D_-)/2`` gives a central operator
-
-#### Why Upwind Operators Have Higher Resolution
-
-The resolution advantage comes from the stencil structure. Consider discretizing a second derivative:
-
-**Central approach**:
+Upwind operators come in pairs ``D_+`` and ``D_-``, which satisfy the relation
 
 ```math
-(D^2 u)_i \approx \frac{u_{i+2} - 2u_i + u_{i-2}}{4\Delta x^2} \quad \text{[Wide stencil!]}
+MD_+ + D_-^T M = \boldsymbol{e}_R \boldsymbol{e}_R^T - \boldsymbol{e}_L \boldsymbol{e}_L^T,
 ```
 
-This wide stencil has **grid oscillations** of the form ``(-1,+1,-1,+1,\ldots)`` in its null space.
-
-**Upwind approach**:
-
-```math
-(D^2 u)_i \approx \frac{u_{i+1} - 2u_i + u_{i-1}}{\Delta x^2} \quad \text{[Narrow stencil!]}
-```
-
-The narrow stencil naturally damps high-frequency oscillations, leading to **better resolution**.
-
-### Different SBP Implementations
-
-#### Finite Difference (FD) SBP
+where additionally `M(D_+ - D_-)` is negative semidefinite. This property is often useful to construct dissipative numerical schemes, which have an improved stability.
+The operators `D_+` and `D_-` are biased in one direction and are therefore useful in simulations with unidirectional flow, which favor a specific flow direction.
+They can also be helpful to construct (central) second-derivative operators by ``D_2 = D_+D_-`` (or ``D_2 = D_-D_+``), which is often advantageous compared to wide-stencil
+central FD operators like `D_2 = D_1^2` because second-derivative operators based on upwind operators have a narrow stencil leading to a better resolution.
+With SummationByPartsOperators.jl, upwind operators can be constructed using `upwind_operators`. Each part of the operator can be accessed by the `minus` and `plus` fields.
+Additionally, upwind operators induce a central first-derivative operator by ``D = (D_+ + D_-)/2``, which can be accessed by `central`.
 
 #### [Discontinuous Galerkin (DG) SBP](@id dg_sbp)
 
+Classically, SBP operators were developed from the perspective of finite difference methods. However, more recently especially in [^Gassner2013] and subsequent papers,
+the connection of finite element method to SBP operators was developed. It turns out that many finite element schemes, like the discontinuous Galerkin spectral element
+method (DGSEM), can be interpreted as schemes based on certain SBP operators. In this context the SBP operators are defined locally on a reference element. The
+DGSEM uses Gauss-Lobatto-Legendre nodes and weights to form a quadrature rule, which also lead to a differentiation matrix. Together, these satisfy the SBP property.
+To obtain global mass and derivative matrices, the local operators can be coupled across the elements as presented in [^RanochaMitsotakisKetcheson2021]. You can create periodic
+DG operators with
+
+```julia
+coordinates_min, coordinates_max = -1.0, 1.0
+N = 16 # N needs to be divisible by p + 1, i.e. this corresponds to N/(p + 1) = 4 elements
+p = 3 # polynomial degree
+D_legendre = legendre_derivative_operator(-1.0, 1.0, p + 1)
+uniform_mesh = UniformPeriodicMesh1D(coordinates_min, coordinates_max, div(N, p + 1))
+D = couple_discontinuously(D_legendre, uniform_mesh)
+```
+
+Using `couple_discontinuously`, you can also construct upwind SBP operators by additionally passing `Val(:plus)` or `Val(:minus)`. Note that this construction results into non-uniformly
+distributed nodes and due the discontinuous nature to repeated nodes at interfaces between elements.
+
 #### [Continuous Galerkin (CG) SBP](@id cg_sbp)
+
+Similarly to DG operators, CG operators can be constructed using `couple_continuously`. In contrast to the DG operators, `N` needs to be divisible by `p` and there are no repeated nodes at the interfaces.
 
 #### [Fourier/Spectral SBP](@id fourier_sbp)
 
+Fourier or spectral SBP operators are constructed using Fourier basis functions. These operators can be used for problems with periodic boundary conditions. The key idea is to represent the solution in
+terms of its Fourier coefficients and to apply differentiation in the Fourier space. Note that these operators have dense derivative matrices and are therefore often more computationally expensive. In
+SummationByPartsOperators.jl, they can be constructed with `fourier_derivative_matrix`.
 
+#### Variable Coefficient Operators
+
+A special class of SBP operators is given by variable coefficient operators, which are discrete operators for the second derivative approximating terms of the form ``\partial_x(b \partial_x u)``. Directly
+incorporating the variable coefficient `b` into the SBP operator is desirable compared to subsequent application of first-derivative operators ``D \textrm{diag}(\boldsymbol{b}) D`` because it leads to a
+more compact stencil and therefore improved numerical properties. You can use `var_coef_derivative_operator` with source `Mattsson2012` to construct such operators.
+
+[^Gassner2013]:
+    Gassner (2013):
+    A Skew-Symmetric Discontinuous Galerkin Spectral Element Discretization
+    and Its Relation to SBP-SAT Finite Difference Methods
+    [DOI: 10.1137/120890144](https://epubs.siam.org/doi/10.1137/120890144)
+
+[^RanochaMitsotakisKetcheson2021]:
+    Ranocha, Mitsokatis, Ketcheson (2021):
+    A broad class of conservative numerical methods for dispersive wave equations
+    [DOI: 10.4208/cicp.oa-2020-0119](https://doi.org/10.4208/cicp.oa-2020-0119)
