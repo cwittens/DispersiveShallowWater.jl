@@ -1,18 +1,18 @@
 # [Solvers](@id solvers)
 
-This chapter covers different solvers and how to use them in DispersiveShallowWater.jl.
+This chapter covers different solvers and how to use them in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl).
 
 To learn more about the analytical and mathematical background, go to the chapter about [Summation by Parts Operators](@ref sbp_operators).
 
 ## Introduction
 
-DispersiveShallowWater.jl uses [SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/) as the foundation for all spatial discretizations. This package provides a comprehensive collection of summation-by-parts (SBP) operators that enable structure-preserving numerical methods with provable stability and conservation properties.
+[DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) uses [SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/) as the foundation for all spatial discretizations. This package provides a comprehensive collection of summation-by-parts (SBP) operators that enable structure-preserving numerical methods with provable stability and conservation properties.
 
-The [`Solver`](@ref) struct in DispersiveShallowWater.jl wraps the SBP operators needed for spatial discretization: typically a first-derivative operator `D1`, and optionally second- and third-derivative operators `D2` and `D3`, depending on the equation system being solved.
+The [`Solver`](@ref) struct in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) wraps the SBP operators needed for spatial discretization: typically a first-derivative operator `D1`, and optionally second- and third-derivative operators `D2` and `D3`, depending on the equation system being solved.
 
 ## Design Philosophy: Flexibility and Modularity
 
-DispersiveShallowWater.jl follows a modular design that separates the choice of spatial discretization from the underlying equation systems. This design allows users to:
+[DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) follows a modular design that separates the choice of spatial discretization from the underlying equation systems. This design allows users to:
 
 - **Compare discretization methods**: Test finite difference, discontinuous Galerkin, continuous Galerkin, and Fourier spectral approaches on identical problems
 - **Investigate operator properties**: Analyze how different SBP operators preserve conservation laws and stability properties
@@ -125,10 +125,11 @@ solver = Solver(D1, D2)
 
 !!! warning "Performance consideration"
     While using sparse matrices for `D2` and `D3` provides flexibility, SBP operator-vector products are typically about an order of magnitude faster than sparse matrix-vector products. See the [SummationByPartsOperators.jl benchmarks](https://ranocha.de/SummationByPartsOperators.jl/stable/benchmarks/) for details.
+    This does not matter if the operators provided as matrices are not required for operator/matrix-vector products but only for linear solves, e.g., for the BBM-BBM equations.
 
 ## Discontinuous and continuous Galerkin Methods
 
-DispersiveShallowWater.jl supports [discontinuous Galerkin (DG)](@ref dg_sbp) and [continuous Galerkin (CG)](@ref cg_sbp) methods through coupled Lobatto-Legendre operators:
+[DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) supports [discontinuous Galerkin (DG)](@ref dg_sbp) and [continuous Galerkin (CG)](@ref cg_sbp) methods through coupled Lobatto-Legendre operators:
 
 ```julia
 using SummationByPartsOperators: legendre_derivative_operator,

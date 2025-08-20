@@ -122,7 +122,7 @@ For a fully discrete entropy-conservative method, see also the following section
 
 ## Relaxation Callback
 
-To obtain entropy-conserving time-stepping schemes, DispersiveShallowWater.jl uses the relaxation method introduced in [^Ketcheson2019] and further developed in [^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved quantity as the keyword argument `invariant`. This callback modifies the time step to maintain conservation of a specified quantity.
+To obtain entropy-conserving time-stepping schemes, [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) uses the relaxation method introduced in [^Ketcheson2019] and further developed in [^RanochaSayyariDalcinParsaniKetcheson2020]. The relaxation method is implemented as a [`RelaxationCallback`](@ref), which takes a function representing the conserved quantity as the keyword argument `invariant`. This callback modifies the time step to maintain conservation of a specified quantity.
 
 ### Entropy-Conserving Time Integration
 

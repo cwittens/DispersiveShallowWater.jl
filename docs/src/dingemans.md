@@ -18,7 +18,7 @@ This configuration allows researchers to study wave shoaling (changes in wave ch
 
 ## Numerical Simulation
 
-Let's implement the Dingemans experiment and compare the performance of different dispersive shallow water models available in DispersiveShallowWater.jl.
+Let's implement the Dingemans experiment and compare the performance of different dispersive shallow water models available in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl).
 
 First, we load the necessary packages:
 
@@ -47,7 +47,7 @@ hysgn = HyperbolicSerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_mild_
 nothing # hide
 ```
 
-The initial condition [`initial_condition_dingemans`](@ref) provided by DispersiveShallowWater.jl automatically sets up the trapezoidal bathymetry and initial wave field.
+The initial condition [`initial_condition_dingemans`](@ref) provided by [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) automatically sets up the trapezoidal bathymetry and initial wave field.
 
 ```@example dingemans
 initial_condition = initial_condition_dingemans
