@@ -137,10 +137,10 @@ Upwind operators come in pairs ``D_+`` and ``D_-``, which satisfy the relation
 MD_+ + D_-^T M = \boldsymbol{e}_R \boldsymbol{e}_R^T - \boldsymbol{e}_L \boldsymbol{e}_L^T,
 ```
 
-where additionally `M(D_+ - D_-)` is negative semidefinite. This property is often useful to construct dissipative numerical schemes, which have an improved stability.
-The operators `D_+` and `D_-` are biased in one direction and are therefore useful in simulations with unidirectional flow, which favor a specific flow direction.
+where additionally ``M(D_+ - D_-)`` is negative semidefinite. This property is often useful to construct dissipative numerical schemes, which have an improved stability.
+The operators ``D_+`` and ``D_-`` are biased in one direction and are therefore useful in simulations with unidirectional flow, which favor a specific flow direction.
 They can also be helpful to construct (central) second-derivative operators by ``D_2 = D_+D_-`` (or ``D_2 = D_-D_+``), which is often advantageous compared to wide-stencil
-central FD operators like `D_2 = D_1^2` because second-derivative operators based on upwind operators have a narrow stencil leading to a better resolution.
+central FD operators like ``D_2 = D_1^2`` because second-derivative operators based on upwind operators have a narrow stencil leading to a better resolution.
 With SummationByPartsOperators.jl, upwind operators can be constructed using `upwind_operators`. Each part of the operator can be accessed by the `minus` and `plus` fields.
 Additionally, upwind operators induce a central first-derivative operator by ``D = (D_+ + D_-)/2``, which can be accessed by `central`.
 
