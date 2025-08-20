@@ -113,7 +113,7 @@ nothing # hide
 
 ## Visualization and Comparison
 
-For proper comparison, we need to account for the fact that the BBM-BBM equations use a different reference level (η₀ = 0) compared to the other equations. We create a custom conversion function which allows us to easily shift the BBM-BBM results:
+For proper comparison, we need to account for the fact that the BBM-BBM equations use a different reference level (``\eta_0 = 0``) compared to the other equations. We create a custom conversion function which allows us to easily shift the BBM-BBM results:
 
 ```@example dingemans
 # BBM-BBM equations need to be translated vertically for comparison

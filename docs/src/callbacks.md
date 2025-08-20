@@ -1,6 +1,7 @@
 # Callbacks
 
-Callbacks provide additional functionality during simulations, such as monitoring solution properties, analyzing errors, or ensuring conservation of physical quantities. DispersiveShallowWater.jl implements three main callback types that can be used individually or in combination to enhance simulation analysis and performance monitoring.
+Callbacks provide additional functionality during simulations, such as monitoring solution properties, analyzing errors, or ensuring conservation of physical quantities.
+[DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl implements three main callback types that can be used individually or in combination to enhance simulation analysis and performance monitoring.
 
 When using multiple callbacks simultaneously, combine them using a `CallbackSet`:
 
@@ -8,6 +9,7 @@ When using multiple callbacks simultaneously, combine them using a `CallbackSet`
 callbacks = CallbackSet(analysis_callback, summary_callback)
 sol = solve(ode, Tsit5(), callback = callbacks)
 ```
+More information on the usage of callbacks within the SciML framework can be found [in the documentation](https://docs.sciml.ai/DiffEqDocs/stable/features/callback_functions/).
 
 ## Summary Callback
 
@@ -75,7 +77,7 @@ nothing # hide
 
 The analysis callback computes ``L^2`` and ``L^\infty`` errors by comparing the numerical solution to the initial condition at time ``t`` (which can be the analytical solution, if available). Additional error types can be specified using the `extra_analysis_errors` parameter, and physical quantities can be monitored using `extra_analysis_integrals`.
 
-The conservation error measures the temporal change of conserved quantities. For the BBM-BBM equations, important conserved quantities include the total water mass (integral of water height `h`), the total momentum (integral of `v` for flat bathymetry), and the [`entropy`](@ref). The specific form of the entropy varies between different equation systems. For the BBM-BBM equations, the entropy is:
+The conservation error measures the temporal change of conserved quantities. For the BBM-BBM equations, important conserved quantities include the total water mass (integral of water height `h`), the total momentum (integral of `v` for flat bathymetry), and the total [`entropy`](@ref). The specific form of the entropy varies between different equation systems. For the BBM-BBM equations, the integral of the entropy is:
 
 ```math
 \mathcal E(t; \eta, v) = \frac{1}{2}\int_\Omega g\eta^2 + (\eta + D)v^2 \, dx
@@ -118,7 +120,7 @@ More on different options for plotting the analysis callback can be found in the
 
 The plot shows that linear invariants such as the total water mass and total velocity are conserved exactly. However, nonlinear invariants such as the entropy may exhibit small growth over time. This occurs because standard time integration methods do not necessarily preserve nonlinear invariants, even when the spatial discretization is conservative.
 
-For a fully discrete entropy-conservative method, see also the following section about relaxation and the `RelaxationCallback`.
+For a fully discrete entropy-conservative method, see also the following section about relaxation and the [`RelaxationCallback`](@ref).
 
 ## Relaxation Callback
 

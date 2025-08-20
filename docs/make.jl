@@ -88,7 +88,6 @@ makedocs(;
              "Callbacks and Relaxation" => "callbacks.md",
              "Plotting" => "plotting.md",
              "Experimental Data" => "dingemans.md",
-            #  "Miscellaneous" => "miscellaneous.md",
              "Development" => "development.md",
              "Reference" => [
                  "TrixiBase" => "ref-trixibase.md",
