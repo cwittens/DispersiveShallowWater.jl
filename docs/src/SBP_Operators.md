@@ -129,7 +129,7 @@ The simplest form of SBP operators are central finite difference operators and t
 For periodic boundary conditions, they can be created with `periodic_derivative_operator` and for non-periodic boundary conditions with `derivative_operator`
 from SummationByPartsOperators.jl.
 
-#### [Upwind SBP Operators](@id upwind_sbp)
+### [Upwind SBP Operators](@id upwind_sbp)
 
 Upwind operators come in pairs ``D_+`` and ``D_-``, which satisfy the relation
 
@@ -144,7 +144,7 @@ central FD operators like `D_2 = D_1^2` because second-derivative operators base
 With SummationByPartsOperators.jl, upwind operators can be constructed using `upwind_operators`. Each part of the operator can be accessed by the `minus` and `plus` fields.
 Additionally, upwind operators induce a central first-derivative operator by ``D = (D_+ + D_-)/2``, which can be accessed by `central`.
 
-#### [Discontinuous Galerkin (DG) SBP](@id dg_sbp)
+### [Discontinuous Galerkin (DG) SBP](@id dg_sbp)
 
 Classically, SBP operators were developed from the perspective of finite difference methods. However, more recently especially in [^Gassner2013] and subsequent papers,
 the connection of finite element method to SBP operators was developed. It turns out that many finite element schemes, like the discontinuous Galerkin spectral element
@@ -165,17 +165,17 @@ D = couple_discontinuously(D_legendre, uniform_mesh)
 Using `couple_discontinuously`, you can also construct upwind SBP operators by additionally passing `Val(:plus)` or `Val(:minus)`. Note that this construction results into non-uniformly
 distributed nodes and due the discontinuous nature to repeated nodes at interfaces between elements.
 
-#### [Continuous Galerkin (CG) SBP](@id cg_sbp)
+### [Continuous Galerkin (CG) SBP](@id cg_sbp)
 
 Similarly to DG operators, CG operators can be constructed using `couple_continuously`. In contrast to the DG operators, `N` needs to be divisible by `p` and there are no repeated nodes at the interfaces.
 
-#### [Fourier/Spectral SBP](@id fourier_sbp)
+### [Fourier/Spectral SBP](@id fourier_sbp)
 
 Fourier or spectral SBP operators are constructed using Fourier basis functions. These operators can be used for problems with periodic boundary conditions. The key idea is to represent the solution in
 terms of its Fourier coefficients and to apply differentiation in the Fourier space. Note that these operators have dense derivative matrices and are therefore often more computationally expensive. In
 SummationByPartsOperators.jl, they can be constructed with `fourier_derivative_matrix`.
 
-#### Variable Coefficient Operators
+### Variable Coefficient Operators
 
 A special class of SBP operators is given by variable coefficient operators, which are discrete operators for the second derivative approximating terms of the form ``\partial_x(b \partial_x u)``. Directly
 incorporating the variable coefficient `b` into the SBP operator is desirable compared to subsequent application of first-derivative operators ``D \textrm{diag}(\boldsymbol{b}) D`` because it leads to a
