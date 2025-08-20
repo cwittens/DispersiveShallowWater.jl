@@ -38,8 +38,8 @@ The common interface provides shared functionality like [`waterheight`](@ref), [
 
 Some equations are hyperbolic approximations of other systems (e.g., [`HyperbolicSerreGreenNaghdiEquations1D`](@ref) approximates [`SerreGreenNaghdiEquations1D`](@ref)). These systems support two approaches for initial conditions:
 
-1. **Full variables**: Specify all primitive variables including auxiliary variables `(η, v, D, w, H)`
-2. **Physical variables**: Specify only the physical variables `(η, v, D)` from the limit system. The auxiliary variables are automatically initialized using appropriate approximations.
+1. **Full variables**: Specify all primitive variables including auxiliary variables ``(\eta, v, D, w, H)``
+2. **Physical variables**: Specify only the physical variables ``(\eta, v, D)`` from the limit system. The auxiliary variables are automatically initialized using appropriate approximations.
 
 This flexibility allows using the same initial conditions for both the original and hyperbolic systems, simplifying comparisons and testing.
 
