@@ -47,7 +47,9 @@ nothing # hide
 
 ## Variable Conversion and Visualization Options
 
-The plotting system supports different variable conversions and visualization options. You can plot conservative variables, specific physical quantities, and control what additional information is displayed:
+The plotting system supports different variable conversions and visualization options. By default, the physical variables (returned by [`prim2phys`](@ref)) are plotted. For hyperbolic approximations like [`HyperbolicSerreGreenNaghdiEquations1D`](@ref), this means auxiliary variables are not plotted by default - only the physical variables from the limit system.
+
+You can plot conservative variables, specific physical quantities, and control what additional information is displayed:
 
 ```@example plotting
 using Plots

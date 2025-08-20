@@ -27,6 +27,26 @@ The following table provides an overview of all available equation systems and t
 - ``w``: Auxiliary variable in hyperbolic approximation (``\approx -h v_x``)
 - ``H``: Auxiliary variable in hyperbolic approximation (``\approx h``)
 
+
+## Abstract Shallow Water Equations Interface
+
+Several equation systems in DispersiveShallowWater.jl (`BBMBBMEquations1D`, `SvaerdKalischEquations1D`, `SerreGreenNaghdiEquations1D`, and `HyperbolicSerreGreenNaghdiEquations1D`) are subtypes of [`AbstractShallowWaterEquations`](@ref). This design reflects that these systems all contain the classical shallow water equations as a subsystem, extended with additional dispersive terms.
+
+The common interface provides shared functionality like [`waterheight`](@ref), [`velocity`](@ref), [`energy_total`](@ref), and [`entropy`](@ref). This enables consistent analysis and visualization across different dispersive models while maintaining the underlying shallow water physics.
+
+## Hyperbolic Approximations
+
+Some equations are hyperbolic approximations of other systems (e.g., [`HyperbolicSerreGreenNaghdiEquations1D`](@ref) approximates [`SerreGreenNaghdiEquations1D`](@ref)). These systems support two approaches for initial conditions:
+
+1. **Full variables**: Specify all primitive variables including auxiliary variables `(η, v, D, w, H)`
+2. **Physical variables**: Specify only the physical variables `(η, v, D)` from the limit system. The auxiliary variables are automatically initialized using appropriate approximations.
+
+This flexibility allows using the same initial conditions for both the original and hyperbolic systems, simplifying comparisons and testing.
+
+## Detailed Documentation
+
+Each equation system below includes its complete mathematical formulation, physical background, implementation details, conservation properties, and relevant literature references.
+
 ### Detailed Documentation
 
 Each equation system below includes its complete mathematical formulation, physical background, implementation details, conservation properties, and relevant literature references.
