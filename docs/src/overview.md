@@ -19,6 +19,8 @@ The following table provides an overview of all available equation systems and t
 
 ### Variable Descriptions
 
+![water height and bathymetry](bathymetry.png)
+
 - ``\eta``: Total water height
 - ``v``: Velocity in horizontal direction  
 - ``D``: Still-water depth
