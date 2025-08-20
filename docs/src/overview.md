@@ -43,7 +43,6 @@ Some equations are hyperbolic approximations of other systems (e.g., [`Hyperboli
 
 This flexibility allows using the same initial conditions for both the original and hyperbolic systems, simplifying comparisons and testing.
 
-## Detailed Documentation
 
 Each equation system below includes its complete mathematical formulation, physical background, implementation details, conservation properties, and relevant literature references.
 
