@@ -14,7 +14,7 @@ include third-order mixed derivatives. In primitive variables ``q = (\eta, v)`` 
 \end{aligned}
 ```
 
-All equations in DispersiveShallowWater.jl follow the same variable conventions: ``\eta = h + b`` describes the total water height, ``h`` the water height above the bottom topography (bathymetry), ``b = \eta_0 - D`` the bathymetry, and ``v`` the velocity in horizontal direction. The reference water height ``\eta_0`` (also called still water height) and gravitational acceleration ``g`` are used consistently across all equations. For the BBM-BBM equations specifically, ``\eta_0`` is typically set to 0.
+All equations in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) follow the same variable conventions: ``\eta = h + b`` describes the total water height, ``h`` the water height above the bottom topography (bathymetry), ``b = \eta_0 - D`` the bathymetry, and ``v`` the velocity in horizontal direction. The reference water height ``\eta_0`` (also called still water height) and gravitational acceleration ``g`` are used consistently across all equations. For the BBM-BBM equations specifically, ``\eta_0`` is typically set to 0.
 
 A sketch of the water height and bathymetry can be found below.
 
@@ -22,7 +22,7 @@ A sketch of the water height and bathymetry can be found below.
 
 ## [Getting started](@id basic_example)
 
-In order to conduct a numerical simulation with DispersiveShallowWater.jl, we perform the following steps.
+In order to conduct a numerical simulation with [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl), we perform the following steps.
 
 First, we load the necessary libraries:
 
@@ -63,10 +63,10 @@ a `mesh` as parameters.
 
 If an analytical solution is available, the time variable `t` can be used, and the initial condition can serve as an analytical solution to be compared with the numerical solution. Otherwise, you can just keep the time variable unused.
 
-An initial condition in DispersiveShallowWater.jl is supposed to return an `SVector` holding the values for each of the unknown variables. Since the bathymetry is
+An initial condition in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) is supposed to return an `SVector` holding the values for each of the unknown variables. Since the bathymetry is
 treated as a variable (with time derivative 0) for convenience, we need to provide the value for the primitive variables `eta` and `v` as well as for `D`.
 
-Next, we choose periodic boundary conditions. DispersiveShallowWater.jl also supports reflecting boundary conditions for some but not all equations. For more information see the [Dispersive Shallow Water Models overview](@ref eq_overview).
+Next, we choose periodic boundary conditions. [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) also supports reflecting boundary conditions for some but not all equations. For more information see the [Dispersive Shallow Water Models overview](@ref eq_overview).
 
 Lastly, we define the physical domain as the interval from -130 to 20 and we choose 512 nodes. The node distribution of the mesh depends on the chosen SBP operators. For classical finite difference operators this is homogeneous, i.e. the distance between consecutive nodes is constant. We choose the left boundary very far to the left in order to avoid interactions between left- and right-traveling waves. This prevents unwanted wave interference that could occur when waves wrap around due to the periodic boundary conditions.
 

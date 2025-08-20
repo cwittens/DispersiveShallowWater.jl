@@ -2,7 +2,7 @@
 
 This chapter covers the analytical and mathematical background of summation-by-parts operators in general.
 
-To learn more about different solvers and how to use them in DispersiveShallowWater.jl, go to the chapter about [Solvers](@ref solvers).
+To learn more about different solvers and how to use them in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl), go to the chapter about [Solvers](@ref solvers).
 
 ## 1. Introduction & Overview
 
@@ -14,7 +14,7 @@ Several classes of numerical methods can be formulated via SBP operators, includ
 
 ### Why SBP Operators Matter for Dispersive Shallow Water Equations
 
-For dispersive shallow water equations implemented in DispersiveShallowWater.jl, maintaining physical properties like mass and energy conservation is crucial for:
+For dispersive shallow water equations implemented in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl), maintaining physical properties like mass and energy conservation is crucial for:
 
 - **Long-time stability**: Simulations remain stable over extended time periods without spurious growth of numerical errors
 - **Physical accuracy**: The discrete solution respects fundamental physical laws such as conservation of mass, momentum, and energy
