@@ -31,16 +31,16 @@ The following table provides an overview of all available equation systems and t
 
 Each equation system below includes its complete mathematical formulation, physical background, implementation details, conservation properties, and relevant literature references.
 
-## Benjamin-Bona-Mahony (BBM)
-
-```@docs
-DispersiveShallowWater.BBMEquation1D
-```
-
 ## Korteweg–De Vries (KdV)
 
 ```@docs
 DispersiveShallowWater.KdVEquation1D
+```
+
+## Benjamin-Bona-Mahony (BBM)
+
+```@docs
+DispersiveShallowWater.BBMEquation1D
 ```
 
 ## BBM-BBM
