@@ -2,7 +2,7 @@
 
 This chapter covers different solvers and how to use them in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl).
 
-To learn more about the analytical and mathematical background, go to the chapter about [Summation by Parts Operators](@ref sbp_operators).
+To learn more about the analytical and mathematical background, go to the chapter about [Summation-by-Parts Operators](@ref sbp_operators).
 
 ## Introduction
 
@@ -109,7 +109,7 @@ solver = Solver(D1, nothing, D3)
 
 ## Using Sparse Matrices for Derivative Operators
 
-While `D1` must always be an SBP operator, `D2` and `D3` can be regular sparse matrices. This can be useful for creating custom discretizations:
+While `D1` must always be an SBP operator, `D2` and `D3` can be regular (sparse) matrices. This can be useful for creating custom discretizations:
 
 ```julia
 using SummationByPartsOperators: upwind_operators, periodic_derivative_operator

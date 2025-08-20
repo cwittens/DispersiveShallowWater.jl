@@ -75,7 +75,7 @@ nothing # hide
 
 ## Time Series Analysis at Spatial Points
 
-You can analyze the temporal evolution of the solution at specific spatial locations. This is particularly useful for understanding wave propagation and local dynamics:
+You can analyze the temporal evolution of the solution at specific spatial locations by passing a spatial point as second argument. This is particularly useful for understanding wave propagation and local dynamics:
 
 ```@example plotting
 # Analyze solution at a single spatial point
@@ -125,6 +125,6 @@ nothing # hide
 
 ![error analysis](error_analysis.png)
 
-The `what = (:errors,)` parameter tells the plotting recipe to show errors instead of the default invariants. The errors plotted are the **total errors summed over all variables** (L² and L∞ norms). The `exclude = (:conservation_error,)` parameter removes the conservation error from the plot, focusing only on the discretization errors (L² and L∞).
+The `what = (:errors,)` parameter tells the plotting recipe to show errors instead of the default invariants. The errors plotted are the **total errors summed over all variables** (``L^2`` and ``L^\infty` norms). The `exclude = (:conservation_error,)` parameter removes the conservation error from the plot, focusing only on the discretization errors (``L^2`` and ``L^\infty``).
 
 The plotting system supports all standard Plots.jl features like custom color schemes, annotations, and interactive backends. For more advanced plotting options, consult the [Plots.jl documentation](https://docs.juliaplots.org/).

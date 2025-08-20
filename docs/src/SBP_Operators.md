@@ -51,7 +51,7 @@ This property is the discrete analog of integration by parts:
 
 ```math
 \begin{array}{ccccccc}
-    \underbrace{\boldsymbol{u}^T M D_1 \boldsymbol{v}}_{\approx} &+& \underbrace{\boldsymbol{u}^T D_1^T M \boldsymbol{v}}_{\approx} &=& \underbrace{\boldsymbol{u}^T \boldsymbol{e}_R \boldsymbol{e}_R^T \boldsymbol{v}}_{=} &-& \underbrace{\boldsymbol{u}^T \boldsymbol{e}_L \boldsymbol{e}_L^T \boldsymbol{v}}_{=}\\
+    \underbrace{\boldsymbol{u}^T M D \boldsymbol{v}}_{\approx} &+& \underbrace{\boldsymbol{u}^T D^T M \boldsymbol{v}}_{\approx} &=& \underbrace{\boldsymbol{u}^T \boldsymbol{e}_R \boldsymbol{e}_R^T \boldsymbol{v}}_{=} &-& \underbrace{\boldsymbol{u}^T \boldsymbol{e}_L \boldsymbol{e}_L^T \boldsymbol{v}}_{=}\\
     \overbrace{\displaystyle\int_\Omega u v_x \, dx} &+& \overbrace{\displaystyle\int_\Omega u_x v \, dx} &=& \overbrace{u(x_{\text{max}}) v(x_{\text{max}})} &-& \overbrace{u(x_{\text{min}}) v(x_{\text{min}})}.
 \end{array}
 ```
