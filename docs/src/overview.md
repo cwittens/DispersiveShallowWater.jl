@@ -1,6 +1,6 @@
 # [Equations](@id equations)
 
-DispersiveShallowWater.jl provides six different dispersive shallow water equation systems for modeling water waves. Each equation system offers different levels of physical accuracy, computational complexity, and supports various boundary conditions and bathymetry types.
+[DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) provides six different dispersive shallow water equation systems for modeling water waves. Each equation system offers different levels of physical accuracy, computational complexity, and supports various boundary conditions and bathymetry types.
 
 ## [Supported Models and Features](@id eq_overview)
 
