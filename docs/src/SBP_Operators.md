@@ -120,7 +120,7 @@ You can verify that this satisfies the SBP property and provides second-order ac
 
 ## 3. Types of SBP Operators
 
-In practice SBP operators come in various *flavours*. Consult the [documentation of SummationByPartsOperators.jl](https://ranocha.de/SummationByPartsOperators.jl/stable/)
+In practice SBP operators come in various *flavors*. Consult the [documentation of SummationByPartsOperators.jl](https://ranocha.de/SummationByPartsOperators.jl/stable/)
 for more details on how to construct the different types.
 
 ### Central Finite Difference (FD) SBP Operators
@@ -148,8 +148,8 @@ Additionally, upwind operators induce a central first-derivative operator by ``D
 
 Classically, SBP operators were developed from the perspective of finite difference methods. However, more recently especially in [^Gassner2013] and subsequent papers,
 the connection of finite element method to SBP operators was developed. It turns out that many finite element schemes, like the discontinuous Galerkin spectral element
-method (DGSEM), can be interpreted as schemes based on certain SBP operators. In this context the SBP operators are defined locally on a reference element. The
-DGSEM uses Gauss-Lobatto-Legendre nodes and weights to form a quadrature rule, which also lead to a differentiation matrix. Together, these satisfy the SBP property.
+method (DGSEM), can be interpreted as schemes based on certain SBP operators. In this context, the SBP operators are defined locally on a reference element. The
+DGSEM uses Gauss-Lobatto-Legendre nodes and weights to form a quadrature rule, which also leads to a differentiation matrix. Together, these satisfy the SBP property.
 To obtain global mass and derivative matrices, the local operators can be coupled across the elements as presented in [^RanochaMitsotakisKetcheson2021]. You can create periodic
 DG operators with
 
@@ -163,7 +163,7 @@ D = couple_discontinuously(D_legendre, uniform_mesh)
 ```
 
 Using `couple_discontinuously`, you can also construct upwind SBP operators by additionally passing `Val(:plus)` or `Val(:minus)`. Note that this construction results into non-uniformly
-distributed nodes and due the discontinuous nature to repeated nodes at interfaces between elements.
+distributed nodes and due to the discontinuous nature to repeated nodes at interfaces between elements.
 
 ### [Continuous Galerkin (CG) SBP](@id cg_sbp)
 
