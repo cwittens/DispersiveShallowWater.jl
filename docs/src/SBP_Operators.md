@@ -127,7 +127,7 @@ for more details on how to construct the different types.
 
 The simplest form of SBP operators are central finite difference operators and these are the operators that are mostly used in DispersiveShallowWater.jl
 For periodic boundary conditions, they can be created with `periodic_derivative_operator` and for non-periodic boundary conditions with `derivative_operator`
-from SummationByPartsOperators.jl.
+from [SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/).
 
 ### [Upwind SBP Operators](@id upwind_sbp)
 
@@ -141,7 +141,7 @@ where additionally ``M(D_+ - D_-)`` is negative semidefinite. This property is o
 The operators ``D_+`` and ``D_-`` are biased in one direction and are therefore useful in simulations with unidirectional flow, which favor a specific flow direction.
 They can also be helpful to construct (central) second-derivative operators by ``D_2 = D_+D_-`` (or ``D_2 = D_-D_+``), which is often advantageous compared to wide-stencil
 central FD operators like ``D_2 = D_1^2`` because second-derivative operators based on upwind operators have a narrow stencil leading to a better resolution.
-With SummationByPartsOperators.jl, upwind operators can be constructed using `upwind_operators`. Each part of the operator can be accessed by the `minus` and `plus` fields.
+With [SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/), upwind operators can be constructed using `upwind_operators`. Each part of the operator can be accessed by the `minus` and `plus` fields.
 Additionally, upwind operators induce a central first-derivative operator by ``D = (D_+ + D_-)/2``, which can be accessed by `central`.
 
 ### [Discontinuous Galerkin (DG) SBP](@id dg_sbp)
@@ -173,7 +173,7 @@ Similarly to DG operators, CG operators can be constructed using `couple_continu
 
 Fourier or spectral SBP operators are constructed using Fourier basis functions. These operators can be used for problems with periodic boundary conditions. The key idea is to represent the solution in
 terms of its Fourier coefficients and to apply differentiation in the Fourier space. Note that these operators have dense derivative matrices and are therefore often more computationally expensive. In
-SummationByPartsOperators.jl, they can be constructed with `fourier_derivative_matrix`.
+[SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/), they can be constructed with `fourier_derivative_matrix`.
 
 ### Variable Coefficient Operators
 

@@ -43,8 +43,8 @@ sgn = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_variable,
 
 # Hyperbolic approximation of Serre-Green-Naghdi equations
 hysgn = HyperbolicSerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_mild_slope,
-                                              lambda = 50.0, gravity = 9.81)
-                                              # for actual simulations a higher lambda (>500) is recommended
+                                              lambda = 100.0, gravity = 9.81)
+                                              # for actual simulations a higher lambda (~500) is recommended
                                               # it is chosen so low to be able to see the difference between it
                                               # and the SGN equation.
 nothing # hide
@@ -212,8 +212,8 @@ sgn = SerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_variable,
 
 # Hyperbolic approximation of Serre-Green-Naghdi equations
 hysgn = HyperbolicSerreGreenNaghdiEquations1D(bathymetry_type = bathymetry_mild_slope,
-                                              lambda = 50.0, gravity = 9.81)
-                                              # for actual simulations a higher lambda (>500) is recommended
+                                              lambda = 100.0, gravity = 9.81)
+                                              # for actual simulations a higher lambda (~500) is recommended
                                               # it is chosen so low to be able to see the difference between it
                                               # and the SGN equation.
 
