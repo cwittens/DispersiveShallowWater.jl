@@ -1,7 +1,7 @@
 # TrixiBase.jl API
 
 ```@meta
-CurrentModule = TrixiBase
+CurrentModule = DispersiveShallowWater
 ```
 
 ```@docs
