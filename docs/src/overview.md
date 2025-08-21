@@ -30,7 +30,7 @@ The following table provides an overview of all available equation systems and t
 
 ## Abstract Shallow Water Equations Interface
 
-Several equation systems in DispersiveShallowWater.jl (`BBMBBMEquations1D`, `SvaerdKalischEquations1D`, `SerreGreenNaghdiEquations1D`, and `HyperbolicSerreGreenNaghdiEquations1D`) are subtypes of [`AbstractShallowWaterEquations`](@ref). This design reflects that these systems all contain the classical shallow water equations as a subsystem, extended with additional dispersive terms.
+Several equation systems in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl) (`BBMBBMEquations1D`, `SvaerdKalischEquations1D`, `SerreGreenNaghdiEquations1D`, and `HyperbolicSerreGreenNaghdiEquations1D`) are subtypes of [`AbstractShallowWaterEquations`](@ref). This design reflects that these systems all contain the classical shallow water equations as a subsystem, extended with additional dispersive terms.
 
 The common interface provides shared functionality like [`waterheight`](@ref), [`velocity`](@ref), [`energy_total`](@ref), and [`entropy`](@ref). This enables consistent analysis and visualization across different dispersive models while maintaining the underlying shallow water physics.
 

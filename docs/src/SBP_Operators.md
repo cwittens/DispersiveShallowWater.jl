@@ -125,7 +125,7 @@ for more details on how to construct the different types.
 
 ### Central Finite Difference (FD) SBP Operators
 
-The simplest form of SBP operators are central finite difference operators and these are the operators that are mostly used in DispersiveShallowWater.jl
+The simplest form of SBP operators are central finite difference operators and these are the operators that are mostly used in [DispersiveShallowWater.jl](https://github.com/NumericalMathematics/DispersiveShallowWater.jl)
 For periodic boundary conditions, they can be created with `periodic_derivative_operator` and for non-periodic boundary conditions with `derivative_operator`
 from [SummationByPartsOperators.jl](https://github.com/ranocha/SummationByPartsOperators.jl/).
 
