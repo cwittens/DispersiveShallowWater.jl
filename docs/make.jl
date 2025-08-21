@@ -68,7 +68,7 @@ open(joinpath(@__DIR__, "src", "changelog.md"), "w") do io
 end
 
 makedocs(;
-         modules = [DispersiveShallowWater, TrixiBase],
+         modules = [DispersiveShallowWater],
          authors = "Joshua Lampert <joshua.lampert@uni-hamburg.de>",
          repo = Remotes.GitHub("NumericalMathematics", "DispersiveShallowWater.jl"),
          sitename = "DispersiveShallowWater.jl",
