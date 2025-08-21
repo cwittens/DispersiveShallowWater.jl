@@ -7,5 +7,5 @@ CurrentModule = DispersiveShallowWater
 ## [Trixi Include](@id trixi_include_headline)
 
 ```@docs
-DispersiveShallowWater.trixi_include
+TrixiBase.trixi_include
 ```
