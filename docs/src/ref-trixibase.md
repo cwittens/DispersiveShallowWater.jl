@@ -5,5 +5,5 @@ CurrentModule = DispersiveShallowWater
 ```
 
 ```@docs
-TrixiBase.trixi_include
+trixi_include
 ```
