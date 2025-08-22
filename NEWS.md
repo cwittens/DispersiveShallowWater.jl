@@ -10,7 +10,7 @@ for human readability.
 
 #### Added
 
-- Improved Documentation ([#233])
+- Improved documentation ([#233]).
 - Add linear dispersion relation for the `KdVEquation1D` ([#230]).
 - Support reflecting boundary conditions for `HyperbolicSerreGreenNaghdiEquations1D` ([#228]).
 - Add conversion functions `prim2nondim` and `nondim2prim` for non-dimensional variables for `KdVEquation1D` ([#217]).
