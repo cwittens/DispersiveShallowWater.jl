@@ -70,3 +70,9 @@ Pages = Main.CALLBACKS_STEP_FILES
 Modules = [DispersiveShallowWater]
 Pages = ["util.jl"]
 ```
+
+### [Trixi Include](@id trixi_include_headline)
+
+```@docs
+TrixiBase.trixi_include
+```
