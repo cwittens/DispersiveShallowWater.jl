@@ -66,13 +66,24 @@ Pages = Main.CALLBACKS_STEP_FILES
 
 ## Utilities
 
+### Utilities from DispersiveShallowWater.jl
+
 ```@autodocs
 Modules = [DispersiveShallowWater]
 Pages = ["util.jl"]
 ```
 
-### [Trixi Include](@id trixi_include_headline)
+### Utilities from TrixiBase.jl
 
-```@docs
-TrixiBase.trixi_include
+Be aware that only `trixi_include` is being exported from DispersiveShallowWater.jl. To access the other TrixiBase functions, you need to either:
+
+- Use the fully qualified name: `DispersiveShallowWater.timer()`, `DispersiveShallowWater.@trixi_timeit`, etc.
+- Import TrixiBase explicitly: `using TrixiBase` or `import TrixiBase`
+
+```@meta
+CurrentModule = TrixiBase
+```
+
+```@autodocs
+Modules = [TrixiBase]
 ```

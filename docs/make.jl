@@ -69,7 +69,6 @@ end
 
 makedocs(;
          modules = [DispersiveShallowWater, TrixiBase],
-         checkdocs = :exports,
          authors = "Joshua Lampert <joshua.lampert@uni-hamburg.de>",
          repo = Remotes.GitHub("NumericalMathematics", "DispersiveShallowWater.jl"),
          sitename = "DispersiveShallowWater.jl",
