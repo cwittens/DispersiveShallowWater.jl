@@ -54,7 +54,8 @@ function KdVEquation1D(; gravity, D = 1.0, eta0 = 0.0)
 end
 
 function check_solver(::KdVEquation1D, solver, boundary_conditions)
-    if !(solver.D1 isa PeriodicUpwindOperators && isnothing(solver.D3)) && isnothing(solver.D3)
+    if !(solver.D1 isa PeriodicUpwindOperators && isnothing(solver.D3)) &&
+       isnothing(solver.D3)
         throw(ArgumentError("The KdV equation requires a third-derivative operator. Either explicitly set `D3` or set `D1` as an upwind operator."))
     end
 end
