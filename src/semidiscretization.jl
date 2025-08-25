@@ -76,6 +76,7 @@ function Semidiscretization(mesh, equations, initial_condition, solver;
         throw(ArgumentError("Non-periodic derivative operators in `solver` are incompatible with periodic boundary conditions."))
     end
 
+    check_solver(equations, solver, boundary_conditions)
     cache = (;
              create_cache(mesh, equations, solver, initial_condition, boundary_conditions,
                           RealT, uEltype)...,
@@ -87,6 +88,8 @@ function Semidiscretization(mesh, equations, initial_condition, solver;
                                                       boundary_conditions, source_terms,
                                                       solver, cache)
 end
+
+check_solver(equations, solver, boundary_conditions) = nothing
 
 function Base.show(io::IO, semi::Semidiscretization)
     @nospecialize semi # reduce precompilation time
