@@ -245,7 +245,6 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
             # set D1 for hyperbolic terms
             D1 = solver.D1.central
         else
-            !isnothing(solver.D3)
             # eta_xxx = D3 * eta
             mul!(tmp_1, solver.D3, eta)
 
