@@ -5,18 +5,32 @@ DispersiveShallowWater.jl follows the interpretation of
 used in the Julia ecosystem. Notable changes will be documented in this file
 for human readability.
 
+## Changes in the v0.8 lifecycle
+
+#### Added
+
+- Add function `data_dingemans` to load experimental data for the Dingemans experiment and expand the documentation
+  about the experiment ([#238]).
+
+## Changes when updating to v0.8 from v0.7.x
+
+#### Changed
+
+- The initial condition `initial_condition_dingemans` uses equation-specific offsets to account for phase shifts
+  compared to the experimental data and a slightly different range for the initial wave train ([#237]).
 
 ## Changes in the v0.7 lifecycle
 
 #### Added
 
-- Support reflecting boundary conditions for `SerreGreenNaghdiEquations1D` (only flat bathymetry: [#205]).
-
+- Improved documentation ([#233]).
+- Add linear dispersion relation for the `KdVEquation1D` ([#230]).
+- Support reflecting boundary conditions for `HyperbolicSerreGreenNaghdiEquations1D` ([#228]).
+- Add conversion functions `prim2nondim` and `nondim2prim` for non-dimensional variables for `KdVEquation1D` ([#217]).
+- Support reflecting boundary conditions for `SerreGreenNaghdiEquations1D` (flat bathymetry: [#205], general: [#223]).
+- Add `KdVEquation1D` ([#198]).
 
 ## Changes when updating to v0.7 from v0.6.x
-
-#### Added
-- Add `KdVEquation1D` ([#198]).
 
 #### Changed
 
