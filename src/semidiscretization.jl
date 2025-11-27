@@ -92,10 +92,10 @@ end
 """
     check_solver(equations, solver, boundary_conditions)
 
-Check that the `solver` is compatible with the given `equations` and 
+Check that the `solver` is compatible with the given `equations` and
 `boundary_conditions`. The default implementation performs no checks.
-Specific equation types can override this method to validate that 
-required derivative operators are present (e.g., some equations 
+Specific equation types can override this method to validate that
+required derivative operators are present (e.g., some equations
 require `D2` or `D3` to be non-`nothing`).
 
 Throws an `ArgumentError` if the solver is incompatible.
@@ -279,15 +279,15 @@ function semidiscretize(semi::Semidiscretization, tspan;
     return _semidiscretize_ode(split_ode, q0, tspan, semi, iip)
 end
 
-# Type-stable dispatch based on split_ode trait 
+# Type-stable dispatch based on split_ode trait
 function _semidiscretize_ode(::Val{false}, q0, tspan, semi, iip)
     return ODEProblem{iip}(rhs!, q0, tspan, semi)
 end
 
 function _semidiscretize_ode(::Val{true}, q0, tspan, semi, iip)
     _check_split_rhs_implementation(semi)
-    return ODEProblem{iip}(SplitFunction(rhs_split_stiff!, rhs_split_nonstiff!), q0, tspan,
-                           semi)
+    return SplitODEProblem{iip}(SplitFunction(rhs_split_stiff!, rhs_split_nonstiff!), q0,
+                                tspan, semi)
 end
 
 function _check_split_rhs_implementation(semi)

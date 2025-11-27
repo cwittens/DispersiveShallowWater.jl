@@ -31,7 +31,8 @@ using RecursiveArrayTools: ArrayPartition
 using Reexport: @reexport
 using Roots: AlefeldPotraShi, find_zero
 
-using SciMLBase: SciMLBase, DiscreteCallback, ODEProblem, ODESolution, SplitFunction
+using SciMLBase: SciMLBase, DiscreteCallback, ODEProblem, ODESolution, SplitFunction,
+                 SplitODEProblem
 import SciMLBase: u_modified!
 
 @reexport using StaticArrays: SVector

@@ -3,7 +3,7 @@ using DispersiveShallowWater
 using SummationByPartsOperators: upwind_operators, periodic_derivative_operator
 
 ###############################################################################
-# Semidiscretization of the KdV equation 
+# Semidiscretization of the KdV equation
 
 equations = KdVEquation1D(gravity = 9.81, D = 1.0)
 initial_condition = initial_condition_convergence_test
