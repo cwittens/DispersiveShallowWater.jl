@@ -97,5 +97,5 @@ end
                         cons_error=[2.220446049250313e-15],
                         change_waterheight=-2.220446049250313e-15)
 
-    @test_allocations_split_ode(semi, sol, allocs=5_000)
+    @test_allocations(DispersiveShallowWater.rhs!, semi, sol, allocs=5_000)
 end

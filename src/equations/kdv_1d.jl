@@ -303,7 +303,7 @@ function rhs_split_stiff!(dq, q, t, mesh, equations::KdVEquation1D, initial_cond
             mul!(tmp_1, solver.D3, eta)
         end
 
-        # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx 
+        # deta = 1 / 6 sqrt(g * D) D^2 eta_xxx
 
         @.. deta = -1 / 6 * c_0 * DD * tmp_1
     end
@@ -339,7 +339,7 @@ function rhs_split_nonstiff!(dq, q, t, mesh, equations::KdVEquation1D, initial_c
         # eta_x = D1 * eta
         mul!(tmp_1, D1, eta)
 
-        # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
+        # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x)
         @.. deta = -(c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
     end
 
@@ -397,7 +397,7 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
             mul!(tmp_1, D1, eta)
 
             # Set or add non-stiff part
-            # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x) 
+            # deta -= sqrt(g * D) * eta_x + 1 / 2 * sqrt(g / D) * (eta * eta_x + eta2_x)
             if mode == :nonstiff
                 @.. deta = -(c_0 * tmp_1 + c_1 * (eta * tmp_1 + tmp_2))
             else  # mode == :full
@@ -410,6 +410,8 @@ function rhs!(dq, q, t, mesh, equations::KdVEquation1D, initial_condition,
     end
 
     return nothing
+end
+
 """
     energy_total(q, equations::KdVEquation1D)
 
